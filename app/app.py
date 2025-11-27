@@ -372,6 +372,40 @@ def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
 
+# PDF download route (must be before app.run)
+from flask import make_response
+import io
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
+@app.route('/download_history_pdf')
+@login_required
+def download_history_pdf():
+    """Download prediction history as PDF"""
+    predictions = Prediction.query.filter_by(user_id=current_user.id).order_by(Prediction.created_at.desc()).all()
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    y = height - 40
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(40, y, "Prediction History - SmartCrop")
+    y -= 30
+    p.setFont("Helvetica", 10)
+    for pred in predictions:
+        line = f"{pred.created_at.strftime('%d/%m/%Y %H:%M')} | Crop: {pred.predicted_crop} | Confidence: {round(pred.confidence*100,1)}% | N: {pred.N} | P: {pred.P} | K: {pred.K} | Temp: {pred.temperature}°C | Humidity: {pred.humidity}% | pH: {pred.ph} | Rainfall: {pred.rainfall}mm"
+        p.drawString(40, y, line)
+        y -= 15
+        if y < 40:
+            p.showPage()
+            y = height - 40
+            p.setFont("Helvetica", 10)
+    p.save()
+    buffer.seek(0)
+    response = make_response(buffer.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=prediction_history.pdf'
+    return response
+
 
  # ============================================================================
  # INITIALIZATION
@@ -397,3 +431,35 @@ if __name__ == '__main__':
     init_db()
     init_ml()
     app.run(host='0.0.0.0', port=5000, debug=True)
+from flask import make_response
+import io
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
+@app.route('/download_history_pdf')
+@login_required
+def download_history_pdf():
+    """Download prediction history as PDF"""
+    predictions = Prediction.query.filter_by(user_id=current_user.id).order_by(Prediction.created_at.desc()).all()
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    y = height - 40
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(40, y, "Prediction History - SmartCrop")
+    y -= 30
+    p.setFont("Helvetica", 10)
+    for pred in predictions:
+        line = f"{pred.created_at.strftime('%d/%m/%Y %H:%M')} | Crop: {pred.predicted_crop} | Confidence: {round(pred.confidence*100,1)}% | N: {pred.N} | P: {pred.P} | K: {pred.K} | Temp: {pred.temperature}°C | Humidity: {pred.humidity}% | pH: {pred.ph} | Rainfall: {pred.rainfall}mm"
+        p.drawString(40, y, line)
+        y -= 15
+        if y < 40:
+            p.showPage()
+            y = height - 40
+            p.setFont("Helvetica", 10)
+    p.save()
+    buffer.seek(0)
+    response = make_response(buffer.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=prediction_history.pdf'
+    return response
