@@ -431,8 +431,8 @@ DATABASE_URL=sqlite:///crop_recommendation.db
 
 ## 🤝 Contributors
 
-- **Syrine Maaref** - Developer ([syrinemrf](https://github.com/syrinemrf), syrine.maaref@itbs.tn)
-- **Ibtissem Moussa** - Contributor
+- **Syrine Maaref** - ([syrinemrf](https://github.com/syrinemrf), syrine.maaref@itbs.tn)
+- **Ibtissem Moussa** - 
 - You? - Contributions welcome!
 
 ---
@@ -463,6 +463,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **⭐ If you like this project, give it a star! ⭐**
 
-Made with ❤️ by Syrine
+Made with ❤️
 
 </div>
