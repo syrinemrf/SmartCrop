@@ -1,0 +1,2 @@
+Model,Train Accuracy,Test Accuracy,Precision (Macro),Precision (Weighted),Recall (Macro),Recall (Weighted),F1-Score (Macro),F1-Score (Weighted)
+Naive Bayes,0.9948863636363636,0.9954545454545455,0.9958677685950413,0.9958677685950413,0.9954545454545454,0.9954545454545455,0.9954431533378901,0.9954431533378901

@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction - SmartCrop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-chart-line text-success"></i> Make a Prediction</h1>
+            <p class="text-muted">Enter your soil and climate parameters</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Formulaire -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-edit"></i> Parameters</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Carte et saison -->
+                    <div class="mb-4">
+                        <label class="form-label"><i class="fas fa-map-marker-alt"></i> Field Location</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" id="address_search" placeholder="Enter an address or place..." value="{{ request.form.address_search or address_search }}">
+                            <button class="btn btn-outline-success" type="button" id="search_btn"><i class="fas fa-search"></i></button>
+                        </div>
+                        <div id="map" style="height: 250px; border-radius: 8px; overflow: hidden;"></div>
+                        <input type="hidden" id="latitude" name="latitude">
+                        <input type="hidden" id="latitude" name="latitude" value="{{ request.form.latitude or latitude }}">
+                        <input type="hidden" id="longitude" name="longitude" value="{{ request.form.longitude or longitude }}">
+                    </div>
+                    <div class="mb-4">
+                        <label for="prediction_name" class="form-label"><i class="fas fa-tag"></i> Prediction Name</label>
+                        <input type="text" class="form-control" id="prediction_name" name="prediction_name" placeholder="Address or custom name" autocomplete="off" value="{{ request.form.prediction_name or prediction_name }}">
+                        <div class="form-text">Default: selected location address. You can edit this name.</div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="season" class="form-label"><i class="fas fa-calendar-alt"></i> Growing Season</label>
+                        <select class="form-select" id="season" name="season">
+                            <option value="spring" {% if (request.form.season or season) == 'spring' %}selected{% endif %}>Spring</option>
+                            <option value="summer" {% if (request.form.season or season) == 'summer' %}selected{% endif %}>Summer</option>
+                            <option value="autumn" {% if (request.form.season or season) == 'autumn' %}selected{% endif %}>Autumn</option>
+                            <option value="winter" {% if (request.form.season or season) == 'winter' %}selected{% endif %}>Winter</option>
+                        </select>
+                    </div>
+                    <form method="POST" id="predictionForm">
+                        <!-- NPK -->
+                        <div class="mb-3">
+                            <label for="N" class="form-label">
+                                <i class="fas fa-flask"></i> Nitrogen (N)
+                                <span class="info-bulle" data-bs-toggle="tooltip" title="Amount of nitrogen in soil (kg/ha). Typical range: 20–150. Industrial fertilization possible up to 300.">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </span>
+                                <span class="text-muted">(0–300 kg/ha)</span>
+                            </label>
+                            <input type="number" class="form-control" id="N" name="N" 
+                                   required min="0" max="300" step="0.1" value="{{ request.form.N or N or 90 }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="P" class="form-label">
+                                <i class="fas fa-flask"></i> Phosphorus (P₂O₅)
+                                <span class="info-bulle" data-bs-toggle="tooltip" title="Amount of available phosphorus (kg/ha). Typical range: 10–80. Max: 200.">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </span>
+                                <span class="text-muted">(0–200 kg/ha)</span>
+                            </label>
+                            <input type="number" class="form-control" id="P" name="P" 
+                                   required min="0" max="200" step="0.1" value="{{ request.form.P or P or 42 }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="K" class="form-label">
+                                <i class="fas fa-flask"></i> Potassium (K₂O)
+                                <span class="info-bulle" data-bs-toggle="tooltip" title="Amount of available potassium (kg/ha). Normal range: 20–200. Max: 400 (volcanic soils).">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </span>
+                                <span class="text-muted">(0–400 kg/ha)</span>
+                            </label>
+                            <input type="number" class="form-control" id="K" name="K" 
+                                   required min="0" max="400" step="0.1" value="{{ request.form.K or K or 43 }}">
+                        </div>
+                        <hr>
+                        <!-- Climate -->
+                        <div class="mb-3">
+                            <label for="temperature" class="form-label">
+                                <i class="fas fa-thermometer-half"></i> Temperature
+                                <span class="info-bulle" data-bs-toggle="tooltip" title="Soil or air temperature (°C). Typical agricultural range: 5–40°C. Min: -5°C, Max: 50°C.">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </span>
+                                <span class="text-muted">(-5–50°C)</span>
+                            </label>
+                            <input type="number" class="form-control" id="temperature" name="temperature" 
+                                   required min="-5" max="50" step="0.1" value="{{ request.form.temperature or temperature or 20.8 }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="humidity" class="form-label">
+                                <i class="fas fa-tint"></i> Relative Humidity
+                                <span class="info-bulle" data-bs-toggle="tooltip" title="Air or soil humidity (%). Typical: 20–90%. Min: 0%, Max: 100%.">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </span>
+                                <span class="text-muted">(0–100%)</span>
+                            </label>
+                            <input type="number" class="form-control" id="humidity" name="humidity" 
+                                   required min="0" max="100" step="0.1" value="{{ request.form.humidity or humidity or 82 }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="ph" class="form-label">
+                                <i class="fas fa-vial"></i> Soil pH
+                                <span class="info-bulle" data-bs-toggle="tooltip" title="Soil acidity or alkalinity. Productive range: 4.5–8.5. Absolute min: 3.5, Max: 10.5. Most crops prefer 5.5–7.5.">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </span>
+                                <span class="text-muted">(3.5–10.5)</span>
+                            </label>
+                            <input type="number" class="form-control" id="ph" name="ph" 
+                                   required min="3.5" max="10.5" step="0.1" value="{{ request.form.ph or ph or 6.5 }}">
+                        </div>
+                        <div class="mb-4">
+                            <label for="rainfall" class="form-label">
+                                <i class="fas fa-cloud-rain"></i> Rainfall
+                                <span class="info-bulle" data-bs-toggle="tooltip" title="Monthly precipitation (mm). General agriculture: 20–400 mm/month. Min: 0, Max: 1000.">
+                                    <i class="fas fa-circle-info text-primary"></i>
+                                </span>
+                                <span class="text-muted">(0–1000 mm/month)</span>
+                            </label>
+                            <input type="number" class="form-control" id="rainfall" name="rainfall" 
+                                   required min="0" max="1000" step="0.1" value="{{ request.form.rainfall or rainfall or 202.9 }}">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2">
+                            <i class="fas fa-magic"></i> Predict Crop
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Result -->
+        <div class="col-lg-6">
+            {% if result %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Result</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-seedling fa-4x text-success mb-3"></i>
+                        <h2 class="text-success text-uppercase">{{ result.crop }}</h2>
+                        <p class="lead">Recommended Crop</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4>Confidence</h4>
+                        <div class="progress" style="height: 30px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ (result.confidence * 100)|round }}%">
+                                <strong>{{ (result.confidence * 100)|round(2) }}%</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        This recommendation is based on the parameters provided and our AI model with 99.5% accuracy.
+                    </div>
+                </div>
+            </div>
+            <!-- Top 3 -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> Top 3 Crops</h5>
+                </div>
+                <div class="card-body">
+                    {% for crop in result.top_3 %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="fw-bold">
+                            {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
+                            {{ crop.crop }}
+                        </span>
+                        <span class="badge bg-success">{{ (crop.probability * 100)|round(2) }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Instructions block: always below result/top3, right column -->
+            <div class="mt-4 p-4 bg-light rounded-4 shadow-sm text-start mx-auto" style="max-width: 600px;">
+                <h5 class="fw-bold mb-3 text-success"><i class="fas fa-info-circle me-2"></i> How to Use</h5>
+                <ul class="list-unstyled mb-3">
+                    <li class="mb-3">
+                        <span class="fw-bold text-success"><i class="fas fa-vial me-2"></i> Soil Analysis:</span>
+                           For best results, use recent soil test results for Nitrogen (N), Phosphorus (P), Potassium (K), and soil pH. You can get these values from a local lab or agricultural service.
+                    </li>
+                    <li class="mb-3">
+                        <span class="fw-bold text-success"><i class="fas fa-map-marker-alt me-2"></i> Location & Climate Autofill:</span>
+                        Select your field location on the map or search for an address. The system will automatically fill in temperature, humidity, and rainfall for your chosen season and location using real-time climate data.
+                    </li>
+                    <li class="mb-3">
+                        <span class="fw-bold text-success"><i class="fas fa-edit me-2"></i> Manual Override:</span>
+                        You can manually change any climate field (temperature, humidity, rainfall) if you have more accurate or local data. The automatic values are just a starting point.
+                    </li>
+                    <li class="mb-3">
+                        <span class="fw-bold text-success"><i class="fas fa-history me-2"></i> Prediction History:</span>
+                        All your predictions are saved and accessible in your personal history page for future reference and analysis.
+                    </li>
+                </ul>
+                <div class="tip-box bg-success text-white mt-3 mb-0 p-3 rounded-3">
+                    <i class="fas fa-lightbulb"></i> Tip: The more accurate your soil and climate data, the better your crop recommendation!
+                </div>
+            </div>
+            
+            {% else %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-arrow-left fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Enter parameters</h4>
+                    <p class="text-muted">
+                        Fill out the form on the left to get a crop recommendation
+                    </p>
+                </div>
+            </div>
+            <!-- Instructions block: always below empty state, right column -->
+            <div class="mt-4 p-4 bg-light rounded-4 shadow-sm text-start mx-auto" style="max-width: 600px;">
+                <h5 class="fw-bold mb-3 text-success"><i class="fas fa-info-circle me-2"></i> How to Use</h5>
+                <ul class="list-unstyled mb-3">
+                    <li class="mb-3">
+                        <span class="fw-bold text-success"><i class="fas fa-vial me-2"></i> Soil Analysis:</span>
+                        For best results, use recent soil test results for Nitrogen (N), Phosphorus (P), Potassium (K), and soil pH. You can get these values from a local lab or agricultural service.
+                    </li>
+                    <li class="mb-3">
+                        <span class="fw-bold text-success"><i class="fas fa-map-marker-alt me-2"></i> Location & Climate Autofill:</span>
+                        Select your field location on the map or search for an address. The system will automatically fill in temperature, humidity, and rainfall for your chosen season and location using real-time climate data.
+                    </li>
+                    <li class="mb-3">
+                        <span class="fw-bold text-success"><i class="fas fa-edit me-2"></i> Manual Override:</span>
+                        You can manually change any climate field (temperature, humidity, rainfall) if you have more accurate or local data. The automatic values are just a starting point.
+                    </li>
+                    <li class="mb-3">
+                        <span class="fw-bold text-success"><i class="fas fa-history me-2"></i> Prediction History:</span>
+                        All your predictions are saved and accessible in your personal history page for future reference and analysis.
+                    </li>
+                </ul>
+                <div class="tip-box bg-success text-white mt-3 mb-0 p-3 rounded-3">
+                    <i class="fas fa-lightbulb"></i> Tip: The more accurate your soil and climate data, the better your crop recommendation!
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

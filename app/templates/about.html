@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}About - SmartCrop{% endblock %}
+
+{% block content %}
+<div class="about-hero py-5 mb-5 text-center" style="background: linear-gradient(135deg, #e8f5e9 0%, #f8fafc 100%);">
+    <div class="container">
+        <div class="d-flex flex-column align-items-center justify-content-center">
+            <div class="rounded-circle shadow-lg mb-3" style="background: linear-gradient(135deg, #20c997 0%, #198754 100%); width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-seedling fa-3x text-white"></i>
+            </div>
+            <h1 class="display-4 fw-bold mb-2 text-success">SmartCrop</h1>
+            <p class="lead text-dark mb-4">AI-powered crop recommendations for every field, every season.</p>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100 rounded-4">
+                <div class="card-body p-4">
+                    <h3 class="mb-3 text-success"><i class="fas fa-seedling me-2"></i> Our Approach</h3>
+                    <p class="lead mb-2">Empowering farmers and agronomists with instant, data-driven crop recommendations.</p>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-map-marker-alt text-success me-2"></i> Geolocation and climate autofill for every field</li>
+                        <li class="mb-2"><i class="fas fa-vial text-success me-2"></i> Soil analysis and manual override for accuracy</li>
+                        <li class="mb-2"><i class="fas fa-history text-success me-2"></i> Personal prediction history and analytics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100 rounded-4">
+                <div class="card-body p-4">
+                    <h3 class="mb-3 text-info"><i class="fas fa-brain me-2"></i> How Our Algorithm Works</h3>
+                    <p class="mb-2">We use an optimized <strong>Naive Bayes classifier</strong> for crop recommendation, ideal for agricultural data.</p>
+                    <ul class="mb-2">
+                        <li><strong>Training:</strong> Learns from thousands of real crop samples.</li>
+                        <li><strong>Prediction:</strong> Calculates the probability of each crop for your parameters.</li>
+                        <li><strong>Selection:</strong> Recommends the crop with the highest probability and confidence.</li>
+                    </ul>
+                    <span class="badge bg-success-subtle text-success fw-bold">99%+ accuracy</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100 rounded-4">
+                <div class="card-body p-4">
+                    <h3 class="mb-3 text-success"><i class="fas fa-cogs me-2"></i> Technology</h3>
+                    <ul class="list-unstyled mb-2">
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> 22 supported crops</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> 7 analyzed parameters (NPK, temperature, humidity, pH, rainfall)</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> 10-fold cross-validation</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Instant predictions (&lt; 0.1s)</li>
+                    </ul>
+                    <span class="badge bg-info-subtle text-info fw-bold">2200 samples</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100 rounded-4">
+                <div class="card-body p-4">
+                    <h3 class="mb-3 text-warning"><i class="fas fa-layer-group me-2"></i> Technical Stack</h3>
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3 text-center">
+                            <i class="fab fa-python fa-3x text-primary mb-2"></i>
+                            <div class="fw-bold">Python</div>
+                            <div class="text-muted small">Backend & ML</div>
+                        </div>
+                        <div class="col-6 col-md-3 text-center">
+                            <i class="fas fa-flask fa-3x text-success mb-2"></i>
+                            <div class="fw-bold">Flask</div>
+                            <div class="text-muted small">Web Framework</div>
+                        </div>
+                        <div class="col-6 col-md-3 text-center">
+                            <i class="fas fa-brain fa-3x text-info mb-2"></i>
+                            <div class="fw-bold">Scikit-learn</div>
+                            <div class="text-muted small">Machine Learning</div>
+                        </div>
+                        <div class="col-6 col-md-3 text-center">
+                            <i class="fas fa-database fa-3x text-warning mb-2"></i>
+                            <div class="fw-bold">SQLite</div>
+                            <div class="text-muted small">Database</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+    
+    <!-- Metrics -->
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Model Performance</h2>
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h3 class="text-success">99.55%</h3>
+                            <p class="text-muted">Test Accuracy</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-success">99.49%</h3>
+                            <p class="text-muted">CV Score</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-success">99.58%</h3>
+                            <p class="text-muted">Precision</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-success">0.053s</h3>
+                            <p class="text-muted">Training Time</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

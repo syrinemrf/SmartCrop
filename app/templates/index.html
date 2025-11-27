@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <h1 class="display-3 fw-bold text-success mb-4">
+                    🌾 Intelligent Crop Recommendation
+                </h1>
+                <p class="lead mb-4">
+                    Use artificial intelligence to determine the most suitable crop for your soil and climate conditions.
+                </p>
+                <div class="d-flex gap-3">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('predict') }}" class="btn btn-success btn-lg">
+                            <i class="fas fa-rocket"></i> Try a Prediction
+                        </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success btn-lg">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('signup') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-user-plus"></i> Start for Free
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-success btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Log In
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600" 
+                     alt="Agriculture" class="img-fluid rounded-4 shadow-lg">
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Modern Service Description & Problem Statement -->
+<section class="py-5 bg-gradient" style="background: linear-gradient(135deg, #e9f7ef 0%, #d1f2eb 100%);">
+    <div class="container">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="d-flex flex-column h-100 justify-content-center">
+                    <h2 class="fw-bold text-success mb-3">
+                        <i class="fas fa-leaf me-2"></i> Revolutionize Your Farming
+                    </h2>
+                    <p class="fs-5 text-dark mb-3">
+                        <span class="badge bg-success bg-opacity-75 text-white me-2 mb-2">For Farmers & Agronomists</span>
+                        Unlock the power of AI to choose the best crop for your land, climate, and market. No more guesswork. Get science-backed recommendations tailored to your field and season.
+                    </p>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Personalized crop suggestions for your location</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Real-time climate and soil analysis</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Boost yields, reduce risk, and save resources</li>
+                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Easy, fast, and free to start</li>
+                    </ul>
+                    <div class="d-flex gap-3">
+                        <a href="{{ url_for('about') }}" class="btn btn-outline-success btn-lg shadow">
+                            <i class="fas fa-info-circle"></i> Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600" alt="Modern Agriculture" class="img-fluid rounded-4 shadow-lg border border-success border-3">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose Our System?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-brain fa-2x"></i>
+                        </div>
+                        <h4>Advanced AI</h4>
+                        <p class="text-muted">
+                            Optimized Naive Bayes model with 99.5% accuracy on 22 different crops
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-gauge-high fa-2x"></i>
+                        </div>
+                        <h4>Instant Results</h4>
+                        <p class="text-muted">
+                            Get your recommendations in less than a second with detailed analysis
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                        <h4>History & Stats</h4>
+                        <p class="text-muted">
+                            Track all your predictions with an interactive dashboard and charts
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Crops Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">22 Supported Crops</h2>
+        <div class="row g-3">
+            {% set crops = ['🌾 Rice', '🌽 Maize', '🫘 Chickpea', '🫘 Red beans', 
+                           '🫛 Pigeon pea', '🫘 Kidney beans', '🫛 Mung bean', 
+                           '🫘 Black beans', '🫛 Lentil', '🍎 Apple', '🍌 Banana', 
+                           '🥭 Mango', '🍇 Grapes', '🍉 Watermelon', '🍈 Muskmelon', '🍊 Orange', 
+                           '🥥 Coconut', '🍈 Papaya', '☕ Coffee', '🌰 Pomegranate', 
+                           '🧵 Cotton', '🧵 Jute'] %}
+            {% for crop in crops %}
+            <div class="col-6 col-md-3 col-lg-2">
+                <div class="crop-badge text-center p-3 bg-white rounded shadow-sm">
+                    <span class="fs-5">{{ crop }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-success text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to Optimize Your Yields?</h2>
+        <p class="lead mb-4">Join hundreds of farmers using our system</p>
+        {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg">
+            <i class="fas fa-rocket"></i> Start Now
+        </a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,55 @@
+# ============================================
+# SMARTCROP - CONFIGURATION
+# ============================================
+
+# Data Configuration
+data:
+  path: "data/Crop_recommendation.csv"
+  test_size: 0.2
+  random_state: 42
+  features:
+    - N
+    - P
+    - K
+    - temperature
+    - humidity
+    - ph
+    - rainfall
+
+# Model Configuration
+model:
+  name: "Naive Bayes"
+  path: "models/tuned/naive_bayes_best.pkl"
+  scaler_path: "models/scaler.pkl"
+  label_encoder_path: "models/label_encoder.pkl"
+
+# Training Configuration
+training:
+  cv_folds: 10
+  scoring: "accuracy"
+  stratified: true
+
+# Application Configuration
+app:
+  name: "SmartCrop"
+  version: "1.0.0"
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+  secret_key: "change-this-secret-key-in-production-2024"
+  
+# Database Configuration
+database:
+  uri: "sqlite:///crop_recommendation.db"
+  track_modifications: false
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  dir: "logs"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# API Configuration
+api:
+  rate_limit: 100  # requests per hour
+  timeout: 30  # seconds

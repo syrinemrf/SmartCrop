@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SmartCrop{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    {% block extra_css %}{% endblock %}
+</head>
+<body data-theme="light">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand smartcrop-logo" href="{{ url_for('index') }}">
+                <i class="fas fa-seedling"></i>
+                SmartCrop
+            </a>
+            <span class="navbar-text ms-3 text-light fw-light" style="font-size: 1rem; letter-spacing: 0.5px;">AI-powered crop recommendations</span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('about') }}">
+                            <i class="fas fa-info-circle"></i> About
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('predict') }}">
+                            <i class="fas fa-chart-line"></i> Predict
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('history') }}">
+                            <i class="fas fa-history"></i> History
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> {{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-light ms-2" href="{{ url_for('signup') }}">
+                            <i class="fas fa-user-plus"></i> Sign Up
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <button id="theme-toggle" class="btn btn-outline-light ms-2" title="Toggle theme">
+                            <i class="fas fa-moon" id="theme-icon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white mt-5 py-4">
+        <div class="container text-center">
+            <p>&copy; 2026 SmartCrop. All rights reserved.</p>
+            <p>
+                <a href="#" class="text-white me-3" title="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" class="text-white me-3" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="#" class="text-white" title="Twitter"><i class="fab fa-twitter"></i></a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Theme Toggle Script -->
+    <script>
+        // Charger le thème sauvegardé
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        // Toggle du thème
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            if (theme === 'dark') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+        // --- Leaflet Map and Visual Crossing API ---
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('map')) {
+                // Initialisation carte
+                var latInput = document.getElementById('latitude');
+                var lngInput = document.getElementById('longitude');
+                var lat = latInput.value;
+                var lng = lngInput.value;
+                var map;
+                var marker;
+                if (lat && lng) {
+                    map = L.map('map').setView([parseFloat(lat), parseFloat(lng)], 12);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: '© OpenStreetMap'
+                    }).addTo(map);
+                    marker = L.marker([parseFloat(lat), parseFloat(lng)]).addTo(map);
+                    fetchClimateData(lat, lng);
+                    fetchAddress(lat, lng);
+                } else {
+                    map = L.map('map').setView([48.8566, 2.3522], 5); // Default: Paris
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: '© OpenStreetMap'
+                    }).addTo(map);
+                    // Browser geolocation
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(pos) {
+                            var lat = pos.coords.latitude;
+                            var lng = pos.coords.longitude;
+                            map.setView([lat, lng], 12);
+                            setMarkerAndFetch(lat, lng);
+                        });
+                    }
+                }
+                function setMarkerAndFetch(lat, lng) {
+                    if (marker) map.removeLayer(marker);
+                    marker = L.marker([lat, lng]).addTo(map);
+                    latInput.value = lat;
+                    lngInput.value = lng;
+                    fetchClimateData(lat, lng);
+                    fetchAddress(lat, lng);
+                }
+                map.on('click', function(e) {
+                    setMarkerAndFetch(e.latlng.lat, e.latlng.lng);
+                });
+                // Address search
+                document.getElementById('search_btn').addEventListener('click', function() {
+                    var query = document.getElementById('address_search').value;
+                    if (!query) return;
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+                        .then(r=>r.json())
+                        .then(results => {
+                            if (results && results.length > 0) {
+                                var lat = parseFloat(results[0].lat);
+                                var lng = parseFloat(results[0].lon);
+                                map.setView([lat, lng], 13);
+                                setMarkerAndFetch(lat, lng);
+                                // fetchClimateData is already called in setMarkerAndFetch
+                            } else {
+                                alert('Address not found.');
+                            }
+                        });
+                });
+                document.getElementById('address_search').addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        document.getElementById('search_btn').click();
+                    }
+                });
+                // Season change
+                document.getElementById('season').addEventListener('change', function() {
+                    const lat = document.getElementById('latitude').value;
+                    const lng = document.getElementById('longitude').value;
+                    if (lat && lng) fetchClimateData(lat, lng);
+                });
+                // Bootstrap tooltips
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+                // Reverse geocoding (address)
+                function fetchAddress(lat, lng) {
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+                        .then(r=>r.json())
+                        .then(data => {
+                            let address = data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                            let city = data.address && (data.address.city || data.address.town || data.address.village || data.address.county || data.address.state || data.address.region);
+                            let predNameInput = document.getElementById('prediction_name');
+                            // Only set if empty or matches previous auto-filled value
+                            if (!predNameInput.value || predNameInput.value === predNameInput.getAttribute('data-autofill')) {
+                                predNameInput.value = address;
+                            }
+                            predNameInput.setAttribute('data-autofill', address);
+                            predNameInput.setAttribute('data-city', city || '');
+                        });
+                }
+            }
+        });
+        // Climate Data API Call
+        function fetchClimateData(lat, lng) {
+            console.log('fetchClimateData called for:', lat, lng, 'season:', document.getElementById('season').value);
+            const season = document.getElementById('season').value;
+            let startDate, endDate;
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            // Calculate season dates
+            if (season === 'spring') {
+                startDate = `${currentYear}-03-01`;
+                endDate = `${currentYear}-05-31`;
+            } else if (season === 'summer') {
+                startDate = `${currentYear}-06-01`;
+                endDate = `${currentYear}-08-31`;
+            } else if (season === 'autumn') {
+                startDate = `${currentYear}-09-01`;
+                endDate = `${currentYear}-11-30`;
+            } else {
+                // winter: December previous year to February current year
+                startDate = `${currentYear-1}-12-01`;
+                endDate = `${currentYear}-02-28`;
+            }
+            // Ensure endDate is not in the future
+            let endDateObj = new Date(endDate);
+            if (endDateObj > today) {
+                endDate = today.toISOString().slice(0, 10);
+            }
+            // Use Open-Meteo archive endpoint for historical data
+            let url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_mean,relative_humidity_2m_mean,precipitation_sum&timezone=auto`;
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    console.log('Open-Meteo API response:', data); // Debug log
+                    let tempArr = (data.daily && data.daily.temperature_2m_mean) ? data.daily.temperature_2m_mean : [];
+                    let humArr = (data.daily && data.daily.relative_humidity_2m_mean) ? data.daily.relative_humidity_2m_mean : [];
+                    let rainArr = (data.daily && data.daily.precipitation_sum) ? data.daily.precipitation_sum : [];
+                    let tempMean = tempArr.length ? (tempArr.reduce((a,b)=>a+b,0)/tempArr.length).toFixed(1) : '';
+                    let humMean = humArr.length ? (humArr.reduce((a,b)=>a+b,0)/humArr.length).toFixed(1) : '';
+                    let rainMean = rainArr.length ? (rainArr.reduce((a,b)=>a+b,0)/rainArr.length).toFixed(1) : '';
+                    document.getElementById('temperature').value = tempMean;
+                    document.getElementById('humidity').value = humMean;
+                    document.getElementById('rainfall').value = rainMean;
+                    if ((!tempMean && !humMean && !rainMean) || data.error || !data.daily) {
+                        let msg = 'Climate data is not available for this location or season. Please try a different location or season.';
+                        if (data.error) msg += '\nAPI error: ' + data.error;
+                        alert(msg);
+                    }
+                })
+                .catch(err => {
+                    alert('Error retrieving climate data: ' + err);
+                });
+        }
+    </script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

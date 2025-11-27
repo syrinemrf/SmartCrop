@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}History - SmartCrop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-history text-success"></i> Prediction History</h1>
+            <p class="text-muted">All your past predictions</p>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            {% if predictions.items %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Crop</th>
+                            <th>Confidence</th>
+                            <th>N</th>
+                            <th>P</th>
+                            <th>K</th>
+                            <th>Temp</th>
+                            <th>Humidity</th>
+                            <th>pH</th>
+                            <th>Rainfall</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pred in predictions.items %}
+                        <tr>
+                            <td>{{ pred.id }}</td>
+                            <td>{{ pred.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td><span class="badge bg-success">{{ pred.predicted_crop }}</span></td>
+                            <td>
+                                <div class="progress" style="height: 20px; min-width: 100px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ (pred.confidence * 100)|round }}%">
+                                        {{ (pred.confidence * 100)|round(1) }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ pred.N|round(1) }}</td>
+                            <td>{{ pred.P|round(1) }}</td>
+                            <td>{{ pred.K|round(1) }}</td>
+                            <td>{{ pred.temperature|round(1) }}°C</td>
+                            <td>{{ pred.humidity|round(1) }}%</td>
+                            <td>{{ pred.ph|round(2) }}</td>
+                            <td>{{ pred.rainfall|round(1) }}mm</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if predictions.pages > 1 %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if predictions.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('history', page=predictions.prev_num) }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in predictions.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == predictions.page %}
+                            <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                            {% else %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('history', page=page_num) }}">{{ page_num }}</a></li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if predictions.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('history', page=predictions.next_num) }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No predictions</h4>
+                <p class="text-muted">You have not made any predictions yet</p>
+                <a href="{{ url_for('predict') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Make a Prediction
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
