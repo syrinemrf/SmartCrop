@@ -20,8 +20,14 @@ from src.utils.logger import setup_logger
 
 # Configuration
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-change-in-production-2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///crop_recommendation.db'
+import os
+from dotenv import load_dotenv
+load_dotenv()
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production-2024')
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f"postgresql+psycopg2://{os.environ['DB_USER']}:{os.environ['DB_PASSWORD']}"
+    f"@{os.environ['DB_HOST']}:{os.environ['DB_PORT']}/{os.environ['DB_NAME']}"
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Extensions
@@ -49,6 +55,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     predictions = db.relationship('Prediction', backref='user', lazy=True, cascade='all, delete-orphan')
+    profile_image = db.Column(db.String(255), nullable=True)  # Chemin de la photo de profil
     
     def set_password(self, password):
         """Hash the password"""
@@ -60,6 +67,12 @@ class User(UserMixin, db.Model):
     
     def __repr__(self):
         return f'<User {self.username}>'
+
+    def get_profile_image(self):
+        from flask import url_for
+        if self.profile_image:
+            return url_for('static', filename=f'images/profiles/{self.profile_image}')
+        return url_for('static', filename='images/default_profile.png')
 
 
 class Prediction(db.Model):
@@ -212,6 +225,72 @@ def logout():
  # ============================================================================
  # ROUTES - APPLICATION (PROTECTED)
  # ============================================================================
+
+# =========================
+# ROUTES - PROFILE
+# =========================
+
+from werkzeug.utils import secure_filename
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+PROFILE_IMG_FOLDER = os.path.join('static', 'images', 'profiles')
+os.makedirs(PROFILE_IMG_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        # Changement email
+        if email and email != current_user.email:
+            if User.query.filter_by(email=email).first():
+                flash('Cet email est déjà utilisé.', 'danger')
+            else:
+                current_user.email = email
+                db.session.commit()
+                flash('Email mis à jour.', 'success')
+        # Upload photo de profil
+        if 'profile_image' in request.files:
+            file = request.files['profile_image']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(f"{current_user.id}_{file.filename}")
+                file.save(os.path.join(PROFILE_IMG_FOLDER, filename))
+                current_user.profile_image = filename
+                db.session.commit()
+                flash('Photo de profil mise à jour.', 'success')
+        return redirect(url_for('profile'))
+    return render_template('profile.html', user=current_user)
+
+@app.route('/profile/change_password', methods=['POST'])
+@login_required
+def change_password():
+    old_password = request.form.get('old_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    if not current_user.check_password(old_password):
+        flash('Ancien mot de passe incorrect.', 'danger')
+    elif new_password != confirm_password:
+        flash('Les mots de passe ne correspondent pas.', 'danger')
+    elif len(new_password) < 6:
+        flash('Le mot de passe doit contenir au moins 6 caractères.', 'danger')
+    else:
+        current_user.set_password(new_password)
+        db.session.commit()
+        flash('Mot de passe mis à jour.', 'success')
+    return redirect(url_for('profile'))
+
+@app.route('/profile/delete', methods=['POST'])
+@login_required
+def delete_account():
+    user_id = current_user.id
+    logout_user()
+    user = User.query.get(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    flash('Compte supprimé avec succès.', 'info')
+    return redirect(url_for('index'))
 
 @app.route('/dashboard')
 @login_required
@@ -430,3 +509,4 @@ def init_ml():
 if __name__ == '__main__':
     init_db()
     init_ml()
+    app.run(port=5000, debug=True)

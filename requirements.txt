@@ -1,3 +1,4 @@
+psycopg2-binary
 # ============================================
 # REQUIREMENTS - Crop Recommendation System
 # ============================================
@@ -37,6 +38,7 @@ python-dotenv>=1.0.0
 
 # Database
 SQLAlchemy>=2.0.23
+reportlab
 
 # Optional - Enhanced Features
 # mlflow==2.8.0

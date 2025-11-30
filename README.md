@@ -53,11 +53,8 @@ Rice, Maize, Chickpea, Red beans, Pigeon pea, Kidney beans, Mung bean, Black bea
 - ✅ Password hashing (bcrypt)
 
 ### Interactive Dashboard
-- ✅ Personalized statistics
 
-- ✅ Dynamic charts (Chart.js)
-- ✅ Prediction history
-- ✅ Crop distribution
+ ✅ Print your prediction history (PDF/printable view)
 
 ### Crop Predictions
 - ✅ Interactive form with validation
