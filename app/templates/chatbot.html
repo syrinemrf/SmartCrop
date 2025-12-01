@@ -1,0 +1,739 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.chatbot_title }} - SmartCrop{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chatbot-container {
+        min-height: calc(100vh - 200px);
+    }
+    
+    .chat-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 20px 20px 0 0;
+    }
+    
+    .chat-body {
+        height: 500px;
+        overflow-y: auto;
+        padding: 1.5rem;
+        background: #f8f9fa;
+    }
+    
+    .chat-input-area {
+        padding: 1rem;
+        background: white;
+        border-radius: 0 0 20px 20px;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .message {
+        max-width: 80%;
+        padding: 12px 18px;
+        border-radius: 20px;
+        margin-bottom: 15px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message-bot {
+        background: white;
+        border: 1px solid #e9ecef;
+        margin-right: auto;
+        border-bottom-left-radius: 5px;
+    }
+    
+    .message-user {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 5px;
+    }
+    
+    .bot-avatar {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+    }
+    
+    .quick-questions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 15px;
+    }
+    
+    .quick-btn {
+        background: white;
+        border: 1px solid #28a745;
+        color: #28a745;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .quick-btn:hover {
+        background: #28a745;
+        color: white;
+    }
+    
+    .typing-indicator {
+        display: flex;
+        gap: 5px;
+        padding: 15px;
+    }
+    
+    .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        background: #28a745;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out;
+    }
+    
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    
+    @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+    }
+    
+    .topic-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+    
+    .topic-card:hover {
+        transform: translateY(-5px);
+        border-color: #28a745;
+        box-shadow: 0 10px 30px rgba(40, 167, 69, 0.15);
+    }
+    
+    .topic-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .chat-card {
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .faq-item {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .faq-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .chat-input {
+        border-radius: 25px;
+        padding: 12px 20px;
+        border: 2px solid #e9ecef;
+        transition: all 0.2s;
+    }
+    
+    .chat-input:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+    }
+    
+    .send-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Main Chat Area -->
+        <div class="col-lg-8">
+            <div class="chat-card">
+                <div class="chat-header">
+                    <div class="d-flex align-items-center">
+                        <div class="bot-avatar me-3">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">{{ t.chatbot_title }}</h5>
+                            <small class="opacity-75"><i class="fas fa-circle text-success" style="font-size: 8px;"></i> {{ t.chatbot_online }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-body" id="chatBody">
+                    <!-- Welcome Message -->
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="bot-avatar me-2 flex-shrink-0">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message message-bot">
+                            <p class="mb-2">👋 {{ t.chatbot_welcome }}</p>
+                            <p class="mb-2">{{ t.chatbot_help_intro }}</p>
+                            <ul class="mb-2 ps-3">
+                                <li>{{ t.chatbot_help_crops }}</li>
+                                <li>{{ t.chatbot_help_pests }}</li>
+                                <li>{{ t.chatbot_help_soil }}</li>
+                                <li>{{ t.chatbot_help_irrigation }}</li>
+                                <li>{{ t.chatbot_help_weather }}</li>
+                            </ul>
+                            <p class="mb-0">{{ t.chatbot_ask_today }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Questions -->
+                    <div class="quick-questions" id="quickQuestions">
+                        <button class="quick-btn" onclick="askQuestion('What crops grow best in sandy soil?')">
+                            <i class="fas fa-seedling"></i> {{ t.chatbot_quick_sandy }}
+                        </button>
+                        <button class="quick-btn" onclick="askQuestion('How often should I water tomatoes?')">
+                            <i class="fas fa-tint"></i> {{ t.chatbot_quick_tomatoes }}
+                        </button>
+                        <button class="quick-btn" onclick="askQuestion('How to identify plant diseases?')">
+                            <i class="fas fa-bug"></i> {{ t.chatbot_quick_disease }}
+                        </button>
+                        <button class="quick-btn" onclick="askQuestion('When is the best time to plant wheat in Tunisia?')">
+                            <i class="fas fa-calendar"></i> {{ t.chatbot_quick_wheat }}
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <form id="chatForm" onsubmit="sendMessage(event)">
+                        <div class="d-flex gap-2">
+                            <input type="text" class="form-control chat-input" id="userInput" 
+                                   placeholder="{{ t.chatbot_placeholder }}" autocomplete="off">
+                            <button type="submit" class="send-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <!-- Topics -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="fas fa-lightbulb text-warning"></i> {{ t.chatbot_topics }}</h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="topic-card" onclick="askQuestion('Tell me about organic farming practices')">
+                                <div class="topic-icon">
+                                    <i class="fas fa-leaf"></i>
+                                </div>
+                                <small class="fw-bold">{{ t.chatbot_organic_farming }}</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="topic-card" onclick="askQuestion('How to manage pests naturally?')">
+                                <div class="topic-icon" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);">
+                                    <i class="fas fa-bug"></i>
+                                </div>
+                                <small class="fw-bold">{{ t.chatbot_pest_control }}</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="topic-card" onclick="askQuestion('What are the best irrigation methods?')">
+                                <div class="topic-icon" style="background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);">
+                                    <i class="fas fa-tint"></i>
+                                </div>
+                                <small class="fw-bold">{{ t.chatbot_irrigation }}</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="topic-card" onclick="askQuestion('How to improve soil fertility?')">
+                                <div class="topic-icon" style="background: linear-gradient(135deg, #6f42c1 0%, #d63384 100%);">
+                                    <i class="fas fa-mountain"></i>
+                                </div>
+                                <small class="fw-bold">{{ t.chatbot_soil_health }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- FAQ -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="fas fa-question-circle text-info"></i> {{ t.chatbot_faq }}</h5>
+                    
+                    <div class="faq-item" onclick="askQuestion('What is the best fertilizer for vegetables?')">
+                        <i class="fas fa-chevron-right text-success me-2"></i>
+                        {{ t.chatbot_faq_fertilizer }}
+                    </div>
+                    <div class="faq-item" onclick="askQuestion('How to protect crops from frost?')">
+                        <i class="fas fa-chevron-right text-success me-2"></i>
+                        {{ t.chatbot_faq_frost }}
+                    </div>
+                    <div class="faq-item" onclick="askQuestion('Signs of overwatering plants?')">
+                        <i class="fas fa-chevron-right text-success me-2"></i>
+                        {{ t.chatbot_faq_overwater }}
+                    </div>
+                    <div class="faq-item" onclick="askQuestion('How to start composting at home?')">
+                        <i class="fas fa-chevron-right text-success me-2"></i>
+                        {{ t.chatbot_faq_compost }}
+                    </div>
+                    <div class="faq-item" onclick="askQuestion('Best crops to grow in winter in Tunisia?')">
+                        <i class="fas fa-chevron-right text-success me-2"></i>
+                        {{ t.chatbot_faq_winter }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatBody = document.getElementById('chatBody');
+    const userInput = document.getElementById('userInput');
+    const quickQuestions = document.getElementById('quickQuestions');
+    
+    // Knowledge base for the chatbot
+    const knowledgeBase = {
+        // Soil related
+        'sandy soil': `🌱 **Best crops for sandy soil:**
+        
+Sandy soil drains quickly and warms up fast in spring. Great crops include:
+
+• **Vegetables:** Carrots, radishes, potatoes, lettuce, peppers
+• **Fruits:** Watermelon, strawberries, grapes
+• **Cereals:** Millet, rye
+
+**Tips for sandy soil:**
+- Add organic matter (compost) to improve water retention
+- Use mulching to reduce evaporation
+- Consider drip irrigation for efficiency`,
+
+        'tomato': `🍅 **Tomato Growing Guide:**
+
+**Watering:**
+- Water deeply 2-3 times per week
+- Early morning is best
+- Avoid wetting leaves to prevent disease
+- Need about 2.5-5 cm water per week
+
+**Common issues:**
+- Yellow leaves = overwatering or nitrogen deficiency
+- Blossom end rot = calcium deficiency, irregular watering
+- Cracking = inconsistent watering
+
+**Pro tips:**
+- Mulch around plants
+- Stake or cage for support
+- Prune suckers for larger fruits`,
+
+        'disease': `🔍 **Identifying Plant Diseases:**
+
+**Common signs:**
+1. **Fungal diseases:** White/gray powder, spots, wilting
+2. **Bacterial:** Water-soaked lesions, ooze, rapid wilting
+3. **Viral:** Mosaic patterns, stunted growth, curled leaves
+
+**Prevention tips:**
+- Rotate crops yearly
+- Ensure good air circulation
+- Water at soil level, not on leaves
+- Remove infected plants immediately
+- Use disease-resistant varieties
+
+**For accurate diagnosis:** Send a sample to INRAT or local CRDA for testing.`,
+
+        'wheat': `🌾 **Wheat Growing in Tunisia:**
+
+**Best planting time:**
+- November to December (main season)
+- Varieties: Karim, Khiar, Maali
+
+**Soil requirements:**
+- Clay or loamy soil
+- pH 6.0-7.5
+- Good drainage
+
+**Key tips:**
+- Plant at 3-5 cm depth
+- 120-150 kg seeds per hectare
+- First irrigation after 20-25 days
+- Apply nitrogen fertilizer in two splits`,
+
+        'organic': `🌿 **Organic Farming Practices:**
+
+**Key principles:**
+1. **No synthetic chemicals** - Use natural pest control
+2. **Composting** - Create nutrient-rich soil amendments
+3. **Crop rotation** - Prevent soil depletion
+4. **Cover crops** - Protect and enrich soil
+5. **Biodiversity** - Plant diverse crops together
+
+**Natural fertilizers:**
+- Compost, manure, bone meal
+- Green manures (legumes)
+- Seaweed extracts
+
+**Certification in Tunisia:**
+Contact Ecocert or BioSuisse for organic certification.`,
+
+        'pest': `🐛 **Natural Pest Management:**
+
+**Prevention first:**
+- Healthy plants resist pests better
+- Encourage beneficial insects
+- Use companion planting
+
+**Natural solutions:**
+- **Neem oil** - aphids, whiteflies, mites
+- **Garlic spray** - general insect repellent
+- **Diatomaceous earth** - crawling insects
+- **Soap spray** - soft-bodied insects
+- **Bt (Bacillus thuringiensis)** - caterpillars
+
+**Biological control:**
+- Ladybugs eat aphids
+- Lacewings control various pests
+- Parasitic wasps for caterpillars`,
+
+        'irrigation': `💧 **Irrigation Methods:**
+
+**Types:**
+1. **Drip irrigation** - Most efficient (90-95%)
+   - Best for vegetables, orchards
+   - Reduces disease, saves water
+
+2. **Sprinkler** - Good for large areas
+   - 70-85% efficiency
+   - Best for cereals, lawns
+
+3. **Furrow/flood** - Traditional
+   - 50-70% efficiency
+   - Suitable for rice, some vegetables
+
+**Tips for Tunisia:**
+- Water early morning or evening
+- Use mulch to reduce evaporation
+- Consider solar-powered pumps
+- Check government subsidies for drip systems`,
+
+        'soil fertility': `🌍 **Improving Soil Fertility:**
+
+**Test your soil first:**
+- Contact INRAT or local CRDA
+- Check pH, nutrients, organic matter
+
+**Improvement methods:**
+1. **Add organic matter**
+   - Compost, manure, green manures
+   
+2. **Cover cropping**
+   - Legumes fix nitrogen
+   - Prevents erosion
+   
+3. **Crop rotation**
+   - Alternates nutrient needs
+   - Breaks pest cycles
+   
+4. **Avoid over-tilling**
+   - Preserves soil structure
+   - Protects microorganisms
+
+**NPK basics:**
+- N (Nitrogen) = leaf growth
+- P (Phosphorus) = roots, flowers
+- K (Potassium) = overall health`,
+
+        'fertilizer': `🧪 **Fertilizer Guide for Vegetables:**
+
+**Organic options:**
+- **Compost** - All-purpose, slow release
+- **Manure** - High nitrogen (age 6 months first)
+- **Bone meal** - High phosphorus for roots
+- **Wood ash** - Potassium source
+
+**Application tips:**
+- Apply before planting (base dressing)
+- Side-dress during growth
+- Avoid over-fertilizing (burns plants)
+- Water after applying
+
+**Signs of deficiency:**
+- Yellow lower leaves = Nitrogen
+- Purple tinge = Phosphorus
+- Brown leaf edges = Potassium`,
+
+        'frost': `❄️ **Frost Protection Methods:**
+
+**Before frost:**
+- Water soil thoroughly (wet soil retains heat)
+- Apply thick mulch around plants
+- Cover with row covers or plastic
+
+**During frost warning:**
+- Cover plants in evening
+- Use blankets, sheets, or frost cloth
+- Add lights or heat sources under covers
+- Don't let covers touch leaves
+
+**After frost:**
+- Remove covers in morning
+- Don't prune damaged plants immediately
+- Wait to assess true damage
+
+**Frost-resistant crops:**
+Kale, spinach, carrots, garlic, onions`,
+
+        'overwatering': `💦 **Signs of Overwatering:**
+
+**Symptoms:**
+- Yellowing leaves (starts from bottom)
+- Wilting despite wet soil
+- Soft, mushy stems at base
+- Mold or algae on soil surface
+- Root rot (brown, smelly roots)
+- Fungus gnats around soil
+
+**Solutions:**
+1. Stop watering immediately
+2. Improve drainage (add perlite)
+3. Repot if root rot present
+4. Let soil dry between waterings
+
+**Prevention:**
+- Stick finger 2-3cm in soil before watering
+- Use pots with drainage holes
+- Water less in winter`,
+
+        'composting': `♻️ **Home Composting Guide:**
+
+**What to compost:**
+✅ Green (nitrogen): Kitchen scraps, grass, coffee
+✅ Brown (carbon): Dry leaves, cardboard, straw
+
+**Don't compost:**
+❌ Meat, dairy, oils
+❌ Diseased plants
+❌ Pet waste
+
+**Basic method:**
+1. Layer green and brown (1:3 ratio)
+2. Keep moist like a wrung sponge
+3. Turn every 1-2 weeks
+4. Ready in 2-6 months
+
+**Quick tips:**
+- Chop materials for faster decomposition
+- Add soil to introduce microbes
+- Cover pile to retain moisture`,
+
+        'winter crops': `❄️ **Winter Crops in Tunisia:**
+
+**Best vegetables for winter:**
+- Spinach, lettuce, chard
+- Peas, fava beans
+- Carrots, turnips, radishes
+- Cabbage, cauliflower, broccoli
+- Onions, garlic, leeks
+
+**Cereals:**
+- Wheat, barley (planted Nov-Dec)
+- Oats
+
+**Citrus season:**
+- Oranges, lemons, clementines
+- Harvest December-February
+
+**Tips:**
+- Plant by October-November
+- Use row covers for extra protection
+- Reduce watering (cooler = less evaporation)`
+    };
+    
+    function sendMessage(event) {
+        if (event) event.preventDefault();
+        
+        const message = userInput.value.trim();
+        if (!message) return;
+        
+        // Hide quick questions
+        quickQuestions.style.display = 'none';
+        
+        // Add user message
+        addMessage(message, 'user');
+        userInput.value = '';
+        
+        // Show typing indicator
+        showTyping();
+        
+        // Simulate response delay
+        setTimeout(() => {
+            removeTyping();
+            const response = getResponse(message);
+            addMessage(response, 'bot');
+        }, 1000 + Math.random() * 1000);
+    }
+    
+    function askQuestion(question) {
+        userInput.value = question;
+        sendMessage();
+    }
+    
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        
+        if (sender === 'user') {
+            messageDiv.className = 'message message-user';
+            messageDiv.textContent = text;
+        } else {
+            messageDiv.className = 'd-flex align-items-start mb-3';
+            messageDiv.innerHTML = `
+                <div class="bot-avatar me-2 flex-shrink-0">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message message-bot">
+                    ${formatMessage(text)}
+                </div>
+            `;
+        }
+        
+        chatBody.appendChild(messageDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    function formatMessage(text) {
+        // Convert markdown-like formatting to HTML
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>')
+            .replace(/• /g, '• ');
+    }
+    
+    function showTyping() {
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typingIndicator';
+        typingDiv.className = 'd-flex align-items-start mb-3';
+        typingDiv.innerHTML = `
+            <div class="bot-avatar me-2 flex-shrink-0">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="message message-bot">
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        `;
+        chatBody.appendChild(typingDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    function removeTyping() {
+        const typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+    }
+    
+    function getResponse(message) {
+        const lowerMessage = message.toLowerCase();
+        
+        // Search knowledge base
+        for (const [key, response] of Object.entries(knowledgeBase)) {
+            if (lowerMessage.includes(key)) {
+                return response;
+            }
+        }
+        
+        // Default responses for common patterns
+        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('bonjour')) {
+            return `👋 Hello! I'm here to help with your agricultural questions. You can ask me about:
+
+• Crop growing tips
+• Pest and disease management  
+• Soil and fertilizer advice
+• Irrigation methods
+• Seasonal planting guides
+
+What would you like to know?`;
+        }
+        
+        if (lowerMessage.includes('thank')) {
+            return `You're welcome! 😊 Feel free to ask if you have more questions. Happy farming! 🌱`;
+        }
+        
+        if (lowerMessage.includes('help')) {
+            return `I can help you with many agricultural topics:
+
+🌱 **Crops:** Growing tips, planting times, care guides
+🐛 **Pests:** Identification, natural control methods
+🌍 **Soil:** Testing, improvement, fertilization
+💧 **Water:** Irrigation methods, watering schedules
+🌡️ **Weather:** Frost protection, seasonal planning
+
+Just type your question and I'll do my best to help!`;
+        }
+        
+        // Default response
+        return `I appreciate your question! While I don't have specific information on that topic in my current knowledge base, here are some suggestions:
+
+1. **Check the Crop Guide** - Detailed info on 22+ crops
+2. **Visit Soil Labs** - Get professional soil testing
+3. **Contact CRDA** - Local agricultural extension services
+
+You can also try rephrasing your question, or ask about:
+• Specific crops (tomatoes, wheat, olives)
+• Soil types and improvement
+• Pest control methods
+• Irrigation and watering
+
+Is there something else I can help with?`;
+    }
+    
+    // Enter to send
+    userInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+{% endblock %}

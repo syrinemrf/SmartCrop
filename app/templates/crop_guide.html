@@ -1,0 +1,1350 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ t.guide_title }} - SmartCrop{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Crop Guide Custom Styles - Respecting Color Palette */
+
+/* Card Headers with Palette Colors */
+.guide-header-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+    color: white !important;
+}
+
+.guide-header-secondary {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%) !important;
+    color: white !important;
+}
+
+.guide-header-accent {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%) !important;
+    color: white !important;
+}
+
+.guide-header-success {
+    background: linear-gradient(135deg, var(--success) 0%, var(--primary-dark) 100%) !important;
+    color: white !important;
+}
+
+.guide-header-warning {
+    background: linear-gradient(135deg, var(--warning) 0%, #E65100 100%) !important;
+    color: white !important;
+}
+
+.guide-header-error {
+    background: linear-gradient(135deg, var(--error) 0%, #B71C1C 100%) !important;
+    color: white !important;
+}
+
+.guide-header-dark {
+    background: linear-gradient(135deg, var(--text-primary) 0%, #1a1a1a 100%) !important;
+    color: white !important;
+}
+
+/* Calendar Timeline Cards */
+.timeline-card-sowing {
+    border-color: var(--primary) !important;
+}
+
+.timeline-card-sowing .timeline-icon {
+    background: var(--success-bg);
+}
+
+.timeline-card-sowing i,
+.timeline-card-sowing h6 {
+    color: var(--primary);
+}
+
+.timeline-card-irrigation {
+    border-color: var(--accent) !important;
+}
+
+.timeline-card-irrigation .timeline-icon {
+    background: rgba(0, 172, 193, 0.1);
+}
+
+.timeline-card-irrigation i,
+.timeline-card-irrigation h6 {
+    color: var(--accent);
+}
+
+.timeline-card-fertilization {
+    border-color: var(--warning) !important;
+}
+
+.timeline-card-fertilization .timeline-icon {
+    background: var(--warning-bg);
+}
+
+.timeline-card-fertilization i,
+.timeline-card-fertilization h6 {
+    color: var(--warning);
+}
+
+.timeline-card-harvest {
+    border-color: var(--error) !important;
+}
+
+.timeline-card-harvest .timeline-icon {
+    background: var(--error-bg);
+}
+
+.timeline-card-harvest i,
+.timeline-card-harvest h6 {
+    color: var(--error);
+}
+
+.timeline-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+/* Progress bars */
+.progress-sowing {
+    background-color: var(--primary) !important;
+}
+
+.progress-irrigation {
+    background-color: var(--accent) !important;
+}
+
+.progress-fertilization {
+    background-color: var(--warning) !important;
+}
+
+.progress-harvest {
+    background-color: var(--error) !important;
+}
+
+/* NPK Progress bars */
+.progress-n {
+    background-color: var(--primary) !important;
+}
+
+.progress-p {
+    background-color: var(--accent) !important;
+}
+
+.progress-k {
+    background-color: var(--warning) !important;
+}
+
+/* Disease severity badges */
+.severity-high {
+    background-color: var(--error) !important;
+}
+
+.severity-medium {
+    background-color: var(--warning) !important;
+    color: var(--text-primary) !important;
+}
+
+.severity-low {
+    background-color: var(--success) !important;
+}
+
+/* Quick Stats badges */
+.stat-badge-yield {
+    background-color: var(--success) !important;
+}
+
+.stat-badge-duration {
+    background-color: var(--accent) !important;
+}
+
+.stat-badge-temp {
+    background-color: var(--warning) !important;
+    color: var(--text-primary) !important;
+}
+
+.stat-badge-difficulty {
+    background-color: var(--primary) !important;
+}
+
+.stat-badge-secondary {
+    background-color: var(--secondary) !important;
+}
+
+/* Water level colors */
+.water-level-high {
+    background-color: var(--accent) !important;
+}
+
+.water-level-medium {
+    background-color: var(--secondary) !important;
+}
+
+.water-level-low {
+    background-color: var(--primary-light) !important;
+}
+
+/* Cards */
+.guide-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    transition: all 0.3s ease;
+}
+
+.guide-card:hover {
+    box-shadow: 0 8px 25px var(--card-shadow);
+}
+
+/* Info card backgrounds */
+.info-card-light {
+    background-color: var(--bg-tertiary) !important;
+    border: none !important;
+}
+
+/* Text colors */
+.text-crop-primary {
+    color: var(--primary) !important;
+}
+
+.text-crop-accent {
+    color: var(--accent) !important;
+}
+
+.text-crop-warning {
+    color: var(--warning) !important;
+}
+
+.text-crop-error {
+    color: var(--error) !important;
+}
+
+/* Form elements */
+.guide-select {
+    border: 2px solid var(--border-light);
+    background-color: var(--bg-secondary);
+}
+
+.guide-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(0, 172, 193, 0.25);
+}
+
+/* Table styles */
+.guide-table thead {
+    background-color: var(--bg-tertiary);
+}
+
+.guide-table tbody tr:hover {
+    background-color: var(--success-bg);
+}
+
+.guide-table .priority-high {
+    background-color: var(--warning-bg) !important;
+}
+
+/* Dark Mode */
+[data-theme="dark"] .guide-card {
+    background-color: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .info-card-light {
+    background-color: var(--dark-bg-tertiary) !important;
+}
+
+[data-theme="dark"] .timeline-card-sowing .timeline-icon {
+    background: rgba(76, 175, 80, 0.15);
+}
+
+[data-theme="dark"] .timeline-card-irrigation .timeline-icon {
+    background: rgba(38, 198, 218, 0.15);
+}
+
+[data-theme="dark"] .timeline-card-fertilization .timeline-icon {
+    background: rgba(255, 183, 77, 0.15);
+}
+
+[data-theme="dark"] .timeline-card-harvest .timeline-icon {
+    background: rgba(239, 83, 80, 0.15);
+}
+
+[data-theme="dark"] .guide-table thead {
+    background-color: var(--dark-bg-tertiary);
+}
+
+[data-theme="dark"] .guide-table tbody tr:hover {
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+[data-theme="dark"] .guide-table .priority-high {
+    background-color: rgba(255, 183, 77, 0.15) !important;
+}
+
+[data-theme="dark"] .guide-select {
+    background-color: var(--dark-bg-tertiary);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .timeline-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .timeline-icon i {
+        font-size: 1.25rem !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-dark">
+            <i class="fas fa-book-open text-success me-3"></i>{{ t.guide_title }}
+        </h1>
+        <p class="lead text-muted">
+            {{ t.guide_subtitle }}
+        </p>
+    </div>
+
+    <!-- Crop Selector -->
+    <div class="card shadow-sm border-0 mb-4 guide-card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <label for="cropSelect" class="form-label fw-bold text-dark">
+                        <i class="fas fa-seedling text-crop-primary me-2"></i>{{ t.guide_select_crop }}
+                    </label>
+                    <select class="form-select form-select-lg guide-select" id="cropSelect">
+                        <option value="">-- {{ t.guide_select_crop }} --</option>
+                        <option value="rice">🌾 Rice</option>
+                        <option value="wheat">🌾 Wheat</option>
+                        <option value="maize">🌽 Maize (Corn)</option>
+                        <option value="chickpea">🫘 Chickpea</option>
+                        <option value="kidneybeans">🫘 Kidney Beans</option>
+                        <option value="pigeonpeas">🫘 Pigeon Peas</option>
+                        <option value="mothbeans">🫘 Moth Beans</option>
+                        <option value="mungbean">🫘 Mung Bean</option>
+                        <option value="blackgram">🫘 Black Gram</option>
+                        <option value="lentil">🫘 Lentil</option>
+                        <option value="pomegranate">🍎 Pomegranate</option>
+                        <option value="banana">🍌 Banana</option>
+                        <option value="mango">🥭 Mango</option>
+                        <option value="grapes">🍇 Grapes</option>
+                        <option value="watermelon">🍉 Watermelon</option>
+                        <option value="muskmelon">🍈 Muskmelon</option>
+                        <option value="apple">🍎 Apple</option>
+                        <option value="orange">🍊 Orange</option>
+                        <option value="papaya">🍈 Papaya</option>
+                        <option value="coconut">🥥 Coconut</option>
+                        <option value="cotton">🏵️ Cotton</option>
+                        <option value="jute">🌿 Jute</option>
+                        <option value="coffee">☕ Coffee</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="plantingDate" class="form-label fw-bold text-dark">
+                        <i class="fas fa-calendar-alt text-crop-primary me-2"></i>Planned Planting Date
+                    </label>
+                    <input type="date" class="form-control form-control-lg guide-select" id="plantingDate">
+                </div>
+                <div class="col-md-4 text-center pt-4">
+                    <button class="btn btn-success btn-lg px-4" id="generateCalendar">
+                        <i class="fas fa-magic me-2"></i>Generate Calendar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area (hidden by default) -->
+    <div id="cropContent" style="display: none;">
+        
+        <!-- Agricultural Calendar -->
+        <div class="card shadow-sm border-0 mb-4 guide-card">
+            <div class="card-header guide-header-success">
+                <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Agricultural Calendar</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4" id="calendarTimeline">
+                    <!-- Sowing -->
+                    <div class="col-md-3">
+                        <div class="card h-100 timeline-card-sowing guide-card">
+                            <div class="card-body text-center">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-seedling fa-2x"></i>
+                                </div>
+                                <h6 class="fw-bold">SOWING</h6>
+                                <p class="display-6 fw-bold text-dark mb-1" id="sowingDate">--</p>
+                                <small class="text-muted" id="sowingInfo">Select a crop to see dates</small>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Irrigation -->
+                    <div class="col-md-3">
+                        <div class="card h-100 timeline-card-irrigation guide-card">
+                            <div class="card-body text-center">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-tint fa-2x"></i>
+                                </div>
+                                <h6 class="fw-bold">IRRIGATION</h6>
+                                <p class="display-6 fw-bold text-dark mb-1" id="irrigationDate">--</p>
+                                <small class="text-muted" id="irrigationInfo">Water schedule</small>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fertilization -->
+                    <div class="col-md-3">
+                        <div class="card h-100 timeline-card-fertilization guide-card">
+                            <div class="card-body text-center">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-flask fa-2x"></i>
+                                </div>
+                                <h6 class="fw-bold">FERTILIZATION</h6>
+                                <p class="display-6 fw-bold text-dark mb-1" id="fertilizationDate">--</p>
+                                <small class="text-muted" id="fertilizationInfo">Nutrient application</small>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Harvest -->
+                    <div class="col-md-3">
+                        <div class="card h-100 timeline-card-harvest guide-card">
+                            <div class="card-body text-center">
+                                <div class="timeline-icon">
+                                    <i class="fas fa-apple-alt fa-2x"></i>
+                                </div>
+                                <h6 class="fw-bold">HARVEST</h6>
+                                <p class="display-6 fw-bold text-dark mb-1" id="harvestDate">--</p>
+                                <small class="text-muted" id="harvestInfo">Expected harvest</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timeline visualization -->
+                <div class="mt-4 p-3 rounded info-card-light">
+                    <div class="d-flex justify-content-between align-items-center position-relative">
+                        <div class="progress w-100" style="height: 8px;">
+                            <div class="progress-bar progress-sowing" id="progressSowing" style="width: 0%"></div>
+                            <div class="progress-bar progress-irrigation" id="progressIrrigation" style="width: 0%"></div>
+                            <div class="progress-bar progress-fertilization" id="progressFertilization" style="width: 0%"></div>
+                            <div class="progress-bar progress-harvest" id="progressHarvest" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <small class="text-crop-primary fw-bold">Sowing</small>
+                        <small class="text-crop-accent fw-bold">Irrigation Start</small>
+                        <small class="text-crop-warning fw-bold">Fertilization</small>
+                        <small class="text-crop-error fw-bold">Harvest</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crop Guide Card -->
+        <div class="row g-4">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Overview -->
+                <div class="card shadow-sm border-0 mb-4 guide-card">
+                    <div class="card-header guide-header-primary">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Crop Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-dark fw-bold"><i class="fas fa-thermometer-half text-crop-error me-2"></i>Climate Requirements</h6>
+                                <p class="text-muted" id="climateReq">--</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-dark fw-bold"><i class="fas fa-clock text-crop-accent me-2"></i>Growing Season</h6>
+                                <p class="text-muted" id="growingSeason">--</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <h6 class="text-dark fw-bold"><i class="fas fa-leaf text-crop-primary me-2"></i>Description</h6>
+                        <p class="text-muted" id="cropDescription">--</p>
+                    </div>
+                </div>
+
+                <!-- Water & Soil Requirements -->
+                <div class="card shadow-sm border-0 mb-4 guide-card">
+                    <div class="card-header guide-header-accent">
+                        <h5 class="mb-0"><i class="fas fa-tint me-2"></i>Water & Soil Requirements</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card info-card-light h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-crop-accent fw-bold"><i class="fas fa-water me-2"></i>Water Needs</h6>
+                                        <div class="mb-2">
+                                            <span class="text-dark">Requirement Level:</span>
+                                            <div class="progress mt-1" style="height: 10px;">
+                                                <div class="progress-bar progress-irrigation" id="waterLevel" style="width: 50%"></div>
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mb-0" id="waterDetails">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card info-card-light h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-crop-warning fw-bold"><i class="fas fa-mountain me-2"></i>Soil Needs</h6>
+                                        <p class="text-muted small mb-2" id="soilType">--</p>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="badge stat-badge-yield" id="phRange">pH: --</span>
+                                            <span class="badge stat-badge-difficulty" id="soilTexture">Texture: --</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Planting Tips -->
+                <div class="card shadow-sm border-0 mb-4 guide-card">
+                    <div class="card-header guide-header-success">
+                        <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Planting Tips</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush" id="plantingTips">
+                            <li class="list-group-item">Select a crop to see tips</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Quick Stats -->
+                <div class="card shadow-sm border-0 mb-4 guide-card">
+                    <div class="card-header guide-header-dark">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Quick Stats</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                            <span class="text-muted">Average Yield</span>
+                            <span class="badge stat-badge-yield fs-6" id="avgYield">--</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                            <span class="text-muted">Growth Duration</span>
+                            <span class="badge stat-badge-duration fs-6" id="growthDuration">--</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                            <span class="text-muted">Optimal Temperature</span>
+                            <span class="badge stat-badge-temp fs-6" id="optimalTemp">--</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Difficulty Level</span>
+                            <span class="badge stat-badge-difficulty fs-6" id="difficulty">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Common Diseases -->
+                <div class="card shadow-sm border-0 mb-4 guide-card">
+                    <div class="card-header guide-header-error">
+                        <h5 class="mb-0"><i class="fas fa-virus me-2"></i>Common Diseases</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush" id="diseasesList">
+                            <li class="list-group-item">Select a crop</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- NPK Requirements -->
+                <div class="card shadow-sm border-0 guide-card">
+                    <div class="card-header guide-header-secondary">
+                        <h5 class="mb-0"><i class="fas fa-flask me-2"></i>NPK Requirements</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-dark fw-bold">Nitrogen (N)</span>
+                                <span id="nValue">--</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar progress-n" id="nBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-dark fw-bold">Phosphorus (P)</span>
+                                <span id="pValue">--</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar progress-p" id="pBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-dark fw-bold">Potassium (K)</span>
+                                <span id="kValue">--</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar progress-k" id="kBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Calendar View -->
+        <div class="card shadow-sm border-0 mt-4 guide-card">
+            <div class="card-header guide-header-dark d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Detailed Activity Schedule</h5>
+                <button class="btn btn-sm btn-outline-light" id="printCalendar">
+                    <i class="fas fa-print me-1"></i>Print
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 guide-table">
+                        <thead>
+                            <tr>
+                                <th class="text-dark">Week</th>
+                                <th class="text-dark">Date Range</th>
+                                <th class="text-dark">Activity</th>
+                                <th class="text-dark">Details</th>
+                                <th class="text-dark">Priority</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityTable">
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="fas fa-calendar-plus fa-2x mb-2"></i>
+                                    <p class="mb-0">Select a crop and planting date to generate schedule</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Default message when no crop selected -->
+    <div id="defaultMessage" class="text-center py-5">
+        <i class="fas fa-hand-pointer fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">Select a crop to view its complete guide</h4>
+        <p class="text-muted">Choose from 22 different crops supported by SmartCrop</p>
+    </div>
+</div>
+
+<script>
+// Crop data database
+const cropData = {
+    rice: {
+        name: "Rice",
+        emoji: "🌾",
+        description: "Rice is the staple food for more than half of the world's population. It thrives in warm, humid conditions and requires significant water resources, typically grown in flooded paddies.",
+        climate: "Tropical to subtropical, 20-35°C, high humidity required",
+        season: "Kharif (monsoon) season, June to November",
+        growthDuration: "120-150 days",
+        avgYield: "4-6 tons/ha",
+        optimalTemp: "25-30°C",
+        difficulty: "Moderate",
+        waterLevel: 90,
+        waterDetails: "Requires standing water (5-10 cm) during most of growth. Total water need: 1200-2000 mm. Flood irrigation essential for paddy cultivation.",
+        soilType: "Clay or clay loam soils with good water retention. Slightly acidic to neutral preferred.",
+        phRange: "5.5-7.0",
+        soilTexture: "Clay/Loam",
+        npk: { n: 120, p: 60, k: 60 },
+        diseases: [
+            { name: "Blast Disease", severity: "high", icon: "fa-bug" },
+            { name: "Bacterial Leaf Blight", severity: "high", icon: "fa-virus" },
+            { name: "Sheath Blight", severity: "medium", icon: "fa-bacterium" },
+            { name: "Brown Spot", severity: "medium", icon: "fa-circle" }
+        ],
+        tips: [
+            "Prepare nursery beds 25-30 days before transplanting",
+            "Maintain 2-3 seedlings per hill with 20x15 cm spacing",
+            "Keep fields flooded during tillering and flowering stages",
+            "Drain water 10-15 days before harvest for easier cutting",
+            "Apply nitrogen in 3 splits: basal, tillering, and panicle initiation"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 7,
+            fertilization: [21, 45, 65],
+            harvestOffset: 135
+        }
+    },
+    wheat: {
+        name: "Wheat",
+        emoji: "🌾",
+        description: "Wheat is one of the world's most important cereal crops, used for bread, pasta, and many food products. It's a cool-season crop that grows best in temperate climates.",
+        climate: "Temperate climate, 15-25°C, moderate rainfall",
+        season: "Rabi (winter) season, November to April",
+        growthDuration: "100-120 days",
+        avgYield: "3-5 tons/ha",
+        optimalTemp: "18-24°C",
+        difficulty: "Easy",
+        waterLevel: 50,
+        waterDetails: "Moderate water requirement. Total need: 400-650 mm. Critical irrigation at crown root, tillering, jointing, flowering, and grain filling stages.",
+        soilType: "Well-drained loamy soil with good organic matter. Tolerates slight alkalinity.",
+        phRange: "6.0-7.5",
+        soilTexture: "Loam/Clay Loam",
+        npk: { n: 120, p: 60, k: 40 },
+        diseases: [
+            { name: "Rust (Yellow/Brown)", severity: "high", icon: "fa-leaf" },
+            { name: "Powdery Mildew", severity: "medium", icon: "fa-snowflake" },
+            { name: "Loose Smut", severity: "medium", icon: "fa-cloud" },
+            { name: "Root Rot", severity: "low", icon: "fa-tree" }
+        ],
+        tips: [
+            "Sow seeds at 3-5 cm depth with 20-22.5 cm row spacing",
+            "Use certified disease-free seeds treated with fungicide",
+            "First irrigation 20-25 days after sowing (crown root stage)",
+            "Avoid water stress during flowering and grain filling",
+            "Harvest when grain moisture is 12-14%"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 21,
+            fertilization: [0, 21, 45],
+            harvestOffset: 110
+        }
+    },
+    maize: {
+        name: "Maize (Corn)",
+        emoji: "🌽",
+        description: "Maize is a versatile crop used for food, feed, and industrial purposes. It's a warm-season crop that requires full sun and moderate water.",
+        climate: "Warm climate, 20-30°C, frost-free growing period",
+        season: "Kharif and Rabi seasons possible",
+        growthDuration: "90-120 days",
+        avgYield: "5-8 tons/ha",
+        optimalTemp: "25-30°C",
+        difficulty: "Easy",
+        waterLevel: 60,
+        waterDetails: "Moderate to high water need. Total: 500-800 mm. Critical period is tasseling and silking stage - avoid water stress.",
+        soilType: "Well-drained, fertile loamy soil. Good organic matter improves yield.",
+        phRange: "5.8-7.0",
+        soilTexture: "Sandy Loam",
+        npk: { n: 150, p: 75, k: 50 },
+        diseases: [
+            { name: "Maize Streak Virus", severity: "high", icon: "fa-virus" },
+            { name: "Northern Leaf Blight", severity: "medium", icon: "fa-leaf" },
+            { name: "Stalk Rot", severity: "medium", icon: "fa-tree" },
+            { name: "Ear Rot", severity: "low", icon: "fa-circle" }
+        ],
+        tips: [
+            "Plant seeds 5-7 cm deep with 60-75 cm row spacing",
+            "Thin to one plant per 20-25 cm within rows",
+            "Apply nitrogen in 2-3 split doses for better uptake",
+            "Control weeds in first 6 weeks - critical period",
+            "Harvest when kernels are dry and husks are brown"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 10,
+            fertilization: [0, 25, 45],
+            harvestOffset: 100
+        }
+    },
+    chickpea: {
+        name: "Chickpea",
+        emoji: "🫘",
+        description: "Chickpea is a protein-rich legume that fixes nitrogen in soil. It's drought-tolerant and an excellent rotational crop.",
+        climate: "Cool, dry climate during growth, 15-30°C",
+        season: "Rabi season, October to March",
+        growthDuration: "90-120 days",
+        avgYield: "1-2 tons/ha",
+        optimalTemp: "20-25°C",
+        difficulty: "Easy",
+        waterLevel: 30,
+        waterDetails: "Low water requirement. Drought tolerant. Total need: 300-400 mm. Avoid waterlogging - very sensitive.",
+        soilType: "Well-drained sandy loam to clay loam. Poor drainage causes root rot.",
+        phRange: "6.0-8.0",
+        soilTexture: "Sandy Loam",
+        npk: { n: 20, p: 50, k: 20 },
+        diseases: [
+            { name: "Ascochyta Blight", severity: "high", icon: "fa-bug" },
+            { name: "Fusarium Wilt", severity: "high", icon: "fa-virus" },
+            { name: "Botrytis Gray Mold", severity: "medium", icon: "fa-cloud" },
+            { name: "Root Rot", severity: "medium", icon: "fa-tree" }
+        ],
+        tips: [
+            "Inoculate seeds with Rhizobium for better nitrogen fixation",
+            "Sow at 5-7 cm depth with 30-45 cm row spacing",
+            "Being a legume, requires minimal nitrogen fertilizer",
+            "Avoid excessive irrigation - promotes disease",
+            "Harvest when 80% pods turn brown and dry"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 30,
+            fertilization: [0],
+            harvestOffset: 105
+        }
+    },
+    banana: {
+        name: "Banana",
+        emoji: "🍌",
+        description: "Banana is a tropical fruit crop that produces year-round. It's a heavy feeder requiring consistent moisture and nutrition.",
+        climate: "Tropical, 15-35°C, high humidity, frost-free",
+        season: "Can be planted year-round in suitable climates",
+        growthDuration: "9-12 months",
+        avgYield: "30-50 tons/ha",
+        optimalTemp: "26-30°C",
+        difficulty: "Moderate",
+        waterLevel: 80,
+        waterDetails: "High water requirement. Needs 25-50 mm per week. Drip irrigation recommended. Sensitive to both drought and waterlogging.",
+        soilType: "Deep, well-drained, fertile loamy soil. Rich in organic matter.",
+        phRange: "6.0-7.5",
+        soilTexture: "Loam",
+        npk: { n: 200, p: 60, k: 300 },
+        diseases: [
+            { name: "Panama Disease (Fusarium)", severity: "high", icon: "fa-virus" },
+            { name: "Black Sigatoka", severity: "high", icon: "fa-leaf" },
+            { name: "Bunchy Top Virus", severity: "high", icon: "fa-bug" },
+            { name: "Anthracnose", severity: "medium", icon: "fa-circle" }
+        ],
+        tips: [
+            "Use disease-free tissue culture plants for planting",
+            "Maintain 2x2m or 2.5x2.5m spacing depending on variety",
+            "Remove dried leaves regularly to prevent disease",
+            "Support bunches with props to prevent toppling",
+            "Harvest when fingers are plump and edges round off"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 3,
+            fertilization: [30, 75, 120, 180, 240],
+            harvestOffset: 330
+        }
+    },
+    mango: {
+        name: "Mango",
+        emoji: "🥭",
+        description: "Mango is the 'King of Fruits', a tropical tree crop that bears fruit seasonally. Trees are long-lived and productive for decades.",
+        climate: "Tropical to subtropical, 24-30°C, dry period before flowering",
+        season: "Flowering: Dec-Feb, Harvest: May-July",
+        growthDuration: "4-5 months (flowering to harvest)",
+        avgYield: "10-15 tons/ha (mature trees)",
+        optimalTemp: "25-30°C",
+        difficulty: "Moderate",
+        waterLevel: 40,
+        waterDetails: "Moderate water needs. Drought stress before flowering improves fruit set. Irrigate during fruit development. Stop irrigation 2-3 months before flowering.",
+        soilType: "Deep, well-drained alluvial or lateritic soil. Tolerates various soil types.",
+        phRange: "5.5-7.5",
+        soilTexture: "Loam/Sandy",
+        npk: { n: 100, p: 50, k: 100 },
+        diseases: [
+            { name: "Anthracnose", severity: "high", icon: "fa-bug" },
+            { name: "Powdery Mildew", severity: "high", icon: "fa-snowflake" },
+            { name: "Bacterial Canker", severity: "medium", icon: "fa-bacterium" },
+            { name: "Mango Malformation", severity: "medium", icon: "fa-virus" }
+        ],
+        tips: [
+            "Plant grafted saplings for earlier and consistent fruiting",
+            "Maintain 10x10m spacing for traditional varieties",
+            "Prune after harvest to maintain tree shape",
+            "Apply pre-flowering spray to control pests",
+            "Harvest when fruit shows color change and aroma develops"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 7,
+            fertilization: [0, 60, 120],
+            harvestOffset: 150
+        }
+    },
+    grapes: {
+        name: "Grapes",
+        emoji: "🍇",
+        description: "Grapes are climbing vines grown for fresh fruit, raisins, and wine. They require careful training and pruning for optimal production.",
+        climate: "Mediterranean climate, hot dry summers, cool winters",
+        season: "Pruning: Jan-Feb, Harvest: May-June",
+        growthDuration: "140-160 days (bud break to harvest)",
+        avgYield: "15-25 tons/ha",
+        optimalTemp: "20-25°C",
+        difficulty: "Hard",
+        waterLevel: 55,
+        waterDetails: "Moderate water needs. Drip irrigation preferred. Reduce water before harvest to improve sugar content. Total need: 500-800 mm.",
+        soilType: "Well-drained sandy loam to clay loam. Deep soil preferred for root development.",
+        phRange: "6.0-7.5",
+        soilTexture: "Sandy Loam",
+        npk: { n: 80, p: 60, k: 80 },
+        diseases: [
+            { name: "Downy Mildew", severity: "high", icon: "fa-tint" },
+            { name: "Powdery Mildew", severity: "high", icon: "fa-snowflake" },
+            { name: "Anthracnose", severity: "medium", icon: "fa-bug" },
+            { name: "Botrytis Bunch Rot", severity: "medium", icon: "fa-cloud" }
+        ],
+        tips: [
+            "Train vines on trellis systems (bower, VSP, etc.)",
+            "Prune to 2-3 buds per spur for optimal fruiting",
+            "Apply Gibberellic acid for berry sizing",
+            "Thin bunches for better quality grapes",
+            "Protect bunches with paper bags near harvest"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 10,
+            fertilization: [0, 30, 60, 90],
+            harvestOffset: 150
+        }
+    },
+    watermelon: {
+        name: "Watermelon",
+        emoji: "🍉",
+        description: "Watermelon is a warm-season fruit grown for its sweet, juicy flesh. It requires warm soil and plenty of space for vines to spread.",
+        climate: "Warm climate, 25-35°C, long frost-free period",
+        season: "Summer crop, February to June planting",
+        growthDuration: "80-100 days",
+        avgYield: "25-40 tons/ha",
+        optimalTemp: "28-32°C",
+        difficulty: "Easy",
+        waterLevel: 65,
+        waterDetails: "Moderate to high water need. Deep, infrequent irrigation preferred. Reduce water as fruit matures to concentrate sweetness.",
+        soilType: "Well-drained sandy loam soil. Good drainage essential to prevent root diseases.",
+        phRange: "6.0-7.0",
+        soilTexture: "Sandy Loam",
+        npk: { n: 100, p: 50, k: 50 },
+        diseases: [
+            { name: "Fusarium Wilt", severity: "high", icon: "fa-virus" },
+            { name: "Anthracnose", severity: "medium", icon: "fa-bug" },
+            { name: "Powdery Mildew", severity: "medium", icon: "fa-snowflake" },
+            { name: "Gummy Stem Blight", severity: "low", icon: "fa-leaf" }
+        ],
+        tips: [
+            "Use black plastic mulch to warm soil and control weeds",
+            "Space hills 2-3 meters apart for vine spread",
+            "Hand pollinate in greenhouse conditions",
+            "Check ripeness by ground spot color (yellow) and tendril drying",
+            "Harvest in morning for best sugar content"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 5,
+            fertilization: [0, 21, 45],
+            harvestOffset: 90
+        }
+    },
+    coffee: {
+        name: "Coffee",
+        emoji: "☕",
+        description: "Coffee is a tropical shrub grown for its beans. It requires shade, consistent moisture, and specific altitude for quality production.",
+        climate: "Tropical highlands, 15-24°C, consistent rainfall",
+        season: "Planting with monsoon, harvest: Nov-Feb",
+        growthDuration: "3-4 years to first harvest",
+        avgYield: "1-2 tons/ha (green beans)",
+        optimalTemp: "18-22°C",
+        difficulty: "Hard",
+        waterLevel: 70,
+        waterDetails: "High water requirement. Needs 1500-2500 mm annual rainfall well-distributed. Sensitive to drought during flowering and fruit development.",
+        soilType: "Deep, well-drained, slightly acidic soil rich in organic matter. Volcanic soils ideal.",
+        phRange: "5.5-6.5",
+        soilTexture: "Loam",
+        npk: { n: 160, p: 45, k: 160 },
+        diseases: [
+            { name: "Coffee Leaf Rust", severity: "high", icon: "fa-leaf" },
+            { name: "Coffee Berry Disease", severity: "high", icon: "fa-circle" },
+            { name: "Root Rot", severity: "medium", icon: "fa-tree" },
+            { name: "Stem Borer", severity: "medium", icon: "fa-bug" }
+        ],
+        tips: [
+            "Plant under shade trees (40-50% shade optimal)",
+            "Maintain 2.5x2.5m or 3x3m spacing",
+            "Apply organic mulch around plants",
+            "Prune to maintain productive canopy",
+            "Harvest only red, fully ripe cherries for quality"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 7,
+            fertilization: [30, 90, 180, 270],
+            harvestOffset: 1095
+        }
+    },
+    cotton: {
+        name: "Cotton",
+        emoji: "🏵️",
+        description: "Cotton is a fiber crop grown for textile production. It requires warm temperatures and a long frost-free growing season.",
+        climate: "Warm tropical/subtropical, 21-30°C, moderate rainfall",
+        season: "Kharif season, April-May sowing",
+        growthDuration: "150-180 days",
+        avgYield: "2-3 tons/ha (seed cotton)",
+        optimalTemp: "25-30°C",
+        difficulty: "Moderate",
+        waterLevel: 55,
+        waterDetails: "Moderate water needs. Total: 700-1300 mm. Critical periods: flowering and boll development. Avoid waterlogging.",
+        soilType: "Deep black cotton soil (vertisol) or alluvial soil. Good water retention capacity needed.",
+        phRange: "6.0-8.0",
+        soilTexture: "Clay/Loam",
+        npk: { n: 120, p: 60, k: 60 },
+        diseases: [
+            { name: "Bacterial Blight", severity: "high", icon: "fa-bacterium" },
+            { name: "Fusarium Wilt", severity: "high", icon: "fa-virus" },
+            { name: "Bollworm", severity: "high", icon: "fa-bug" },
+            { name: "Root Rot", severity: "medium", icon: "fa-tree" }
+        ],
+        tips: [
+            "Use Bt cotton varieties for bollworm resistance",
+            "Maintain 90x60 cm or 120x45 cm spacing",
+            "Apply growth regulators to control excessive growth",
+            "Scout regularly for pests - IPM approach recommended",
+            "Pick cotton when bolls are fully open and dry"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 14,
+            fertilization: [0, 30, 60],
+            harvestOffset: 165
+        }
+    },
+    orange: {
+        name: "Orange",
+        emoji: "🍊",
+        description: "Orange is a citrus fruit grown in subtropical regions. Trees are evergreen and produce fruit annually once mature.",
+        climate: "Subtropical, 15-30°C, mild winters",
+        season: "Harvest: November to March (varies by variety)",
+        growthDuration: "8-12 months (flowering to harvest)",
+        avgYield: "15-25 tons/ha",
+        optimalTemp: "23-28°C",
+        difficulty: "Moderate",
+        waterLevel: 60,
+        waterDetails: "Moderate water needs. Regular irrigation essential. Total: 900-1200 mm. Reduce water before flowering to induce bloom.",
+        soilType: "Well-drained sandy loam to clay loam. Good drainage critical to prevent root diseases.",
+        phRange: "6.0-7.5",
+        soilTexture: "Sandy Loam",
+        npk: { n: 120, p: 40, k: 120 },
+        diseases: [
+            { name: "Citrus Canker", severity: "high", icon: "fa-bacterium" },
+            { name: "Greening (HLB)", severity: "high", icon: "fa-virus" },
+            { name: "Gummosis", severity: "medium", icon: "fa-tint" },
+            { name: "Citrus Mites", severity: "medium", icon: "fa-bug" }
+        ],
+        tips: [
+            "Plant grafted trees on disease-resistant rootstock",
+            "Maintain 6x6m spacing for optimal growth",
+            "Apply micronutrients (Zn, Fe, Mn) regularly",
+            "Control suckers and water sprouts",
+            "Harvest when fruit reaches full color and sugar content"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 7,
+            fertilization: [0, 60, 120, 240],
+            harvestOffset: 300
+        }
+    },
+    lentil: {
+        name: "Lentil",
+        emoji: "🫘",
+        description: "Lentil is a nutritious pulse crop that's drought-tolerant and improves soil fertility through nitrogen fixation.",
+        climate: "Cool climate, 18-25°C during growth",
+        season: "Rabi season, October-November sowing",
+        growthDuration: "100-120 days",
+        avgYield: "1-1.5 tons/ha",
+        optimalTemp: "18-24°C",
+        difficulty: "Easy",
+        waterLevel: 25,
+        waterDetails: "Low water requirement. Highly drought tolerant. Needs 300-400 mm. Avoid waterlogging - very sensitive.",
+        soilType: "Well-drained sandy loam to clay loam. Tolerates poor soils better than other pulses.",
+        phRange: "6.0-8.0",
+        soilTexture: "Sandy Loam",
+        npk: { n: 20, p: 40, k: 20 },
+        diseases: [
+            { name: "Rust", severity: "high", icon: "fa-leaf" },
+            { name: "Wilt", severity: "high", icon: "fa-virus" },
+            { name: "Ascochyta Blight", severity: "medium", icon: "fa-bug" },
+            { name: "Root Rot", severity: "medium", icon: "fa-tree" }
+        ],
+        tips: [
+            "Inoculate seeds with Rhizobium for nitrogen fixation",
+            "Sow at 3-4 cm depth with 25-30 cm row spacing",
+            "Minimal irrigation needed - usually rainfed",
+            "Weed control critical in first 4-5 weeks",
+            "Harvest when 80% pods turn brown"
+        ],
+        calendar: {
+            sowingOffset: 0,
+            irrigationStart: 30,
+            fertilization: [0],
+            harvestOffset: 110
+        }
+    }
+};
+
+// Add remaining crops with similar structure
+const additionalCrops = ['kidneybeans', 'pigeonpeas', 'mothbeans', 'mungbean', 'blackgram', 
+                         'pomegranate', 'muskmelon', 'apple', 'papaya', 'coconut', 'jute'];
+
+additionalCrops.forEach(crop => {
+    if (!cropData[crop]) {
+        cropData[crop] = {
+            name: crop.charAt(0).toUpperCase() + crop.slice(1).replace(/([A-Z])/g, ' $1'),
+            emoji: "🌱",
+            description: `${crop.charAt(0).toUpperCase() + crop.slice(1)} is a valuable crop with specific growing requirements. Select for detailed information.`,
+            climate: "Varies by region - consult local agricultural extension",
+            season: "Consult local planting calendar",
+            growthDuration: "90-150 days",
+            avgYield: "Varies",
+            optimalTemp: "20-30°C",
+            difficulty: "Moderate",
+            waterLevel: 50,
+            waterDetails: "Moderate water requirements. Adjust based on local conditions and growth stage.",
+            soilType: "Well-drained loamy soil preferred. Good organic matter content beneficial.",
+            phRange: "6.0-7.5",
+            soilTexture: "Loam",
+            npk: { n: 80, p: 40, k: 40 },
+            diseases: [
+                { name: "Fungal Diseases", severity: "medium", icon: "fa-virus" },
+                { name: "Bacterial Infections", severity: "medium", icon: "fa-bacterium" },
+                { name: "Pest Infestation", severity: "medium", icon: "fa-bug" }
+            ],
+            tips: [
+                "Use certified disease-free seeds",
+                "Maintain proper spacing for air circulation",
+                "Apply balanced fertilizers based on soil test",
+                "Monitor for pests and diseases regularly",
+                "Harvest at optimal maturity for best quality"
+            ],
+            calendar: {
+                sowingOffset: 0,
+                irrigationStart: 10,
+                fertilization: [0, 30, 60],
+                harvestOffset: 120
+            }
+        };
+    }
+});
+
+// Format date helper
+function formatDate(date) {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// Add days to date
+function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+}
+
+// Generate calendar
+document.getElementById('generateCalendar').addEventListener('click', function() {
+    const cropSelect = document.getElementById('cropSelect');
+    const plantingDate = document.getElementById('plantingDate');
+    
+    if (!cropSelect.value) {
+        alert('Please select a crop first!');
+        return;
+    }
+    
+    if (!plantingDate.value) {
+        plantingDate.value = new Date().toISOString().split('T')[0];
+    }
+    
+    const crop = cropData[cropSelect.value];
+    const startDate = new Date(plantingDate.value);
+    
+    // Show content
+    document.getElementById('cropContent').style.display = 'block';
+    document.getElementById('defaultMessage').style.display = 'none';
+    
+    // Update calendar dates
+    const sowDate = startDate;
+    const irrigationDate = addDays(startDate, crop.calendar.irrigationStart);
+    const fertilizationDate = addDays(startDate, crop.calendar.fertilization[0] || 0);
+    const harvestDate = addDays(startDate, crop.calendar.harvestOffset);
+    
+    document.getElementById('sowingDate').textContent = formatDate(sowDate);
+    document.getElementById('sowingInfo').textContent = 'Planting day';
+    
+    document.getElementById('irrigationDate').textContent = formatDate(irrigationDate);
+    document.getElementById('irrigationInfo').textContent = `Starts ${crop.calendar.irrigationStart} days after sowing`;
+    
+    document.getElementById('fertilizationDate').textContent = formatDate(fertilizationDate);
+    document.getElementById('fertilizationInfo').textContent = `${crop.calendar.fertilization.length} applications`;
+    
+    document.getElementById('harvestDate').textContent = formatDate(harvestDate);
+    document.getElementById('harvestInfo').textContent = `After ~${crop.calendar.harvestOffset} days`;
+    
+    // Update progress bars
+    const totalDays = crop.calendar.harvestOffset;
+    document.getElementById('progressSowing').style.width = '5%';
+    document.getElementById('progressIrrigation').style.width = `${(crop.calendar.irrigationStart / totalDays) * 100}%`;
+    document.getElementById('progressFertilization').style.width = `${((crop.calendar.fertilization[crop.calendar.fertilization.length-1] || 30) / totalDays) * 100}%`;
+    document.getElementById('progressHarvest').style.width = `${100 - (crop.calendar.irrigationStart / totalDays) * 100 - 5}%`;
+    
+    // Update crop overview
+    document.getElementById('climateReq').textContent = crop.climate;
+    document.getElementById('growingSeason').textContent = crop.season;
+    document.getElementById('cropDescription').textContent = crop.description;
+    
+    // Update stats
+    document.getElementById('avgYield').textContent = crop.avgYield;
+    document.getElementById('growthDuration').textContent = crop.growthDuration;
+    document.getElementById('optimalTemp').textContent = crop.optimalTemp;
+    document.getElementById('difficulty').textContent = crop.difficulty;
+    
+    // Update water & soil
+    document.getElementById('waterLevel').style.width = crop.waterLevel + '%';
+    document.getElementById('waterDetails').textContent = crop.waterDetails;
+    document.getElementById('soilType').textContent = crop.soilType;
+    document.getElementById('phRange').textContent = 'pH: ' + crop.phRange;
+    document.getElementById('soilTexture').textContent = crop.soilTexture;
+    
+    // Update NPK
+    const maxNPK = 200;
+    document.getElementById('nValue').textContent = crop.npk.n + ' kg/ha';
+    document.getElementById('nBar').style.width = (crop.npk.n / maxNPK * 100) + '%';
+    document.getElementById('pValue').textContent = crop.npk.p + ' kg/ha';
+    document.getElementById('pBar').style.width = (crop.npk.p / maxNPK * 100) + '%';
+    document.getElementById('kValue').textContent = crop.npk.k + ' kg/ha';
+    document.getElementById('kBar').style.width = (crop.npk.k / maxNPK * 100) + '%';
+    
+    // Update diseases
+    const diseasesList = document.getElementById('diseasesList');
+    diseasesList.innerHTML = crop.diseases.map(d => `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><i class="fas ${d.icon} me-2 ${d.severity === 'high' ? 'text-crop-error' : d.severity === 'medium' ? 'text-crop-warning' : 'text-crop-accent'}"></i>${d.name}</span>
+            <span class="badge ${d.severity === 'high' ? 'severity-high' : d.severity === 'medium' ? 'severity-medium' : 'severity-low'}">${d.severity}</span>
+        </li>
+    `).join('');
+    
+    // Update tips
+    const tipsList = document.getElementById('plantingTips');
+    tipsList.innerHTML = crop.tips.map(tip => `
+        <li class="list-group-item">
+            <i class="fas fa-check-circle text-crop-primary me-2"></i>${tip}
+        </li>
+    `).join('');
+    
+    // Generate detailed activity table
+    generateActivityTable(crop, startDate);
+    
+    // Scroll to content
+    document.getElementById('cropContent').scrollIntoView({ behavior: 'smooth' });
+});
+
+function generateActivityTable(crop, startDate) {
+    const activities = [];
+    let weekNum = 1;
+    
+    // Sowing week
+    activities.push({
+        week: weekNum++,
+        dateRange: `${formatDate(startDate)} - ${formatDate(addDays(startDate, 6))}`,
+        activity: 'Sowing / Planting',
+        details: 'Prepare field, sow seeds or transplant seedlings',
+        priority: 'high'
+    });
+    
+    // Add irrigation and fertilization activities
+    for (let day = 7; day < crop.calendar.harvestOffset; day += 7) {
+        const weekStart = addDays(startDate, day);
+        const weekEnd = addDays(startDate, day + 6);
+        
+        let activity = 'Monitoring & Care';
+        let details = 'Regular field monitoring, weed control';
+        let priority = 'low';
+        
+        // Check for irrigation start
+        if (day >= crop.calendar.irrigationStart && day < crop.calendar.irrigationStart + 7) {
+            activity = 'First Irrigation';
+            details = 'Begin regular irrigation schedule';
+            priority = 'high';
+        }
+        
+        // Check for fertilization
+        crop.calendar.fertilization.forEach((fertDay, index) => {
+            if (day >= fertDay && day < fertDay + 7) {
+                activity = `Fertilization #${index + 1}`;
+                details = `Apply NPK fertilizer (${crop.npk.n}-${crop.npk.p}-${crop.npk.k})`;
+                priority = 'high';
+            }
+        });
+        
+        // Growth stages
+        const progress = day / crop.calendar.harvestOffset;
+        if (progress > 0.3 && progress < 0.35) {
+            activity = 'Vegetative Growth';
+            details = 'Active growth phase - ensure adequate nutrition';
+            priority = 'medium';
+        } else if (progress > 0.5 && progress < 0.55) {
+            activity = 'Flowering / Fruiting';
+            details = 'Critical stage - maintain consistent irrigation';
+            priority = 'high';
+        } else if (progress > 0.8 && progress < 0.85) {
+            activity = 'Pre-Harvest Preparation';
+            details = 'Reduce irrigation, prepare for harvest';
+            priority = 'medium';
+        }
+        
+        activities.push({
+            week: weekNum++,
+            dateRange: `${formatDate(weekStart)} - ${formatDate(weekEnd)}`,
+            activity: activity,
+            details: details,
+            priority: priority
+        });
+    }
+    
+    // Harvest week
+    const harvestStart = addDays(startDate, crop.calendar.harvestOffset);
+    activities.push({
+        week: weekNum,
+        dateRange: `${formatDate(harvestStart)} - ${formatDate(addDays(harvestStart, 6))}`,
+        activity: 'Harvest',
+        details: 'Harvest mature crop at optimal time',
+        priority: 'high'
+    });
+    
+    // Render table
+    const tbody = document.getElementById('activityTable');
+    tbody.innerHTML = activities.map(a => `
+        <tr class="${a.priority === 'high' ? 'priority-high' : ''}">
+            <td><span class="badge stat-badge-secondary">Week ${a.week}</span></td>
+            <td class="text-dark">${a.dateRange}</td>
+            <td><strong class="text-dark">${a.activity}</strong></td>
+            <td class="text-muted">${a.details}</td>
+            <td>
+                <span class="badge ${a.priority === 'high' ? 'severity-high' : a.priority === 'medium' ? 'severity-medium' : 'severity-low'}">
+                    ${a.priority}
+                </span>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Print calendar
+document.getElementById('printCalendar').addEventListener('click', function() {
+    window.print();
+});
+
+// Auto-generate on crop selection change
+document.getElementById('cropSelect').addEventListener('change', function() {
+    if (this.value && document.getElementById('plantingDate').value) {
+        document.getElementById('generateCalendar').click();
+    }
+});
+
+// Set default date to today
+document.getElementById('plantingDate').value = new Date().toISOString().split('T')[0];
+</script>
+
+<style>
+@media print {
+    .navbar, .btn, #cropSelect, #plantingDate, #defaultMessage {
+        display: none !important;
+    }
+    .card {
+        break-inside: avoid;
+    }
+}
+</style>
+{% endblock %}

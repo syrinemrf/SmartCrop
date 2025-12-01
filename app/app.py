@@ -3,7 +3,7 @@ Flask Application - SmartCrop
 ===============================================
 Complete web application with authentication and ML predictions
 """
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.models.predictor import CropPredictor
 from src.utils.logger import setup_logger
+from translations import translations, get_translation, get_all_translations
 
 # Configuration
 app = Flask(__name__)
@@ -29,6 +30,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
     f"@{os.environ['DB_HOST']}:{os.environ['DB_PORT']}/{os.environ['DB_NAME']}"
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['LANGUAGES'] = ['en', 'fr', 'ar']
 
 # Extensions
 db = SQLAlchemy(app)
@@ -41,6 +43,42 @@ logger = setup_logger('FlaskApp')
 
  # ML Model
 predictor = CropPredictor()
+
+
+# ============================================================================
+# LANGUAGE HANDLING
+# ============================================================================
+
+@app.before_request
+def before_request():
+    """Set language before each request"""
+    lang = session.get('lang', 'en')
+    if lang not in app.config['LANGUAGES']:
+        lang = 'en'
+    g.lang = lang
+    g.translations = get_all_translations(lang)
+    g.is_rtl = (lang == 'ar')
+
+@app.context_processor
+def inject_translations():
+    """Inject translations into all templates"""
+    return {
+        't': g.translations,
+        'current_lang': g.lang,
+        'is_rtl': g.is_rtl,
+        'languages': [
+            {'code': 'en', 'name': 'English', 'flag': '🇬🇧'},
+            {'code': 'fr', 'name': 'Français', 'flag': '🇫🇷'},
+            {'code': 'ar', 'name': 'العربية', 'flag': '🇹🇳'}
+        ]
+    }
+
+@app.route('/set-language/<lang>')
+def set_language(lang):
+    """Set the user's preferred language"""
+    if lang in app.config['LANGUAGES']:
+        session['lang'] = lang
+    return redirect(request.referrer or url_for('index'))
 
 
  # ============================================================================
@@ -56,6 +94,11 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     predictions = db.relationship('Prediction', backref='user', lazy=True, cascade='all, delete-orphan')
     profile_image = db.Column(db.String(255), nullable=True)  # Chemin de la photo de profil
+    # Nouveaux champs profil
+    first_name = db.Column(db.String(50), nullable=True)
+    last_name = db.Column(db.String(50), nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
+    location = db.Column(db.String(50), nullable=True)
     
     def set_password(self, password):
         """Hash the password"""
@@ -113,6 +156,143 @@ class Prediction(db.Model):
         }
 
 
+class Notification(db.Model):
+    """Notification model for smart alerts"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    type = db.Column(db.String(50), default='info')  # info, success, warning, danger
+    icon = db.Column(db.String(50), default='fa-bell')
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    link = db.Column(db.String(255), nullable=True)
+    
+    user = db.relationship('User', backref=db.backref('notifications', lazy=True, cascade='all, delete-orphan'))
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'message': self.message,
+            'type': self.type,
+            'icon': self.icon,
+            'is_read': self.is_read,
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M'),
+            'link': self.link,
+            'time_ago': self.time_ago()
+        }
+    
+    def time_ago(self):
+        now = datetime.utcnow()
+        diff = now - self.created_at
+        if diff.days > 0:
+            return f"{diff.days}d ago"
+        elif diff.seconds >= 3600:
+            return f"{diff.seconds // 3600}h ago"
+        elif diff.seconds >= 60:
+            return f"{diff.seconds // 60}m ago"
+        else:
+            return "Just now"
+
+
+class LoginAttempt(db.Model):
+    """Track login attempts for security"""
+    id = db.Column(db.Integer, primary_key=True)
+    ip_address = db.Column(db.String(50), nullable=False)
+    username = db.Column(db.String(80), nullable=True)
+    success = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# Helper function to create notifications
+def create_notification(user_id, title, message, notif_type='info', icon='fa-bell', link=None):
+    notif = Notification(
+        user_id=user_id,
+        title=title,
+        message=message,
+        type=notif_type,
+        icon=icon,
+        link=link
+    )
+    db.session.add(notif)
+    db.session.commit()
+    return notif
+
+
+def generate_seasonal_notifications(user_id):
+    """Generate seasonal tips and recommendations"""
+    import random
+    from datetime import timedelta
+    
+    # Check if user already received a tip today
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    recent_tip = Notification.query.filter(
+        Notification.user_id == user_id,
+        Notification.created_at >= today_start,
+        Notification.title.like('%Tip%')
+    ).first()
+    
+    if recent_tip:
+        return  # Already sent tip today
+    
+    # Get current month for seasonal tips
+    month = datetime.utcnow().month
+    
+    seasonal_tips = {
+        # Winter (Dec-Feb)
+        12: [("Winter Prep 🌨️", "Perfect time to prepare soil for spring planting. Consider soil testing!", "fa-snowflake")],
+        1: [("New Year, New Crops! 🎊", "Start planning your crop rotation for the year. Check our Crop Guide!", "fa-calendar", "/crop-guide")],
+        2: [("Spring is Coming 🌸", "Begin preparing seedbeds. Early spring crops can be started indoors.", "fa-seedling")],
+        # Spring (Mar-May)
+        3: [("Spring Planting 🌱", "Optimal time to plant wheat, barley, and early vegetables.", "fa-leaf", "/predict")],
+        4: [("Soil Testing Time 🔬", "April is perfect for soil analysis. Check our Lab locations!", "fa-flask", "/soil-labs")],
+        5: [("Peak Growing Season 🌿", "Monitor your crops closely. Perfect weather for growth!", "fa-sun")],
+        # Summer (Jun-Aug)
+        6: [("Summer Heat ☀️", "Ensure adequate irrigation during hot months.", "fa-water")],
+        7: [("Mid-Summer Check 🌾", "Time to assess crop health and plan harvests.", "fa-tasks")],
+        8: [("Harvest Prep 🌽", "Some crops are ready for harvest. Plan your next rotation!", "fa-tractor")],
+        # Fall (Sep-Nov)
+        9: [("Autumn Planting 🍂", "Great time for fall crops and cover crops.", "fa-leaf")],
+        10: [("Soil Enrichment 🪴", "Add organic matter to prepare for next season.", "fa-recycle")],
+        11: [("Season Wrap-up 📊", "Review your predictions and plan for next year.", "fa-chart-line", "/dashboard")],
+    }
+    
+    if month in seasonal_tips:
+        tip = random.choice(seasonal_tips[month])
+        title, message, icon = tip[0], tip[1], tip[2]
+        link = tip[3] if len(tip) > 3 else None
+        
+        create_notification(
+            user_id,
+            title,
+            message,
+            notif_type='info',
+            icon=icon,
+            link=link
+        )
+
+
+# Security: Rate limiting for login attempts
+def check_login_attempts(ip_address):
+    """Check if IP has too many failed login attempts"""
+    from datetime import timedelta
+    cutoff = datetime.utcnow() - timedelta(minutes=15)
+    attempts = LoginAttempt.query.filter(
+        LoginAttempt.ip_address == ip_address,
+        LoginAttempt.success == False,
+        LoginAttempt.created_at > cutoff
+    ).count()
+    return attempts < 5  # Max 5 attempts per 15 minutes
+
+
+def log_login_attempt(ip_address, username, success):
+    """Log a login attempt"""
+    attempt = LoginAttempt(ip_address=ip_address, username=username, success=success)
+    db.session.add(attempt)
+    db.session.commit()
+
+
 @login_manager.user_loader
 def load_user(user_id):
     """Load a user"""
@@ -133,6 +313,30 @@ def index():
 def about():
     """About page"""
     return render_template('about.html')
+
+
+@app.route('/soil-labs')
+def soil_labs():
+    """Soil analysis laboratories in Tunisia"""
+    return render_template('soil_labs.html')
+
+
+@app.route('/crop-guide')
+def crop_guide():
+    """Complete crop guide with calendar and tips"""
+    return render_template('crop_guide.html')
+
+
+@app.route('/marketplace')
+def marketplace():
+    """Seed marketplace"""
+    return render_template('marketplace.html')
+
+
+@app.route('/chatbot')
+def chatbot():
+    """Agricultural chatbot assistant"""
+    return render_template('chatbot.html')
 
 
  # ============================================================================
@@ -179,6 +383,16 @@ def signup():
         db.session.add(user)
         db.session.commit()
         
+        # Create welcome notification
+        create_notification(
+            user.id,
+            "Welcome to SmartCrop! 🌱",
+            "Your account has been created successfully. Start by making your first crop prediction!",
+            notif_type='success',
+            icon='fa-seedling',
+            link='/predict'
+        )
+        
         logger.info(f"New user created: {username}")
         flash('Account created successfully! You can now log in.', 'success')
         return redirect(url_for('login'))
@@ -188,7 +402,7 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """Login"""
+    """Login with enhanced security"""
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
     
@@ -196,17 +410,46 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         remember = request.form.get('remember', False)
+        ip_address = request.remote_addr
+        
+        # Check rate limiting
+        if not check_login_attempts(ip_address):
+            flash('Too many failed login attempts. Please try again in 15 minutes.', 'danger')
+            logger.warning(f"Rate limit exceeded for IP: {ip_address}")
+            return render_template('login.html')
         
         user = User.query.filter_by(username=username).first()
         
         if user and user.check_password(password):
+            log_login_attempt(ip_address, username, True)
             login_user(user, remember=remember)
             logger.info(f"User logged in: {username}")
+            
+            # Check for inactivity and create notification
+            last_prediction = Prediction.query.filter_by(user_id=user.id)\
+                .order_by(Prediction.created_at.desc()).first()
+            if last_prediction:
+                days_since = (datetime.utcnow() - last_prediction.created_at).days
+                if days_since >= 7:
+                    create_notification(
+                        user.id,
+                        "Welcome Back! 🌾",
+                        f"It's been {days_since} days since your last prediction. Your crops miss you!",
+                        notif_type='info',
+                        icon='fa-calendar-alt',
+                        link='/predict'
+                    )
+            
+            # Generate seasonal tips
+            generate_seasonal_notifications(user.id)
+            
             flash(f'Welcome {username}!', 'success')
             
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('dashboard'))
         else:
+            log_login_attempt(ip_address, username, False)
+            logger.warning(f"Failed login attempt for username: {username} from IP: {ip_address}")
             flash('Incorrect username or password.', 'danger')
     
     return render_template('login.html')
@@ -243,25 +486,76 @@ def allowed_file(filename):
 def profile():
     if request.method == 'POST':
         email = request.form.get('email')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        phone = request.form.get('phone')
+        location = request.form.get('location')
+        
         # Changement email
         if email and email != current_user.email:
             if User.query.filter_by(email=email).first():
                 flash('Cet email est déjà utilisé.', 'danger')
             else:
                 current_user.email = email
-                db.session.commit()
                 flash('Email mis à jour.', 'success')
+        
+        # Mise à jour des autres champs
+        current_user.first_name = first_name
+        current_user.last_name = last_name
+        current_user.phone = phone
+        current_user.location = location
+        
         # Upload photo de profil
         if 'profile_image' in request.files:
             file = request.files['profile_image']
-            if file and allowed_file(file.filename):
+            if file and file.filename and allowed_file(file.filename):
                 filename = secure_filename(f"{current_user.id}_{file.filename}")
                 file.save(os.path.join(PROFILE_IMG_FOLDER, filename))
                 current_user.profile_image = filename
-                db.session.commit()
                 flash('Photo de profil mise à jour.', 'success')
+        
+        db.session.commit()
+        
+        # Notification for profile update
+        create_notification(
+            current_user.id,
+            "Profile Updated ✅",
+            "Your profile information has been successfully updated.",
+            notif_type='info',
+            icon='fa-user-edit'
+        )
+        
+        flash('Profil mis à jour avec succès.', 'success')
         return redirect(url_for('profile'))
-    return render_template('profile.html', user=current_user)
+    
+    # Récupérer les statistiques pour le profil
+    predictions_count = Prediction.query.filter_by(user_id=current_user.id).count()
+    
+    # Prédictions ce mois
+    from datetime import timedelta
+    now = datetime.utcnow()
+    start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    predictions_this_month = Prediction.query.filter(
+        Prediction.user_id == current_user.id,
+        Prediction.created_at >= start_of_month
+    ).count()
+    
+    # Confiance moyenne
+    avg_confidence = db.session.query(db.func.avg(Prediction.confidence)).filter(
+        Prediction.user_id == current_user.id
+    ).scalar() or 0
+    
+    # Dernières prédictions
+    recent_predictions = Prediction.query.filter_by(user_id=current_user.id).order_by(
+        Prediction.created_at.desc()
+    ).limit(5).all()
+    
+    return render_template('profile.html', 
+                           user=current_user,
+                           predictions_count=predictions_count,
+                           predictions_this_month=predictions_this_month,
+                           avg_confidence=avg_confidence,
+                           recent_predictions=recent_predictions)
 
 @app.route('/profile/change_password', methods=['POST'])
 @login_required
@@ -278,6 +572,13 @@ def change_password():
     else:
         current_user.set_password(new_password)
         db.session.commit()
+        create_notification(
+            current_user.id,
+            "Password Changed 🔐",
+            "Your password has been successfully updated.",
+            notif_type='success',
+            icon='fa-lock'
+        )
         flash('Mot de passe mis à jour.', 'success')
     return redirect(url_for('profile'))
 
@@ -292,14 +593,77 @@ def delete_account():
     flash('Compte supprimé avec succès.', 'info')
     return redirect(url_for('index'))
 
+
+# ============================================================================
+# ROUTES - NOTIFICATIONS
+# ============================================================================
+
+@app.route('/notifications')
+@login_required
+def notifications():
+    """View all notifications"""
+    user_notifications = Notification.query.filter_by(user_id=current_user.id)\
+        .order_by(Notification.created_at.desc()).limit(50).all()
+    return render_template('notifications.html', notifications=user_notifications)
+
+
+@app.route('/api/notifications')
+@login_required
+def api_notifications():
+    """API to get notifications"""
+    user_notifications = Notification.query.filter_by(user_id=current_user.id)\
+        .order_by(Notification.created_at.desc()).limit(20).all()
+    unread_count = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
+    return jsonify({
+        'success': True,
+        'notifications': [n.to_dict() for n in user_notifications],
+        'unread_count': unread_count
+    })
+
+
+@app.route('/api/notifications/<int:notif_id>/read', methods=['POST'])
+@login_required
+def mark_notification_read(notif_id):
+    """Mark a notification as read"""
+    notif = Notification.query.get_or_404(notif_id)
+    if notif.user_id != current_user.id:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+    notif.is_read = True
+    db.session.commit()
+    return jsonify({'success': True})
+
+
+@app.route('/api/notifications/read-all', methods=['POST'])
+@login_required
+def mark_all_notifications_read():
+    """Mark all notifications as read"""
+    Notification.query.filter_by(user_id=current_user.id, is_read=False)\
+        .update({'is_read': True})
+    db.session.commit()
+    return jsonify({'success': True})
+
+
+# ============================================================================
+# ROUTES - DASHBOARD (ENHANCED)
+# ============================================================================
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    """User dashboard"""
+    """Enhanced user dashboard"""
+    from datetime import timedelta
+    
     # Statistics
     total_predictions = Prediction.query.filter_by(user_id=current_user.id).count()
     recent_predictions = Prediction.query.filter_by(user_id=current_user.id)\
         .order_by(Prediction.created_at.desc()).limit(5).all()
+    
+    # Predictions this week
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    predictions_this_week = Prediction.query.filter(
+        Prediction.user_id == current_user.id,
+        Prediction.created_at >= week_ago
+    ).count()
     
     # Most predicted crops
     predictions_all = Prediction.query.filter_by(user_id=current_user.id).all()
@@ -307,10 +671,92 @@ def dashboard():
     for pred in predictions_all:
         crop_counts[pred.predicted_crop] = crop_counts.get(pred.predicted_crop, 0) + 1
     
+    # Average confidence
+    avg_confidence = 0
+    if predictions_all:
+        avg_confidence = sum(p.confidence for p in predictions_all) / len(predictions_all)
+    
+    # Top crop
+    top_crop = max(crop_counts, key=crop_counts.get) if crop_counts else None
+    
+    # Unread notifications count
+    unread_notifications = Notification.query.filter_by(
+        user_id=current_user.id, is_read=False
+    ).count()
+    
+    # Recent notifications (for sidebar)
+    recent_notifications = Notification.query.filter_by(user_id=current_user.id)\
+        .order_by(Notification.created_at.desc()).limit(5).all()
+    
+    # Generate smart tips based on user activity
+    tips = generate_smart_tips(current_user.id, predictions_all, crop_counts)
+    
     return render_template('dashboard.html',
                          total_predictions=total_predictions,
                          recent_predictions=recent_predictions,
-                         crop_counts=crop_counts)
+                         predictions_this_week=predictions_this_week,
+                         crop_counts=crop_counts,
+                         avg_confidence=avg_confidence,
+                         top_crop=top_crop,
+                         unread_notifications=unread_notifications,
+                         recent_notifications=recent_notifications,
+                         tips=tips)
+
+
+def generate_smart_tips(user_id, predictions, crop_counts):
+    """Generate intelligent tips based on user activity"""
+    tips = []
+    
+    if len(predictions) == 0:
+        tips.append({
+            'icon': 'fa-lightbulb',
+            'type': 'info',
+            'message': 'Make your first prediction to get personalized crop recommendations!'
+        })
+    elif len(predictions) < 5:
+        tips.append({
+            'icon': 'fa-chart-line',
+            'type': 'info',
+            'message': f'You have {len(predictions)} predictions. Make more to see detailed analytics!'
+        })
+    
+    if crop_counts:
+        top_crop = max(crop_counts, key=crop_counts.get)
+        tips.append({
+            'icon': 'fa-seedling',
+            'type': 'success',
+            'message': f'Your most recommended crop is {top_crop}. Consider exploring its cultivation guide!'
+        })
+    
+    # Seasonal tip
+    from datetime import datetime
+    month = datetime.now().month
+    if month in [3, 4, 5]:
+        tips.append({
+            'icon': 'fa-sun',
+            'type': 'warning',
+            'message': 'Spring season: Ideal time for planting summer crops like tomatoes, peppers, and corn.'
+        })
+    elif month in [6, 7, 8]:
+        tips.append({
+            'icon': 'fa-temperature-high',
+            'type': 'warning',
+            'message': 'Summer: Ensure adequate irrigation for your crops during hot weather.'
+        })
+    elif month in [9, 10, 11]:
+        tips.append({
+            'icon': 'fa-leaf',
+            'type': 'info',
+            'message': 'Autumn: Good time for harvesting summer crops and planting winter varieties.'
+        })
+    else:
+        tips.append({
+            'icon': 'fa-snowflake',
+            'type': 'info',
+            'message': 'Winter: Plan your spring planting and prepare your soil for the next season.'
+        })
+    
+    return tips[:3]  # Return max 3 tips
 
 
 @app.route('/predict', methods=['GET', 'POST'])
@@ -332,6 +778,10 @@ def predict():
             
             # Prediction
             result = predictor.predict(features)
+            
+            # Explication LIME (XAI)
+            explanation = predictor.explain_prediction(features)
+            result['explanation'] = explanation
             
             # Save to database
             # Ensure prediction_name is a string and not None
@@ -360,6 +810,31 @@ def predict():
             )
             db.session.add(prediction)
             db.session.commit()
+            
+            # Count total predictions for this user
+            total_predictions = Prediction.query.filter_by(user_id=current_user.id).count()
+            
+            # Create notification for the prediction
+            create_notification(
+                current_user.id,
+                f"New Prediction: {result['crop']} 🌱",
+                f"Recommended crop with {result['confidence']:.1f}% confidence. Soil: N={features[0]}, P={features[1]}, K={features[2]}",
+                notif_type='success',
+                icon='fa-leaf',
+                link='/history'
+            )
+            
+            # Milestone notifications
+            milestones = {1: "First", 10: "10th", 25: "25th", 50: "50th", 100: "100th", 500: "500th"}
+            if total_predictions in milestones:
+                create_notification(
+                    current_user.id,
+                    f"🎉 Milestone Reached!",
+                    f"Congratulations! You just made your {milestones[total_predictions]} prediction! Keep growing!",
+                    notif_type='warning',
+                    icon='fa-trophy',
+                    link='/dashboard'
+                )
             
             logger.info(f"Prediction made by {current_user.username}: {result['crop']}")
             

@@ -7,6 +7,7 @@ import pandas as pd
 from pathlib import Path
 import logging
 from typing import Dict, List, Union
+from lime.lime_tabular import LimeTabularExplainer
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,8 @@ class CropPredictor:
         self.scaler = None
         self.label_encoder = None
         self.feature_names = ['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
+        self.lime_explainer = None
+        self.training_data = None
         
     def load_model(self):
         """Charge le modèle et les preprocesseurs"""
@@ -37,6 +40,16 @@ class CropPredictor:
             self.scaler = joblib.load(model_dir / "scaler.pkl")
             self.label_encoder = joblib.load(model_dir / "label_encoder.pkl")
             
+            # Charger les données d'entraînement pour LIME
+            try:
+                self.training_data = np.load(model_dir / "X_train_scaled.npy")
+            except:
+                # Fallback: charger depuis data/
+                self.training_data = np.load("data/X_train_scaled.npy")
+            
+            # Initialiser LIME explainer
+            self._init_lime_explainer()
+            
             logger.info("Modèle chargé avec succès")
         except FileNotFoundError as e:
             logger.error(f"Fichier non trouvé: {e}")
@@ -44,6 +57,18 @@ class CropPredictor:
         except Exception as e:
             logger.error(f"Erreur lors du chargement: {e}")
             raise
+    
+    def _init_lime_explainer(self):
+        """Initialise l'explainer LIME"""
+        if self.training_data is not None:
+            self.lime_explainer = LimeTabularExplainer(
+                training_data=self.training_data,
+                feature_names=self.feature_names,
+                class_names=list(self.label_encoder.classes_),
+                mode='classification',
+                discretize_continuous=True
+            )
+            logger.info("LIME explainer initialisé")
     
     def predict(self, features: Union[List, np.ndarray, pd.DataFrame]) -> Dict:
         """
@@ -141,3 +166,77 @@ class CropPredictor:
                 for name, imp in zip(self.feature_names, importances)
             }
         return {}
+    
+    def explain_prediction(self, features: Union[List, np.ndarray], num_features: int = 7) -> Dict:
+        """
+        Explique une prédiction avec LIME
+        
+        Args:
+            features: Les features de l'échantillon à expliquer
+            num_features: Nombre de features à inclure dans l'explication
+        
+        Returns:
+            Dictionnaire avec l'explication LIME
+        """
+        if self.model is None:
+            self.load_model()
+        
+        if self.lime_explainer is None:
+            logger.warning("LIME explainer non disponible")
+            return {'error': 'Explainer not available'}
+        
+        # Convertir en array si nécessaire
+        if isinstance(features, list):
+            features = np.array(features)
+        
+        # Standardiser les features
+        features_scaled = self.scaler.transform(features.reshape(1, -1))[0]
+        
+        # Fonction de prédiction pour LIME (sur données scalées)
+        def predict_fn(X):
+            return self.model.predict_proba(X)
+        
+        try:
+            # Générer l'explication
+            explanation = self.lime_explainer.explain_instance(
+                features_scaled,
+                predict_fn,
+                num_features=num_features,
+                top_labels=1
+            )
+            
+            # Récupérer la classe prédite
+            predicted_label = self.model.predict(features_scaled.reshape(1, -1))[0]
+            
+            # Extraire les contributions des features
+            exp_list = explanation.as_list(label=predicted_label)
+            
+            # Formater les résultats
+            feature_contributions = []
+            for feature_desc, weight in exp_list:
+                # Extraire le nom de la feature depuis la description LIME
+                feature_name = feature_desc
+                for fn in self.feature_names:
+                    if fn in feature_desc:
+                        feature_name = fn
+                        break
+                
+                feature_contributions.append({
+                    'feature': feature_name,
+                    'description': feature_desc,
+                    'weight': float(weight),
+                    'impact': 'positive' if weight > 0 else 'negative'
+                })
+            
+            # Trier par importance absolue
+            feature_contributions.sort(key=lambda x: abs(x['weight']), reverse=True)
+            
+            return {
+                'contributions': feature_contributions,
+                'predicted_class': self.label_encoder.inverse_transform([predicted_label])[0],
+                'intercept': float(explanation.intercept[predicted_label]) if hasattr(explanation, 'intercept') else 0
+            }
+        
+        except Exception as e:
+            logger.error(f"Erreur lors de l'explication LIME: {e}")
+            return {'error': str(e)}

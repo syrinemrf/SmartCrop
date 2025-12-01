@@ -1,45 +1,385 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-4">
-  <h2>Mon profil</h2>
-  <form method="POST" enctype="multipart/form-data">
+<div class="container py-4">
     <div class="row">
-      <div class="col-md-4 text-center">
-        <img src="{{ user.get_profile_image() }}" alt="Photo de profil" class="img-thumbnail mb-2" style="max-width: 200px;">
-        <input type="file" name="profile_image" accept="image/*" class="form-control mb-2">
-      </div>
-      <div class="col-md-8">
-        <div class="mb-3">
-          <label for="username" class="form-label">Nom d'utilisateur</label>
-          <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled>
+        <!-- Left column - Photo and info -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <div class="position-relative d-inline-block mb-3">
+                        <img src="{{ user.get_profile_image() }}" alt="Profile picture" 
+                             class="rounded-circle shadow" id="profilePreview"
+                             style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #28a745;">
+                        <label for="profile_image_input" class="position-absolute bottom-0 end-0 bg-success rounded-circle p-2 shadow-sm" 
+                               style="cursor: pointer; transform: translate(10%, 10%);">
+                            <i class="fas fa-camera text-white"></i>
+                        </label>
+                    </div>
+                    <h4 class="mb-1 text-dark">{{ user.username }}</h4>
+                    <p class="text-muted mb-2"><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
+                    <p class="text-muted small mb-3">
+                        <i class="fas fa-calendar me-2"></i>{{ t.profile_member_since }} {{ user.created_at.strftime('%d/%m/%Y') if user.created_at else 'N/A' }}
+                    </p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <span class="badge bg-success"><i class="fas fa-seedling me-1"></i>{{ predictions_count }} {{ t.dashboard_predictions }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Statistics -->
+            <div class="card shadow-sm border-0 mt-3">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="mb-0 text-dark"><i class="fas fa-chart-line text-success me-2"></i>{{ t.nav_dashboard }}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">{{ t.dashboard_predictions }}</span>
+                        <strong class="text-success">{{ predictions_count }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">{{ t.dashboard_this_month }}</span>
+                        <strong class="text-dark">{{ predictions_this_month }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">{{ t.history_confidence }}</span>
+                        <strong class="text-primary">{{ "%.1f"|format(avg_confidence) }}</strong>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
-          <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+        
+        <!-- Right column - Forms -->
+        <div class="col-lg-8">
+            <!-- Personal Information -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 text-dark"><i class="fas fa-user-edit text-success me-2"></i>{{ t.profile_personal }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="profileForm">
+                        <input type="file" name="profile_image" id="profile_image_input" accept="image/*" class="d-none">
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="username" class="form-label text-dark">
+                                    <i class="fas fa-user text-muted me-1"></i>{{ t.signup_username }}
+                                </label>
+                                <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label text-dark">
+                                    <i class="fas fa-envelope text-muted me-1"></i>{{ t.signup_email }}
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label text-dark">
+                                    <i class="fas fa-id-card text-muted me-1"></i>{{ t.profile_first_name }}
+                                </label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" 
+                                       value="{{ user.first_name or '' }}" placeholder="{{ t.profile_first_name }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label text-dark">
+                                    <i class="fas fa-id-card text-muted me-1"></i>{{ t.profile_last_name }}
+                                </label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" 
+                                       value="{{ user.last_name or '' }}" placeholder="{{ t.profile_last_name }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label text-dark">
+                                    <i class="fas fa-phone text-muted me-1"></i>{{ t.profile_phone }}
+                                </label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       value="{{ user.phone or '' }}" placeholder="+216 XX XXX XXX">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="location" class="form-label text-dark">
+                                    <i class="fas fa-map-marker-alt text-muted me-1"></i>{{ t.profile_location }}
+                                </label>
+                                <select class="form-select" id="location" name="location">
+                                    <option value="">{{ t.profile_location }}</option>
+                                    <option value="Tunis" {{ 'selected' if user.location == 'Tunis' else '' }}>Tunis</option>
+                                    <option value="Ariana" {{ 'selected' if user.location == 'Ariana' else '' }}>Ariana</option>
+                                    <option value="Ben Arous" {{ 'selected' if user.location == 'Ben Arous' else '' }}>Ben Arous</option>
+                                    <option value="Manouba" {{ 'selected' if user.location == 'Manouba' else '' }}>Manouba</option>
+                                    <option value="Nabeul" {{ 'selected' if user.location == 'Nabeul' else '' }}>Nabeul</option>
+                                    <option value="Zaghouan" {{ 'selected' if user.location == 'Zaghouan' else '' }}>Zaghouan</option>
+                                    <option value="Bizerte" {{ 'selected' if user.location == 'Bizerte' else '' }}>Bizerte</option>
+                                    <option value="Béja" {{ 'selected' if user.location == 'Béja' else '' }}>Béja</option>
+                                    <option value="Jendouba" {{ 'selected' if user.location == 'Jendouba' else '' }}>Jendouba</option>
+                                    <option value="Le Kef" {{ 'selected' if user.location == 'Le Kef' else '' }}>Le Kef</option>
+                                    <option value="Siliana" {{ 'selected' if user.location == 'Siliana' else '' }}>Siliana</option>
+                                    <option value="Sousse" {{ 'selected' if user.location == 'Sousse' else '' }}>Sousse</option>
+                                    <option value="Monastir" {{ 'selected' if user.location == 'Monastir' else '' }}>Monastir</option>
+                                    <option value="Mahdia" {{ 'selected' if user.location == 'Mahdia' else '' }}>Mahdia</option>
+                                    <option value="Sfax" {{ 'selected' if user.location == 'Sfax' else '' }}>Sfax</option>
+                                    <option value="Kairouan" {{ 'selected' if user.location == 'Kairouan' else '' }}>Kairouan</option>
+                                    <option value="Kasserine" {{ 'selected' if user.location == 'Kasserine' else '' }}>Kasserine</option>
+                                    <option value="Sidi Bouzid" {{ 'selected' if user.location == 'Sidi Bouzid' else '' }}>Sidi Bouzid</option>
+                                    <option value="Gabès" {{ 'selected' if user.location == 'Gabès' else '' }}>Gabès</option>
+                                    <option value="Médenine" {{ 'selected' if user.location == 'Médenine' else '' }}>Médenine</option>
+                                    <option value="Tataouine" {{ 'selected' if user.location == 'Tataouine' else '' }}>Tataouine</option>
+                                    <option value="Gafsa" {{ 'selected' if user.location == 'Gafsa' else '' }}>Gafsa</option>
+                                    <option value="Tozeur" {{ 'selected' if user.location == 'Tozeur' else '' }}>Tozeur</option>
+                                    <option value="Kébili" {{ 'selected' if user.location == 'Kébili' else '' }}>Kébili</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>{{ t.profile_save }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Account Security -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 text-dark"><i class="fas fa-shield-alt text-warning me-2"></i>{{ t.profile_security }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('change_password') }}" id="passwordForm">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="old_password" class="form-label text-dark">{{ t.profile_current_password }}</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="old_password" name="old_password" required>
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="new_password" class="form-label text-dark">New Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="new_password" name="new_password" 
+                                           required minlength="8" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Min. 8 chars, 1 uppercase, 1 number</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="confirm_password" class="form-label text-dark">Confirm</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Password strength indicator -->
+                        <div class="mt-3">
+                            <label class="form-label small text-dark">Password Strength</label>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar" id="passwordStrength" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <small id="passwordFeedback" class="text-muted"></small>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-dark"><i class="fas fa-history text-info me-2"></i>Recent Activity</h5>
+                    <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_predictions %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-dark">Date</th>
+                                    <th class="text-dark">Recommended Crop</th>
+                                    <th class="text-dark">Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pred in recent_predictions[:5] %}
+                                <tr>
+                                    <td class="text-muted">{{ pred.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td><span class="badge bg-success">{{ pred.recommended_crop }}</span></td>
+                                    <td>
+                                        <div class="progress" style="height: 6px; width: 100px;">
+                                            <div class="progress-bar bg-success" style="width: {{ pred.confidence }}%"></div>
+                                        </div>
+                                        <small>{{ "%.1f"|format(pred.confidence) }}%</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-seedling fa-2x mb-2"></i>
+                        <p class="mb-0">No predictions yet</p>
+                        <a href="{{ url_for('predict') }}" class="btn btn-sm btn-success mt-2">Make my first prediction</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Danger Zone -->
+            <div class="card shadow-sm border-danger mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 text-dark">Delete my account</h6>
+                            <p class="text-muted small mb-0">This action is irreversible. All your data will be deleted.</p>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            <i class="fas fa-trash-alt me-2"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">Mettre à jour</button>
-      </div>
     </div>
-  </form>
-  <hr>
-  <h4>Changer le mot de passe</h4>
-  <form method="POST" action="{{ url_for('change_password') }}">
-    <div class="row">
-      <div class="col-md-4">
-        <input type="password" name="old_password" class="form-control mb-2" placeholder="Ancien mot de passe" required>
-      </div>
-      <div class="col-md-4">
-        <input type="password" name="new_password" class="form-control mb-2" placeholder="Nouveau mot de passe" required>
-      </div>
-      <div class="col-md-4">
-        <input type="password" name="confirm_password" class="form-control mb-2" placeholder="Confirmer le mot de passe" required>
-      </div>
-    </div>
-    <button type="submit" class="btn btn-warning">Changer le mot de passe</button>
-  </form>
-  <hr>
-  <form method="POST" action="{{ url_for('delete_account') }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.');">
-    <button type="submit" class="btn btn-danger">Supprimer mon compte</button>
-  </form>
 </div>
+
+<!-- Delete confirmation modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-dark">Are you sure you want to delete your account?</p>
+                <ul class="text-danger">
+                    <li>All your predictions will be deleted</li>
+                    <li>Your history will be erased</li>
+                    <li>This action is <strong>irreversible</strong></li>
+                </ul>
+                <div class="mb-3">
+                    <label class="form-label text-dark">Type <strong>DELETE</strong> to confirm:</label>
+                    <input type="text" class="form-control" id="confirmDelete" placeholder="DELETE">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('delete_account') }}" id="deleteForm">
+                    <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>
+                        <i class="fas fa-trash-alt me-2"></i>Delete Permanently
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Prévisualisation de l'image de profil
+document.getElementById('profile_image_input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profilePreview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Toggle visibilité mot de passe
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+});
+
+// Indicateur de force du mot de passe
+document.getElementById('new_password').addEventListener('input', function() {
+    const password = this.value;
+    const strength = calculatePasswordStrength(password);
+    const bar = document.getElementById('passwordStrength');
+    const feedback = document.getElementById('passwordFeedback');
+    
+    bar.style.width = strength.percent + '%';
+    bar.className = 'progress-bar ' + strength.class;
+    feedback.textContent = strength.text;
+});
+
+function calculatePasswordStrength(password) {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^a-zA-Z0-9]/.test(password)) score++;
+    
+    const levels = [
+        { percent: 0, class: '', text: '' },
+        { percent: 16, class: 'bg-danger', text: 'Very weak' },
+        { percent: 33, class: 'bg-danger', text: 'Weak' },
+        { percent: 50, class: 'bg-warning', text: 'Medium' },
+        { percent: 66, class: 'bg-info', text: 'Good' },
+        { percent: 83, class: 'bg-success', text: 'Strong' },
+        { percent: 100, class: 'bg-success', text: 'Excellent' }
+    ];
+    
+    return levels[Math.min(score, 6)];
+}
+
+// Delete confirmation validation
+document.getElementById('confirmDelete').addEventListener('input', function() {
+    const deleteBtn = document.getElementById('deleteBtn');
+    deleteBtn.disabled = this.value !== 'DELETE';
+});
+
+// Password form validation
+document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    const newPass = document.getElementById('new_password').value;
+    const confirmPass = document.getElementById('confirm_password').value;
+    
+    if (newPass !== confirmPass) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+    }
+});
+</script>
+
+<style>
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+}
+.toggle-password:hover {
+    color: #28a745;
+}
+</style>
 {% endblock %}

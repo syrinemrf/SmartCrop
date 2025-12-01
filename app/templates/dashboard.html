@@ -1,27 +1,58 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - SmartCrop{% endblock %}
+{% block title %}{{ t.nav_dashboard }} - SmartCrop{% endblock %}
 
 {% block content %}
 <div class="container py-5">
+    <!-- Header with welcome and quick actions -->
     <div class="row mb-4">
-        <div class="col">
-            <h1><i class="fas fa-tachometer-alt text-success"></i> Dashboard</h1>
-            <p class="text-muted">Welcome, {{ current_user.username }}!</p>
+        <div class="col-md-8">
+            <h1><i class="fas fa-tachometer-alt text-success"></i> {{ t.dashboard_title }}</h1>
+            <p class="text-muted">{{ t.dashboard_welcome }}, <strong>{{ current_user.username }}</strong>!</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('predict') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> {{ t.nav_predict }}
+            </a>
         </div>
     </div>
     
+    <!-- Smart Tips Alert -->
+    {% if tips %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm smart-tips-card">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="fas fa-lightbulb text-warning"></i> {{ t.dashboard_tips }}</h5>
+                    <div class="row">
+                        {% for tip in tips %}
+                        <div class="col-md-4 mb-2">
+                            <div class="d-flex align-items-start">
+                                <span class="badge bg-{{ tip.type }} me-2 mt-1">
+                                    <i class="fas {{ tip.icon }}"></i>
+                                </span>
+                                <small>{{ tip.message }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
     <!-- Statistics Cards -->
     <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm bg-primary text-white">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-primary text-white h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-uppercase mb-1">Total Predictions</h6>
+                            <h6 class="text-uppercase mb-1 opacity-75">{{ t.dashboard_predictions }}</h6>
                             <h2 class="mb-0">{{ total_predictions }}</h2>
                         </div>
-                        <div class="fs-1">
+                        <div class="fs-1 opacity-50">
                             <i class="fas fa-chart-line"></i>
                         </div>
                     </div>
@@ -29,32 +60,50 @@
             </div>
         </div>
         
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm bg-success text-white">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-success text-white h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-uppercase mb-1">Unique Crops</h6>
-                            <h2 class="mb-0">{{ crop_counts|length }}</h2>
+                            <h6 class="text-uppercase mb-1 opacity-75">{{ t.dashboard_this_month }}</h6>
+                            <h2 class="mb-0">{{ predictions_this_week }}</h2>
                         </div>
-                        <div class="fs-1">
-                            <i class="fas fa-seedling"></i>
+                        <div class="fs-1 opacity-50">
+                            <i class="fas fa-calendar-week"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm bg-info text-white">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-info text-white h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-uppercase mb-1">Member Since</h6>
-                            <h2 class="mb-0">{{ current_user.created_at.strftime('%d/%m/%y') }}</h2>
+                            <h6 class="text-uppercase mb-1 opacity-75">Avg Confidence</h6>
+                            <h2 class="mb-0">{{ (avg_confidence * 100)|round(1) }}%</h2>
                         </div>
-                        <div class="fs-1">
-                            <i class="fas fa-calendar"></i>
+                        <div class="fs-1 opacity-50">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 opacity-75">Top Crop</h6>
+                            <h5 class="mb-0 text-truncate" style="max-width: 120px;">
+                                {{ top_crop or 'N/A' }}
+                            </h5>
+                        </div>
+                        <div class="fs-1 opacity-50">
+                            <i class="fas fa-trophy"></i>
                         </div>
                     </div>
                 </div>
@@ -62,56 +111,55 @@
         </div>
     </div>
     
-    <!-- Charts Row -->
-            <script>window.smartCropData = {{ crop_counts|tojson }};</script>
-        <div class="row mb-2">
-        
-        </div>
+    <!-- Main Content Row -->
     <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 text-dark"><i class="fas fa-chart-pie text-success"></i> Crop Distribution</h5>
+        <!-- Charts Column -->
+        <div class="col-lg-8">
+            <div class="row g-4">
+                <!-- Crop Distribution Chart -->
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0"><i class="fas fa-chart-pie text-success"></i> Crop Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if crop_counts and crop_counts|length > 0 %}
+                                <div class="d-flex justify-content-center">
+                                    <canvas id="cropDistributionChart" style="max-width:280px;max-height:280px;"></canvas>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No data yet. Make predictions!</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body text-dark">
-                    {% if crop_counts and crop_counts|length > 0 %}
-                        <div class="d-flex justify-content-center">
-                            <canvas id="cropDistributionChart" style="max-width:320px;max-height:320px;width:100%;height:320px;"></canvas>
+                
+                <!-- Top 5 Crops Chart -->
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> Top 5 Crops</h5>
                         </div>
-                    {% else %}
-                        <div class="text-center py-5">
-                            <span style="font-size:2.5rem;">🥧</span>
-                            <p class="text-muted mt-3">No crop distribution data yet.<br>Make predictions to see your crop stats!</p>
+                        <div class="card-body">
+                            {% if crop_counts and crop_counts|length > 0 %}
+                                <canvas id="topCropsChart"></canvas>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-medal fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No crops recommended yet!</p>
+                                </div>
+                            {% endif %}
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 text-dark"><i class="fas fa-trophy text-warning"></i> Top 5 Crops</h5>
-                </div>
-                <div class="card-body text-dark">
-                    {% if crop_counts and crop_counts|length > 0 %}
-                        <canvas id="topCropsChart"></canvas>
-                    {% else %}
-                        <div class="text-center py-5">
-                            <span style="font-size:2.5rem;">🏆</span>
-                            <p class="text-muted mt-3">No top crops yet.<br>Make predictions to see your top crops!</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Recent Predictions -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            
+            <!-- Recent Predictions -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-history text-success"></i> Recent Predictions</h5>
                     <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-success">
                         View All <i class="fas fa-arrow-right"></i>
@@ -120,33 +168,44 @@
                 <div class="card-body">
                     {% if recent_predictions %}
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Date</th>
+                                    <th>Location</th>
                                     <th>Crop</th>
                                     <th>Confidence</th>
                                     <th>N-P-K</th>
-                                    <th>Temperature</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for pred in recent_predictions %}
                                 <tr>
-                                    <td>{{ pred.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ pred.created_at.strftime('%d/%m/%Y') }}<br>
+                                            {{ pred.created_at.strftime('%H:%M') }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <small>{{ pred.prediction_name or 'Unnamed' }}</small>
+                                    </td>
                                     <td>
                                         <span class="badge bg-success">{{ pred.predicted_crop }}</span>
                                     </td>
                                     <td>
-                                        <div class="progress" style="height: 20px;">
+                                        <div class="progress" style="height: 20px; min-width: 80px;">
                                             <div class="progress-bar bg-success" role="progressbar" 
                                                  style="width: {{ (pred.confidence * 100)|round }}%">
                                                 {{ (pred.confidence * 100)|round(1) }}%
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ pred.N|round }}-{{ pred.P|round }}-{{ pred.K|round }}</td>
-                                    <td>{{ pred.temperature|round(1) }}°C</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            {{ pred.N|round }}-{{ pred.P|round }}-{{ pred.K|round }}
+                                        </span>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -154,23 +213,108 @@
                     </div>
                     {% else %}
                     <div class="text-center py-5">
-                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">No predictions yet</p>
+                        <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
+                        <p class="text-muted mb-3">No predictions yet</p>
                         <a href="{{ url_for('predict') }}" class="btn btn-success">
-                            <i class="fas fa-plus"></i> Make a Prediction
+                            <i class="fas fa-plus"></i> Make Your First Prediction
                         </a>
                     </div>
                     {% endif %}
                 </div>
             </div>
         </div>
+        
+        <!-- Sidebar Column -->
+        <div class="col-lg-4">
+            <!-- Notifications Widget -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bell text-warning"></i> Notifications
+                        {% if unread_notifications > 0 %}
+                        <span class="badge bg-danger ms-1">{{ unread_notifications }}</span>
+                        {% endif %}
+                    </h5>
+                    <a href="{{ url_for('notifications') }}" class="btn btn-sm btn-link">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_notifications %}
+                        <ul class="list-group list-group-flush">
+                            {% for notif in recent_notifications %}
+                            <li class="list-group-item {% if not notif.is_read %}bg-light{% endif %}">
+                                <div class="d-flex align-items-start">
+                                    <span class="badge bg-{{ notif.type }} me-2 mt-1">
+                                        <i class="fas {{ notif.icon }}"></i>
+                                    </span>
+                                    <div class="flex-grow-1">
+                                        <small class="fw-bold">{{ notif.title }}</small><br>
+                                        <small class="text-muted">{{ notif.time_ago() }}</small>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-bell-slash text-muted"></i>
+                            <p class="text-muted small mb-0">No notifications</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0"><i class="fas fa-bolt text-warning"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('predict') }}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> New Prediction
+                        </a>
+                        <a href="{{ url_for('history') }}" class="btn btn-outline-success">
+                            <i class="fas fa-history"></i> View History
+                        </a>
+                        <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-user"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Info -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0"><i class="fas fa-user-circle text-info"></i> Account</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <img src="{{ current_user.get_profile_image() }}" 
+                             alt="Profile" 
+                             class="rounded-circle mb-2" 
+                             style="width: 80px; height: 80px; object-fit: cover;"
+                             onerror="this.src='https://ui-avatars.com/api/?name={{ current_user.username }}&background=198754&color=fff'">
+                        <h6 class="mb-0">{{ current_user.username }}</h6>
+                        <small class="text-muted">{{ current_user.email }}</small>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between small">
+                        <span class="text-muted">Member since</span>
+                        <span>{{ current_user.created_at.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between small mt-2">
+                        <span class="text-muted">Total predictions</span>
+                        <span class="badge bg-success">{{ total_predictions }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<script>
 {% if crop_counts and crop_counts|length > 0 %}
 <script>
-// Données des cultures
 const cropData = {{ crop_counts|tojson }};
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -178,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cropDistCanvas && Object.keys(cropData).length > 0) {
         var ctx1 = cropDistCanvas.getContext('2d');
         new Chart(ctx1, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
                 labels: Object.keys(cropData),
                 datasets: [{
@@ -186,19 +330,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     backgroundColor: [
                         '#198754', '#20c997', '#0dcaf0', '#0d6efd', '#6610f2',
                         '#6f42c1', '#d63384', '#dc3545', '#fd7e14', '#ffc107'
-                    ]
+                    ],
+                    borderWidth: 0
                 }]
             },
             options: {
                 responsive: true,
+                cutout: '60%',
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: { boxWidth: 12, padding: 10 }
                     }
                 }
             }
         });
     }
+    
     var topCropsCanvas = document.getElementById('topCropsChart');
     if (topCropsCanvas && Object.keys(cropData).length > 0) {
         var sortedCrops = Object.entries(cropData)
@@ -210,25 +358,17 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: sortedCrops.map(function(x) { return x[0]; }),
                 datasets: [{
-                    label: 'Number of predictions',
+                    label: 'Predictions',
                     data: sortedCrops.map(function(x) { return x[1]; }),
-                    backgroundColor: '#198754'
+                    backgroundColor: '#198754',
+                    borderRadius: 5
                 }]
             },
             options: {
                 responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
                 }
             }
         });
@@ -236,5 +376,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endif %}
-</script>
 {% endblock %}

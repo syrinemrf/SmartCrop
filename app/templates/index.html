@@ -1,118 +1,1693 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style>
+/* ==================== HERO SECTION ==================== */
+.hero-modern {
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-tertiary) 50%, #E8F5E9 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated SVG Pattern Background */
+.hero-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232E7D32' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    z-index: 0;
+    animation: patternMove 20s linear infinite;
+}
+
+@keyframes patternMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
+}
+
+.hero-modern::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 80%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(46, 125, 50, 0.08) 0%, transparent 70%);
+    z-index: 0;
+}
+
+/* Floating Particles */
+.particles-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    opacity: 0.6;
+    animation: floatParticle 15s infinite ease-in-out;
+}
+
+.particle:nth-child(1) { left: 5%; top: 20%; animation-delay: 0s; font-size: 1.5rem; }
+.particle:nth-child(2) { left: 15%; top: 60%; animation-delay: 2s; font-size: 1.2rem; }
+.particle:nth-child(3) { left: 25%; top: 40%; animation-delay: 4s; font-size: 1.8rem; }
+.particle:nth-child(4) { left: 35%; top: 80%; animation-delay: 1s; font-size: 1rem; }
+.particle:nth-child(5) { left: 55%; top: 15%; animation-delay: 3s; font-size: 1.4rem; }
+.particle:nth-child(6) { left: 65%; top: 70%; animation-delay: 5s; font-size: 1.6rem; }
+.particle:nth-child(7) { left: 75%; top: 35%; animation-delay: 2.5s; font-size: 1.3rem; }
+.particle:nth-child(8) { left: 85%; top: 55%; animation-delay: 4.5s; font-size: 1.7rem; }
+.particle:nth-child(9) { left: 92%; top: 25%; animation-delay: 1.5s; font-size: 1.1rem; }
+.particle:nth-child(10) { left: 45%; top: 90%; animation-delay: 3.5s; font-size: 1.5rem; }
+
+@keyframes floatParticle {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+    25% { transform: translateY(-30px) rotate(90deg); opacity: 0.8; }
+    50% { transform: translateY(-15px) rotate(180deg); opacity: 0.4; }
+    75% { transform: translateY(-40px) rotate(270deg); opacity: 0.7; }
+}
+
+/* Decorative Leaves */
+.leaf-decoration {
+    position: absolute;
+    z-index: 0;
+    opacity: 0.15;
+    animation: leafSway 6s ease-in-out infinite;
+}
+
+.leaf-1 {
+    top: 10%;
+    left: -5%;
+    font-size: 8rem;
+    transform: rotate(-30deg);
+    animation-delay: 0s;
+}
+
+.leaf-2 {
+    bottom: 15%;
+    right: -3%;
+    font-size: 6rem;
+    transform: rotate(20deg);
+    animation-delay: 2s;
+}
+
+.leaf-3 {
+    top: 50%;
+    left: 2%;
+    font-size: 4rem;
+    transform: rotate(-15deg);
+    animation-delay: 1s;
+}
+
+@keyframes leafSway {
+    0%, 100% { transform: rotate(-30deg) translateX(0); }
+    50% { transform: rotate(-25deg) translateX(10px); }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-primary);
+    animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-title .highlight {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, #81C784 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s ease infinite;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Typing Effect Cursor */
+.hero-title .typing-cursor {
+    display: inline-block;
+    width: 4px;
+    height: 1em;
+    background: var(--primary);
+    margin-left: 5px;
+    animation: blink 1s infinite;
+    vertical-align: text-bottom;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.hero-subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: var(--text-secondary);
+    max-width: 500px;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+/* Enhanced Buttons */
+.hero-buttons {
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.btn-success.btn-lg {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-success.btn-lg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-success.btn-lg:hover::before {
+    left: 100%;
+}
+
+.hero-image-container {
+    position: relative;
+    animation: fadeInRight 1s ease-out 0.3s both;
+}
+
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.hero-image {
+    border-radius: 20px;
+    box-shadow: 0 25px 80px rgba(46, 125, 50, 0.2);
+    transition: transform 0.5s ease;
+    border: 4px solid rgba(255,255,255,0.3);
+}
+
+.hero-image:hover {
+    transform: scale(1.02) rotate(1deg);
+}
+
+/* Image Overlay Gradient */
+.hero-image-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(46,125,50,0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-card {
+    position: absolute;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 15px 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    animation: float 3s ease-in-out infinite;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    z-index: 3;
+}
+
+.floating-card-1 {
+    top: 10%;
+    left: -10%;
+    animation-delay: 0s;
+}
+
+.floating-card-2 {
+    bottom: 15%;
+    right: -5%;
+    animation-delay: 1.5s;
+}
+
+.floating-card-3 {
+    top: 50%;
+    left: -15%;
+    animation-delay: 0.75s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+/* Pulse Animation for Icons */
+.pulse-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* ==================== STATS SECTION ==================== */
+.stats-section {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    margin-top: -80px;
+    position: relative;
+    z-index: 2;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.stats-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 30px 15px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.stat-item:last-child {
+    border-right: none;
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.stat-number {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    color: white;
+    position: relative;
+    display: inline-block;
+}
+
+/* Counter Animation */
+.stat-number.animate {
+    animation: countUp 1s ease-out;
+}
+
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 5px;
+}
+
+/* ==================== FEATURES SECTION ==================== */
+.features-section {
+    background: var(--bg-primary);
+    padding: 100px 0;
+    position: relative;
+}
+
+.features-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(180deg, var(--bg-tertiary) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.section-badge {
+    display: inline-block;
+    background: var(--success-bg);
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.section-title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+/* Animated Underline */
+.section-title-underline {
+    position: relative;
+    display: inline-block;
+}
+
+.section-title-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    border-radius: 2px;
+}
+
+.feature-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 35px 25px;
+    height: 100%;
+    border: 1px solid var(--border-light);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Card Glow Effect */
+.feature-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(46,125,50,0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(46, 125, 50, 0.15);
+}
+
+.feature-card:hover::before {
+    transform: scaleX(1);
+}
+
+.feature-card:hover::after {
+    opacity: 1;
+}
+
+.feature-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, var(--success-bg) 0%, #C8E6C9 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+}
+
+/* Icon Ring Effect */
+.feature-icon-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 19px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+.feature-card:hover .feature-icon-wrapper::before {
+    opacity: 1;
+}
+
+.feature-card:hover .feature-icon-wrapper {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    transform: rotateY(360deg);
+}
+
+.feature-card:hover .feature-icon-wrapper i {
+    color: white;
+}
+
+.feature-icon-wrapper i {
+    font-size: 1.75rem;
+    color: var(--primary);
+    transition: all 0.4s ease;
+}
+
+/* Feature Card Number */
+.feature-number {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary);
+    opacity: 0.08;
+    line-height: 1;
+}
+
+/* ==================== HOW IT WORKS ==================== */
+.how-it-works {
+    background: linear-gradient(180deg, var(--bg-tertiary) 0%, var(--bg-primary) 100%);
+    padding: 100px 0;
+    position: relative;
+}
+
+.step-card {
+    text-align: center;
+    position: relative;
+    padding: 20px;
+}
+
+.step-number {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 auto 25px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 10px 30px rgba(46, 125, 50, 0.3);
+    transition: all 0.4s ease;
+}
+
+.step-card:hover .step-number {
+    transform: scale(1.1) rotate(10deg);
+    box-shadow: 0 15px 40px rgba(46, 125, 50, 0.4);
+}
+
+/* Animated Pulse Ring */
+.step-number::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+    opacity: 0;
+    animation: stepPulse 2s infinite;
+}
+
+@keyframes stepPulse {
+    0% { transform: scale(1); opacity: 0.5; }
+    100% { transform: scale(1.3); opacity: 0; }
+}
+
+.step-connector {
+    position: absolute;
+    top: 60px;
+    left: 60%;
+    width: 80%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary-light) 50%, var(--primary) 100%);
+    background-size: 200% 100%;
+    animation: connectorFlow 3s linear infinite;
+    z-index: 1;
+}
+
+@keyframes connectorFlow {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
+}
+
+.step-card:last-child .step-connector {
+    display: none;
+}
+
+.step-content {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 25px;
+    border: 1px solid var(--border-light);
+    transition: all 0.3s ease;
+}
+
+.step-card:hover .step-content {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+}
+
+/* ==================== CROPS SECTION ==================== */
+.crops-section {
+    background: var(--bg-secondary);
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative Background */
+.crops-section::before {
+    content: '🌾';
+    position: absolute;
+    font-size: 15rem;
+    opacity: 0.03;
+    top: -20%;
+    right: -5%;
+    transform: rotate(15deg);
+}
+
+.crop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.crop-item {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 20px 10px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+}
+
+.crop-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(46,125,50,0.1) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.crop-item:hover {
+    transform: translateY(-8px) scale(1.05);
+    border-color: var(--primary);
+    box-shadow: 0 15px 40px rgba(46, 125, 50, 0.15);
+}
+
+.crop-item:hover::before {
+    opacity: 1;
+}
+
+.crop-emoji {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease;
+}
+
+.crop-item:hover .crop-emoji {
+    transform: scale(1.2) rotate(10deg);
+}
+
+.crop-name {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    position: relative;
+}
+
+/* Crop Category Badge */
+.crop-category {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.crop-category.grain { background: #F9A825; }
+.crop-category.fruit { background: #E53935; }
+.crop-category.legume { background: #43A047; }
+.crop-category.fiber { background: #5C6BC0; }
+
+/* ==================== TRUST SECTION ==================== */
+.trust-section {
+    background: var(--bg-primary);
+    padding: 80px 0;
+    position: relative;
+}
+
+.trust-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 35px 30px;
+    border: 1px solid var(--border-light);
+    height: 100%;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.trust-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(46,125,50,0.05) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.trust-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+}
+
+.trust-card:hover::before {
+    opacity: 1;
+}
+
+.trust-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--success-bg) 0%, #C8E6C9 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: all 0.4s ease;
+}
+
+.trust-card:hover .trust-icon {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    transform: scale(1.1);
+}
+
+.trust-card:hover .trust-icon i {
+    color: white;
+}
+
+.trust-icon i {
+    color: var(--primary);
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+}
+
+/* ==================== TESTIMONIALS SECTION ==================== */
+.testimonials-section {
+    background: linear-gradient(135deg, #E8F5E9 0%, var(--bg-tertiary) 100%);
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.testimonial-card {
+    background: var(--bg-primary);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid var(--border-light);
+    height: 100%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+}
+
+.testimonial-quote {
+    font-size: 3rem;
+    color: var(--primary);
+    opacity: 0.2;
+    position: absolute;
+    top: 15px;
+    left: 25px;
+    font-family: Georgia, serif;
+}
+
+.testimonial-text {
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.testimonial-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.testimonial-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.testimonial-role {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.testimonial-stars {
+    color: #FFB300;
+    margin-top: 10px;
+}
+
+/* ==================== RESOURCES TEASER SECTION ==================== */
+.resources-teaser {
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-tertiary) 50%, #E8F5E9 100%);
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.resources-teaser::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232E7D32' fill-opacity='0.03'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10zm10 8c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm40 40c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+}
+
+.resource-card {
+    background: var(--bg-primary);
+    border-radius: 24px;
+    padding: 0;
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.resource-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+    transform-origin: left;
+}
+
+.resource-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 0 30px 80px rgba(46, 125, 50, 0.2);
+}
+
+.resource-card:hover::before {
+    transform: scaleX(1);
+}
+
+.resource-image {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+}
+
+.resource-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.resource-card:hover .resource-image img {
+    transform: scale(1.1);
+}
+
+.resource-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%);
+}
+
+.resource-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255,255,255,0.95);
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.resource-badge i {
+    font-size: 0.7rem;
+}
+
+.resource-body {
+    padding: 25px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.resource-icon {
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(135deg, var(--success-bg) 0%, #C8E6C9 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: all 0.4s ease;
+    margin-top: -45px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 8px 25px rgba(46, 125, 50, 0.2);
+}
+
+.resource-card:hover .resource-icon {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    transform: rotate(10deg) scale(1.1);
+}
+
+.resource-icon i {
+    font-size: 1.5rem;
+    color: var(--primary);
+    transition: color 0.3s ease;
+}
+
+.resource-card:hover .resource-icon i {
+    color: white;
+}
+
+.resource-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.resource-description {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    flex: 1;
+}
+
+.resource-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.resource-feature-tag {
+    background: var(--success-bg);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.resource-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-top: auto;
+}
+
+.resource-link i {
+    transition: transform 0.3s ease;
+}
+
+.resource-link:hover {
+    color: var(--primary-dark);
+    gap: 12px;
+}
+
+.resource-link:hover i {
+    transform: translateX(5px);
+}
+
+/* Quick Access Grid */
+.quick-access-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-top: 50px;
+}
+
+.quick-access-item {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 20px 15px;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.quick-access-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px rgba(46, 125, 50, 0.15);
+}
+
+.quick-access-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--success-bg) 0%, #C8E6C9 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.quick-access-item:hover .quick-access-icon {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.quick-access-icon i {
+    font-size: 1.25rem;
+    color: var(--primary);
+    transition: color 0.3s ease;
+}
+
+.quick-access-item:hover .quick-access-icon i {
+    color: white;
+}
+
+.quick-access-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Dark Mode for Resources */
+[data-theme="dark"] .resources-teaser {
+    background: linear-gradient(135deg, var(--dark-bg-primary) 0%, var(--dark-bg-secondary) 50%, rgba(76, 175, 80, 0.1) 100%);
+}
+
+[data-theme="dark"] .resource-card {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .resource-title {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .resource-description {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .resource-badge {
+    background: var(--dark-bg-tertiary);
+    color: var(--primary-light);
+}
+
+[data-theme="dark"] .resource-feature-tag {
+    background: rgba(76, 175, 80, 0.2);
+}
+
+[data-theme="dark"] .quick-access-item {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .quick-access-label {
+    color: var(--dark-text-primary);
+}
+
+/* ==================== CTA SECTION ==================== */
+.cta-section {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 50%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+}
+
+.cta-section::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    left: -10%;
+    width: 40%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+}
+
+/* Animated Background Pattern */
+.cta-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    animation: patternMove 30s linear infinite;
+    pointer-events: none;
+}
+
+.cta-content {
+    position: relative;
+    z-index: 1;
+}
+
+.cta-title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: white;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.cta-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+.btn-cta {
+    background: white;
+    color: var(--primary);
+    padding: 18px 45px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    border: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.btn-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(46,125,50,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-cta:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    color: var(--primary-dark);
+}
+
+.btn-cta:hover::before {
+    left: 100%;
+}
+
+/* ==================== SCROLL ANIMATIONS ==================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: all 0.8s ease;
+}
+
+.reveal-left.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.8s ease;
+}
+
+.reveal-right.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Staggered Animation Delays */
+.stagger-1 { transition-delay: 0.1s; }
+.stagger-2 { transition-delay: 0.2s; }
+.stagger-3 { transition-delay: 0.3s; }
+.stagger-4 { transition-delay: 0.4s; }
+.stagger-5 { transition-delay: 0.5s; }
+.stagger-6 { transition-delay: 0.6s; }
+
+/* ==================== MOBILE RESPONSIVE ==================== */
+@media (max-width: 991px) {
+    .hero-modern {
+        min-height: auto;
+        padding: 100px 0 150px;
+    }
+    
+    .hero-image-container {
+        margin-top: 50px;
+    }
+    
+    .floating-card {
+        display: none;
+    }
+    
+    .particles-container {
+        display: none;
+    }
+    
+    .leaf-decoration {
+        display: none;
+    }
+    
+    .stats-section {
+        margin-top: -50px;
+        border-radius: 15px;
+    }
+    
+    .stat-item {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 20px 15px;
+    }
+    
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+    
+    .step-connector {
+        display: none;
+    }
+}
+
+@media (max-width: 767px) {
+    .hero-title {
+        text-align: center;
+    }
+    
+    .hero-subtitle {
+        text-align: center;
+        margin: 0 auto;
+    }
+    
+    .hero-buttons {
+        justify-content: center !important;
+    }
+    
+    .crop-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .section-title {
+        text-align: center;
+    }
+    
+    .section-badge {
+        display: block;
+        text-align: center;
+    }
+}
+
+@media (max-width: 575px) {
+    .crop-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .crop-item {
+        padding: 15px 8px;
+    }
+    
+    .crop-emoji {
+        font-size: 1.5rem;
+    }
+    
+    .feature-card {
+        padding: 25px 20px;
+    }
+    
+    .step-number {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .testimonial-card {
+        padding: 25px 20px;
+    }
+}
+
+/* ==================== DARK MODE ADJUSTMENTS ==================== */
+[data-theme="dark"] .hero-modern {
+    background: linear-gradient(135deg, var(--dark-bg-primary) 0%, var(--dark-bg-secondary) 50%, rgba(76, 175, 80, 0.1) 100%);
+}
+
+[data-theme="dark"] .hero-modern::before {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234CAF50' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .hero-modern::after {
+    background: radial-gradient(circle, rgba(76, 175, 80, 0.15) 0%, transparent 70%);
+}
+
+[data-theme="dark"] .hero-title {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .hero-subtitle {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .floating-card {
+    background: var(--dark-bg-secondary);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .features-section {
+    background: var(--dark-bg-primary);
+}
+
+[data-theme="dark"] .features-section::before {
+    background: linear-gradient(180deg, var(--dark-bg-secondary) 0%, transparent 100%);
+}
+
+[data-theme="dark"] .feature-card {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .feature-icon-wrapper {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(129, 199, 132, 0.15) 100%);
+}
+
+[data-theme="dark"] .how-it-works {
+    background: linear-gradient(180deg, var(--dark-bg-secondary) 0%, var(--dark-bg-primary) 100%);
+}
+
+[data-theme="dark"] .step-content {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .crops-section {
+    background: var(--dark-bg-secondary);
+}
+
+[data-theme="dark"] .crop-item {
+    background: var(--dark-bg-tertiary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .crop-name {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .trust-section {
+    background: var(--dark-bg-primary);
+}
+
+[data-theme="dark"] .trust-card {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .testimonials-section {
+    background: linear-gradient(135deg, rgba(76,175,80,0.1) 0%, var(--dark-bg-secondary) 100%);
+}
+
+[data-theme="dark"] .testimonial-card {
+    background: var(--dark-bg-tertiary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .section-badge {
+    background: rgba(76, 175, 80, 0.2);
+}
+
+[data-theme="dark"] .section-title {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .particle {
+    opacity: 0.3;
+}
+
+[data-theme="dark"] .leaf-decoration {
+    opacity: 0.08;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
-<section class="hero-section">
+<section class="hero-modern">
+    <!-- Floating Particles -->
+    <div class="particles-container">
+        <span class="particle">🌱</span>
+        <span class="particle">🌿</span>
+        <span class="particle">🍃</span>
+        <span class="particle">🌾</span>
+        <span class="particle">🌻</span>
+        <span class="particle">🍀</span>
+        <span class="particle">🌿</span>
+        <span class="particle">🌱</span>
+        <span class="particle">🍃</span>
+        <span class="particle">🌾</span>
+    </div>
+    
+    <!-- Decorative Leaves -->
+    <div class="leaf-decoration leaf-1">🌿</div>
+    <div class="leaf-decoration leaf-2">🍃</div>
+    <div class="leaf-decoration leaf-3">🌱</div>
+    
     <div class="container">
-        <div class="row align-items-center min-vh-100">
-            <div class="col-lg-6">
-                <h1 class="display-3 fw-bold text-success mb-4">
-                    🌾 Intelligent Crop Recommendation
+        <div class="row align-items-center min-vh-100 py-5">
+            <div class="col-lg-6 hero-content">
+                <h1 class="hero-title mb-4">
+                    🌱 {{ t.hero_title }} <br>
+                    <span class="highlight">SmartCrop AI</span>
+                    <span class="typing-cursor"></span>
                 </h1>
-                <p class="lead mb-4">
-                    Use artificial intelligence to determine the most suitable crop for your soil and climate conditions.
+                <p class="hero-subtitle mb-4">
+                    {{ t.hero_subtitle }}
                 </p>
-                <div class="d-flex gap-3">
+                <div class="d-flex gap-3 flex-wrap hero-buttons">
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('predict') }}" class="btn btn-success btn-lg">
-                            <i class="fas fa-rocket"></i> Try a Prediction
-                        </a>
-                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success btn-lg">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <a href="{{ url_for('predict') }}" class="btn btn-success btn-lg px-4">
+                        <i class="fas fa-magic me-2"></i>{{ t.nav_predict }}
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success btn-lg px-4">
+                        <i class="fas fa-chart-pie me-2"></i>{{ t.nav_dashboard }}
                     </a>
                     {% else %}
-                    <a href="{{ url_for('signup') }}" class="btn btn-success btn-lg">
-                        <i class="fas fa-user-plus"></i> Start for Free
+                    <a href="{{ url_for('signup') }}" class="btn btn-success btn-lg px-4">
+                        <i class="fas fa-rocket me-2"></i>{{ t.hero_cta }}
                     </a>
-                    <a href="{{ url_for('login') }}" class="btn btn-outline-success btn-lg">
-                        <i class="fas fa-sign-in-alt"></i> Log In
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-success btn-lg px-4">
+                        <i class="fas fa-sign-in-alt me-2"></i>{{ t.nav_login }}
                     </a>
                     {% endif %}
                 </div>
             </div>
             <div class="col-lg-6">
-                <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600" 
-                     alt="Agriculture" class="img-fluid rounded-4 shadow-lg">
-            </div>
-        </div>
-    </div>
-</section>
-
-
-<!-- Modern Service Description & Problem Statement -->
-<section class="py-5 bg-gradient" style="background: linear-gradient(135deg, #e9f7ef 0%, #d1f2eb 100%);">
-    <div class="container">
-        <div class="row align-items-center justify-content-center">
-            <div class="col-lg-6 mb-4 mb-lg-0">
-                <div class="d-flex flex-column h-100 justify-content-center">
-                    <h2 class="fw-bold text-success mb-3">
-                        <i class="fas fa-leaf me-2"></i> Revolutionize Your Farming
-                    </h2>
-                    <p class="fs-5 text-dark mb-3">
-                        <span class="badge bg-success bg-opacity-75 text-white me-2 mb-2">For Farmers & Agronomists</span>
-                        Unlock the power of AI to choose the best crop for your land, climate, and market. No more guesswork. Get science-backed recommendations tailored to your field and season.
-                    </p>
-                    <ul class="list-unstyled mb-4">
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Personalized crop suggestions for your location</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Real-time climate and soil analysis</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Boost yields, reduce risk, and save resources</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Easy, fast, and free to start</li>
-                    </ul>
-                    <div class="d-flex gap-3">
-                        <a href="{{ url_for('about') }}" class="btn btn-outline-success btn-lg shadow">
-                            <i class="fas fa-info-circle"></i> Learn More
-                        </a>
+                <div class="hero-image-container">
+                    <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&q=80" 
+                         alt="Smart Agriculture" class="img-fluid hero-image w-100">
+                    
+                    <!-- Floating Cards -->
+                    <div class="floating-card floating-card-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-check-circle text-success fa-lg pulse-icon"></i>
+                            <div>
+                                <div class="fw-bold text-success">99.5%</div>
+                                <small class="text-muted">Accuracy</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-card floating-card-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-seedling text-success fa-lg pulse-icon"></i>
+                            <div>
+                                <div class="fw-bold">22 Crops</div>
+                                <small class="text-muted">Supported</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-card floating-card-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-users text-success fa-lg pulse-icon"></i>
+                            <div>
+                                <div class="fw-bold">1K+</div>
+                                <small class="text-muted">Users</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600" alt="Modern Agriculture" class="img-fluid rounded-4 shadow-lg border border-success border-3">
-            </div>
         </div>
     </div>
 </section>
+
+<!-- Stats Section -->
+<div class="container">
+    <div class="stats-section shadow-lg reveal">
+        <div class="row g-0">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-icon"></div>
+                    <div class="stat-number" data-count="22">22+</div>
+                    <div class="stat-label">{{ t.dashboard_crops }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-icon"></div>
+                    <div class="stat-number">99.5%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-icon"></div>
+                    <div class="stat-number" data-count="7">7</div>
+                    <div class="stat-label">Parameters</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-icon"></div>
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Available</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Features Section -->
-<section class="py-5 bg-light">
+<section class="features-section">
     <div class="container">
-        <h2 class="text-center mb-5">Why Choose Our System?</h2>
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center reveal">
+                <span class="section-badge">
+                    <i class="fas fa-star me-1"></i> {{ t.features_title }}
+                </span>
+                <h2 class="section-title section-title-underline">{{ t.feature_ai_title }}</h2>
+                <p class="text-muted mt-4">{{ t.feature_ai_desc }}</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card reveal stagger-1">
+                    <span class="feature-number">01</span>
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">{{ t.feature_ai_title }}</h5>
+                    <p class="text-muted mb-0">{{ t.feature_ai_desc }}</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card reveal stagger-2">
+                    <span class="feature-number">02</span>
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">{{ t.feature_accurate_title }}</h5>
+                    <p class="text-muted mb-0">{{ t.feature_accurate_desc }}</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card reveal stagger-3">
+                    <span class="feature-number">03</span>
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">{{ t.feature_easy_title }}</h5>
+                    <p class="text-muted mb-0">{{ t.feature_easy_desc }}</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card reveal stagger-4">
+                    <span class="feature-number">04</span>
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">GPS Integration</h5>
+                    <p class="text-muted mb-0">Automatic location detection and climate data fetching based on your coordinates.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card reveal stagger-5">
+                    <span class="feature-number">05</span>
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Explainable AI (XAI)</h5>
+                    <p class="text-muted mb-0">Understand why each crop is recommended with detailed explanations.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card reveal stagger-6">
+                    <span class="feature-number">06</span>
+                    <div class="feature-icon-wrapper">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Multi-language</h5>
+                    <p class="text-muted mb-0">Available in English, French, and Arabic with full RTL support.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center reveal">
+                <span class="section-badge">
+                    <i class="fas fa-cogs me-1"></i> How It Works
+                </span>
+                <h2 class="section-title section-title-underline">3 Simple Steps</h2>
+                <p class="text-muted mt-4">Get personalized crop recommendations in minutes</p>
+            </div>
+        </div>
+        
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-brain fa-2x"></i>
-                        </div>
-                        <h4>Advanced AI</h4>
-                        <p class="text-muted">
-                            Optimized Naive Bayes model with 99.5% accuracy on 22 different crops
-                        </p>
+                <div class="step-card reveal stagger-1">
+                    <div class="step-connector"></div>
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h5 class="fw-bold mb-3">Enter Soil Data</h5>
+                        <p class="text-muted mb-0">Input your soil parameters (N, P, K, pH) or use GPS for auto-detection.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-gauge-high fa-2x"></i>
-                        </div>
-                        <h4>Instant Results</h4>
-                        <p class="text-muted">
-                            Get your recommendations in less than a second with detailed analysis
-                        </p>
+                <div class="step-card reveal stagger-2">
+                    <div class="step-connector"></div>
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h5 class="fw-bold mb-3">AI Analysis</h5>
+                        <p class="text-muted mb-0">Our ML model analyzes your data using advanced algorithms.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-chart-line fa-2x"></i>
-                        </div>
-                        <h4>History & Stats</h4>
-                        <p class="text-muted">
-                            Track all your predictions with an interactive dashboard and charts
-                        </p>
+                <div class="step-card reveal stagger-3">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h5 class="fw-bold mb-3">Get Results</h5>
+                        <p class="text-muted mb-0">Receive personalized crop recommendations with confidence scores.</p>
                     </div>
                 </div>
             </div>
@@ -121,37 +1696,446 @@
 </section>
 
 <!-- Crops Section -->
-<section class="py-5">
+<section class="crops-section">
     <div class="container">
-        <h2 class="text-center mb-5">22 Supported Crops</h2>
-        <div class="row g-3">
-            {% set crops = ['🌾 Rice', '🌽 Maize', '🫘 Chickpea', '🫘 Red beans', 
-                           '🫛 Pigeon pea', '🫘 Kidney beans', '🫛 Mung bean', 
-                           '🫘 Black beans', '🫛 Lentil', '🍎 Apple', '🍌 Banana', 
-                           '🥭 Mango', '🍇 Grapes', '🍉 Watermelon', '🍈 Muskmelon', '🍊 Orange', 
-                           '🥥 Coconut', '🍈 Papaya', '☕ Coffee', '🌰 Pomegranate', 
-                           '🧵 Cotton', '🧵 Jute'] %}
-            {% for crop in crops %}
-            <div class="col-6 col-md-3 col-lg-2">
-                <div class="crop-badge text-center p-3 bg-white rounded shadow-sm">
-                    <span class="fs-5">{{ crop }}</span>
-                </div>
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center reveal">
+                <span class="section-badge">
+                    <i class="fas fa-leaf me-1"></i> {{ t.dashboard_crops }}
+                </span>
+                <h2 class="section-title section-title-underline">22 Supported Crops</h2>
+                <p class="text-muted mt-4">From grains to fruits, we cover the most important crops</p>
+            </div>
+        </div>
+        
+        <div class="crop-grid reveal">
+            {% set crops = [
+                ('🌾', 'Rice', 'grain'), ('🌽', 'Maize', 'grain'), ('🫘', 'Chickpea', 'legume'), ('🫘', 'Kidney Beans', 'legume'),
+                ('🫛', 'Pigeon Pea', 'legume'), ('🫘', 'Moth Beans', 'legume'), ('🫛', 'Mung Bean', 'legume'), ('🫘', 'Black Gram', 'legume'),
+                ('🫛', 'Lentil', 'legume'), ('🍎', 'Apple', 'fruit'), ('🍌', 'Banana', 'fruit'), ('🥭', 'Mango', 'fruit'),
+                ('🍇', 'Grapes', 'fruit'), ('🍉', 'Watermelon', 'fruit'), ('🍈', 'Muskmelon', 'fruit'), ('🍊', 'Orange', 'fruit'),
+                ('🥥', 'Coconut', 'fruit'), ('🍈', 'Papaya', 'fruit'), ('☕', 'Coffee', 'grain'), ('🍎', 'Pomegranate', 'fruit'),
+                ('🧵', 'Cotton', 'fiber'), ('🧵', 'Jute', 'fiber')
+            ] %}
+            {% for emoji, name, category in crops %}
+            <div class="crop-item">
+                <span class="crop-category {{ category }}"></span>
+                <span class="crop-emoji">{{ emoji }}</span>
+                <span class="crop-name">{{ name }}</span>
             </div>
             {% endfor %}
+        </div>
+        
+        <!-- Crop Legend -->
+        <div class="d-flex justify-content-center gap-4 mt-4 flex-wrap reveal">
+            <div class="d-flex align-items-center gap-2">
+                <span class="crop-category grain" style="position:static;width:12px;height:12px;"></span>
+                <small class="text-muted">Grains</small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="crop-category fruit" style="position:static;width:12px;height:12px;"></span>
+                <small class="text-muted">Fruits</small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="crop-category legume" style="position:static;width:12px;height:12px;"></span>
+                <small class="text-muted">Legumes</small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="crop-category fiber" style="position:static;width:12px;height:12px;"></span>
+                <small class="text-muted">Fiber</small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center reveal">
+                <span class="section-badge">
+                    <i class="fas fa-comments me-1"></i> Testimonials
+                </span>
+                <h2 class="section-title section-title-underline">What Farmers Say</h2>
+                <p class="text-muted mt-4">Real feedback from our agricultural community</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card reveal stagger-1">
+                    <span class="testimonial-quote">"</span>
+                    <p class="testimonial-text">SmartCrop helped me increase my yield by 40% by recommending the perfect crops for my soil conditions.</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">A</div>
+                        <div>
+                            <div class="testimonial-name">Ahmed Ben Salem</div>
+                            <div class="testimonial-role">Farmer, Sfax</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card reveal stagger-2">
+                    <span class="testimonial-quote">"</span>
+                    <p class="testimonial-text">The GPS integration and automatic weather data make it so easy to get accurate recommendations every season.</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">M</div>
+                        <div>
+                            <div class="testimonial-name">Marie Dubois</div>
+                            <div class="testimonial-role">Agricultural Engineer</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card reveal stagger-3">
+                    <span class="testimonial-quote">"</span>
+                    <p class="testimonial-text">Finally, AI technology accessible to small farmers! The explainable AI feature helps me understand the science behind recommendations.</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">K</div>
+                        <div>
+                            <div class="testimonial-name">Karim Trabelsi</div>
+                            <div class="testimonial-role">Organic Farmer</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Section -->
+<section class="trust-section">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center reveal">
+                <span class="section-badge">
+                    <i class="fas fa-award me-1"></i> Why Choose Us
+                </span>
+                <h2 class="section-title section-title-underline">Built on Trust</h2>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="trust-card reveal stagger-1">
+                    <div class="trust-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Secure & Private</h5>
+                    <p class="text-muted mb-0">Your data is encrypted and never shared with third parties.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="trust-card reveal stagger-2">
+                    <div class="trust-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Science-Based</h5>
+                    <p class="text-muted mb-0">Built on real agricultural research and validated datasets.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="trust-card reveal stagger-3">
+                    <div class="trust-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">100% Free</h5>
+                    <p class="text-muted mb-0">No hidden costs, no premium features. Free forever.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Resources & Features Teaser Section -->
+<section class="resources-teaser">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center reveal">
+                <span class="section-badge">
+                    <i class="fas fa-gem me-1"></i> Resources & Tools
+                </span>
+                <h2 class="section-title section-title-underline">Explore Our Platform</h2>
+                <p class="text-muted mt-4">Powerful tools and resources to help you make the best farming decisions</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Crop Guide Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="resource-card reveal stagger-1">
+                    <div class="resource-image">
+                        <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&q=80" alt="Crop Guide">
+                        <div class="resource-image-overlay"></div>
+                        <span class="resource-badge"><i class="fas fa-fire"></i> Popular</span>
+                    </div>
+                    <div class="resource-body">
+                        <div class="resource-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h4 class="resource-title">Crop Guide</h4>
+                        <p class="resource-description">Comprehensive encyclopedia of all 22 supported crops with growing requirements, optimal conditions, and expert tips.</p>
+                        <div class="resource-features">
+                            <span class="resource-feature-tag">22 Crops</span>
+                            <span class="resource-feature-tag">Soil Tips</span>
+                            <span class="resource-feature-tag">Seasons</span>
+                        </div>
+                        <a href="{{ url_for('crop_guide') }}" class="resource-link">
+                            Explore Guide <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Soil Labs Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="resource-card reveal stagger-2">
+                    <div class="resource-image">
+                        <img src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=600&q=80" alt="Soil Labs">
+                        <div class="resource-image-overlay"></div>
+                        <span class="resource-badge"><i class="fas fa-map-marker-alt"></i> Tunisia</span>
+                    </div>
+                    <div class="resource-body">
+                        <div class="resource-icon">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <h4 class="resource-title">Soil Labs</h4>
+                        <p class="resource-description">Find accredited soil testing laboratories near you. Interactive map with contact information and services offered.</p>
+                        <div class="resource-features">
+                            <span class="resource-feature-tag">8+ Labs</span>
+                            <span class="resource-feature-tag">Interactive Map</span>
+                            <span class="resource-feature-tag">Contacts</span>
+                        </div>
+                        <a href="{{ url_for('soil_labs') }}" class="resource-link">
+                            Find Labs <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Prediction Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="resource-card reveal stagger-3">
+                    <div class="resource-image">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="AI Prediction">
+                        <div class="resource-image-overlay"></div>
+                        <span class="resource-badge"><i class="fas fa-star"></i> Core Feature</span>
+                    </div>
+                    <div class="resource-body">
+                        <div class="resource-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <h4 class="resource-title">AI Predictions</h4>
+                        <p class="resource-description">Get instant crop recommendations based on your soil parameters using our state-of-the-art machine learning model.</p>
+                        <div class="resource-features">
+                            <span class="resource-feature-tag">99.5% Accuracy</span>
+                            <span class="resource-feature-tag">XAI</span>
+                            <span class="resource-feature-tag">GPS</span>
+                        </div>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('predict') }}" class="resource-link">
+                            Make Prediction <i class="fas fa-arrow-right"></i>
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('signup') }}" class="resource-link">
+                            Get Started <i class="fas fa-arrow-right"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Access Links -->
+        <div class="quick-access-grid reveal">
+            <a href="{{ url_for('about') }}" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <span class="quick-access-label">About Us</span>
+            </a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <span class="quick-access-label">Dashboard</span>
+            </a>
+            <a href="{{ url_for('history') }}" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <span class="quick-access-label">History</span>
+            </a>
+            <a href="{{ url_for('profile') }}" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-user-cog"></i>
+                </div>
+                <span class="quick-access-label">Profile</span>
+            </a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-sign-in-alt"></i>
+                </div>
+                <span class="quick-access-label">Login</span>
+            </a>
+            <a href="{{ url_for('signup') }}" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <span class="quick-access-label">Sign Up</span>
+            </a>
+            {% endif %}
+            <a href="{{ url_for('crop_guide') }}" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <span class="quick-access-label">Crop Guide</span>
+            </a>
+            <a href="{{ url_for('soil_labs') }}" class="quick-access-item">
+                <div class="quick-access-icon">
+                    <i class="fas fa-vial"></i>
+                </div>
+                <span class="quick-access-label">Soil Labs</span>
+            </a>
         </div>
     </div>
 </section>
 
 <!-- CTA Section -->
-<section class="py-5 bg-success text-white">
-    <div class="container text-center">
-        <h2 class="mb-4">Ready to Optimize Your Yields?</h2>
-        <p class="lead mb-4">Join hundreds of farmers using our system</p>
-        {% if not current_user.is_authenticated %}
-        <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg">
-            <i class="fas fa-rocket"></i> Start Now
-        </a>
-        {% endif %}
+<section class="cta-section">
+    <div class="cta-pattern"></div>
+    <div class="container">
+        <div class="cta-content text-center reveal">
+            <h2 class="cta-title">{{ t.hero_title }}</h2>
+            <p class="cta-subtitle">{{ t.hero_subtitle }}</p>
+            {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('signup') }}" class="btn btn-cta">
+                <i class="fas fa-rocket me-2"></i>{{ t.hero_cta }}
+            </a>
+            {% else %}
+            <a href="{{ url_for('predict') }}" class="btn btn-cta">
+                <i class="fas fa-magic me-2"></i>{{ t.nav_predict }}
+            </a>
+            {% endif %}
+        </div>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Scroll Reveal Animation
+function revealOnScroll() {
+    const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+    
+    reveals.forEach(element => {
+        const windowHeight = window.innerHeight;
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < windowHeight - elementVisible) {
+            element.classList.add('active');
+        }
+    });
+}
+
+// Counter Animation
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-number[data-count]');
+    
+    counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-count'));
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+            current += step;
+            if (current < target) {
+                counter.textContent = Math.floor(current) + '+';
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target + '+';
+            }
+        };
+        
+        // Only animate when visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateCounter();
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        observer.observe(counter);
+    });
+}
+
+// Parallax Effect for Particles
+function parallaxParticles() {
+    const particles = document.querySelectorAll('.particle');
+    
+    window.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX / window.innerWidth;
+        const mouseY = e.clientY / window.innerHeight;
+        
+        particles.forEach((particle, index) => {
+            const speed = (index + 1) * 0.01;
+            const x = (mouseX - 0.5) * speed * 100;
+            const y = (mouseY - 0.5) * speed * 100;
+            particle.style.transform = `translate(${x}px, ${y}px)`;
+        });
+    });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    revealOnScroll();
+    animateCounters();
+    parallaxParticles();
+});
+
+window.addEventListener('scroll', revealOnScroll);
+
+// Smooth Scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+</script>
 {% endblock %}

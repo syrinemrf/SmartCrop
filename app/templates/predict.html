@@ -1,13 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}Prediction - SmartCrop{% endblock %}
+{% block title %}{{ t.nav_predict }} - SmartCrop{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row mb-4">
         <div class="col">
-            <h1><i class="fas fa-chart-line text-success"></i> Make a Prediction</h1>
-            <p class="text-muted">Enter your soil and climate parameters</p>
+            <h1><i class="fas fa-chart-line text-success"></i> {{ t.predict_title }}</h1>
+            <p class="text-muted">{{ t.predict_subtitle }}</p>
+        </div>
+    </div>
+
+    <!-- Info banner for soil analysis -->
+    <div class="alert alert-info border-0 shadow-sm mb-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-flask fa-2x me-3 text-info"></i>
+            <div class="flex-grow-1">
+                <strong>{{ t.predict_need_analysis }}</strong>
+                <p class="mb-0 small">{{ t.labs_subtitle }}</p>
+            </div>
+            <a href="{{ url_for('soil_labs') }}" class="btn btn-info btn-sm ms-3">
+                <i class="fas fa-map-marker-alt me-1"></i>{{ t.predict_find_lab }}
+            </a>
         </div>
     </div>
     
@@ -16,14 +30,14 @@
         <div class="col-lg-6 mb-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-edit"></i> Parameters</h5>
+                    <h5 class="mb-0"><i class="fas fa-edit"></i> {{ t.history_parameters }}</h5>
                 </div>
                 <div class="card-body">
                     <!-- Carte et saison -->
                     <div class="mb-4">
-                        <label class="form-label"><i class="fas fa-map-marker-alt"></i> Field Location</label>
+                        <label class="form-label"><i class="fas fa-map-marker-alt"></i> {{ t.profile_location }}</label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control" id="address_search" placeholder="Enter an address or place..." value="{{ request.form.address_search or address_search }}">
+                            <input type="text" class="form-control" id="address_search" placeholder="{{ t.search }}..." value="{{ request.form.address_search or address_search }}">
                             <button class="btn btn-outline-success" type="button" id="search_btn"><i class="fas fa-search"></i></button>
                         </div>
                         <div id="map" style="height: 250px; border-radius: 8px; overflow: hidden;"></div>
@@ -32,12 +46,11 @@
                         <input type="hidden" id="longitude" name="longitude" value="{{ request.form.longitude or longitude }}">
                     </div>
                     <div class="mb-4">
-                        <label for="prediction_name" class="form-label"><i class="fas fa-tag"></i> Prediction Name</label>
-                        <input type="text" class="form-control" id="prediction_name" name="prediction_name" placeholder="Address or custom name" autocomplete="off" value="{{ request.form.prediction_name or prediction_name }}">
-                        <div class="form-text">Default: selected location address. You can edit this name.</div>
+                        <label for="prediction_name" class="form-label"><i class="fas fa-tag"></i> {{ t.profile_location }}</label>
+                        <input type="text" class="form-control" id="prediction_name" name="prediction_name" placeholder="{{ t.profile_location }}" autocomplete="off" value="{{ request.form.prediction_name or prediction_name }}">
                     </div>
                     <div class="mb-4">
-                        <label for="season" class="form-label"><i class="fas fa-calendar-alt"></i> Growing Season</label>
+                        <label for="season" class="form-label"><i class="fas fa-calendar-alt"></i> {{ t.guide_calendar }}</label>
                         <select class="form-select" id="season" name="season">
                             <option value="spring" {% if (request.form.season or season) == 'spring' %}selected{% endif %}>Spring</option>
                             <option value="summer" {% if (request.form.season or season) == 'summer' %}selected{% endif %}>Summer</option>
@@ -49,8 +62,8 @@
                         <!-- NPK -->
                         <div class="mb-3">
                             <label for="N" class="form-label">
-                                <i class="fas fa-flask"></i> Nitrogen (N)
-                                <span class="info-bulle" data-bs-toggle="tooltip" title="Amount of nitrogen in soil (kg/ha). Typical range: 20–150. Industrial fertilization possible up to 300.">
+                                <i class="fas fa-flask"></i> {{ t.predict_nitrogen }}
+                                <span class="info-bulle" data-bs-toggle="tooltip" title="Amount of nitrogen in soil (kg/ha). Typical range: 20–150.">
                                     <i class="fas fa-circle-info text-primary"></i>
                                 </span>
                                 <span class="text-muted">(0–300 kg/ha)</span>
@@ -60,8 +73,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="P" class="form-label">
-                                <i class="fas fa-flask"></i> Phosphorus (P₂O₅)
-                                <span class="info-bulle" data-bs-toggle="tooltip" title="Amount of available phosphorus (kg/ha). Typical range: 10–80. Max: 200.">
+                                <i class="fas fa-flask"></i> {{ t.predict_phosphorus }}
+                                <span class="info-bulle" data-bs-toggle="tooltip" title="Amount of available phosphorus (kg/ha). Typical range: 10–80.">
                                     <i class="fas fa-circle-info text-primary"></i>
                                 </span>
                                 <span class="text-muted">(0–200 kg/ha)</span>
@@ -71,8 +84,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="K" class="form-label">
-                                <i class="fas fa-flask"></i> Potassium (K₂O)
-                                <span class="info-bulle" data-bs-toggle="tooltip" title="Amount of available potassium (kg/ha). Normal range: 20–200. Max: 400 (volcanic soils).">
+                                <i class="fas fa-flask"></i> {{ t.predict_potassium }}
+                                <span class="info-bulle" data-bs-toggle="tooltip" title="Amount of available potassium (kg/ha). Normal range: 20–200.">
                                     <i class="fas fa-circle-info text-primary"></i>
                                 </span>
                                 <span class="text-muted">(0–400 kg/ha)</span>
@@ -181,6 +194,68 @@
                     {% endfor %}
                 </div>
             </div>
+            
+            <!-- LIME Explanation (XAI) -->
+            {% if result.explanation and result.explanation.contributions %}
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-brain"></i> Why This Recommendation? (AI Explainability)</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-info-circle"></i> 
+                        This explanation shows which parameters had the most influence on the prediction. 
+                        <strong class="text-success">Green bars</strong> indicate factors that support this crop choice, 
+                        while <strong class="text-danger">red bars</strong> indicate factors that slightly oppose it.
+                    </p>
+                    
+                    {% for contrib in result.explanation.contributions %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold">
+                                {% if contrib.feature == 'N' %}
+                                    <i class="fas fa-flask text-primary"></i> Nitrogen (N)
+                                {% elif contrib.feature == 'P' %}
+                                    <i class="fas fa-flask text-primary"></i> Phosphorus (P)
+                                {% elif contrib.feature == 'K' %}
+                                    <i class="fas fa-flask text-primary"></i> Potassium (K)
+                                {% elif contrib.feature == 'temperature' %}
+                                    <i class="fas fa-thermometer-half text-warning"></i> Temperature
+                                {% elif contrib.feature == 'humidity' %}
+                                    <i class="fas fa-tint text-info"></i> Humidity
+                                {% elif contrib.feature == 'ph' %}
+                                    <i class="fas fa-vial text-secondary"></i> pH
+                                {% elif contrib.feature == 'rainfall' %}
+                                    <i class="fas fa-cloud-rain text-primary"></i> Rainfall
+                                {% else %}
+                                    {{ contrib.feature }}
+                                {% endif %}
+                            </span>
+                            <span class="badge {% if contrib.impact == 'positive' %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if contrib.impact == 'positive' %}+{% endif %}{{ (contrib.weight * 100)|round(1) }}%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 12px;">
+                            {% set bar_width = (contrib.weight|abs * 100)|round %}
+                            {% if bar_width > 100 %}{% set bar_width = 100 %}{% endif %}
+                            <div class="progress-bar {% if contrib.impact == 'positive' %}bg-success{% else %}bg-danger{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ bar_width }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">{{ contrib.description }}</small>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="alert alert-light mt-3 mb-0">
+                        <i class="fas fa-lightbulb text-warning"></i> 
+                        <strong>Interpretation:</strong> The factors with the largest green bars are the main reasons why 
+                        <strong class="text-success">{{ result.crop }}</strong> is recommended for your field conditions.
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
             <!-- Instructions block: always below result/top3, right column -->
             <div class="mt-4 p-4 bg-light rounded-4 shadow-sm text-start mx-auto" style="max-width: 600px;">
                 <h5 class="fw-bold mb-3 text-success"><i class="fas fa-info-circle me-2"></i> How to Use</h5>

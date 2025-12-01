@@ -1,88 +1,166 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ current_lang }}" {% if is_rtl %}dir="rtl"{% endif %} data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SmartCrop{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
+    {% if is_rtl %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    {% else %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% endif %}
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Arabic -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Theme initialization (prevent flash) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    
+    <!-- RTL Styles -->
+    {% if is_rtl %}
+    <style>
+        body { font-family: 'Tajawal', sans-serif; }
+        .navbar-nav { flex-direction: row-reverse; }
+        .dropdown-menu-end { left: 0; right: auto; }
+        .ms-2 { margin-right: 0.5rem !important; margin-left: 0 !important; }
+        .me-2 { margin-left: 0.5rem !important; margin-right: 0 !important; }
+        .ms-auto { margin-right: auto !important; margin-left: 0 !important; }
+        .me-auto { margin-left: auto !important; margin-right: 0 !important; }
+        .text-start { text-align: right !important; }
+        .text-end { text-align: left !important; }
+        .ps-3 { padding-right: 1rem !important; padding-left: 0 !important; }
+        .pe-3 { padding-left: 1rem !important; padding-right: 0 !important; }
+    </style>
+    {% endif %}
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     {% block extra_css %}{% endblock %}
 </head>
-<body data-theme="light">
+<body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-success">
         <div class="container">
             <a class="navbar-brand smartcrop-logo" href="{{ url_for('index') }}">
-                <i class="fas fa-seedling"></i>
-                SmartCrop
+                <i class="fas fa-seedling"></i> SmartCrop
             </a>
-            <span class="navbar-text ms-3 text-light fw-light" style="font-size: 1rem; letter-spacing: 0.5px;">AI-powered crop recommendations</span>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('index') }}">
-                            <i class="fas fa-home"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('about') }}">
-                            <i class="fas fa-info-circle"></i> About
+                            <i class="fas fa-home"></i> {{ t.nav_home }}
                         </a>
                     </li>
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('dashboard') }}">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                            <i class="fas fa-tachometer-alt"></i> {{ t.nav_dashboard }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('predict') }}">
-                            <i class="fas fa-chart-line"></i> Predict
+                            <i class="fas fa-chart-line"></i> {{ t.nav_predict }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('history') }}">
-                            <i class="fas fa-history"></i> History
+                            <i class="fas fa-history"></i> {{ t.nav_history }}
                         </a>
                     </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-book"></i> {{ t.nav_resources }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('crop_guide') }}">
+                                <i class="fas fa-book-open text-success"></i> {{ t.nav_crop_guide }}
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('soil_labs') }}">
+                                <i class="fas fa-flask text-primary"></i> {{ t.nav_soil_labs }}
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('about') }}">
+                                <i class="fas fa-info-circle text-info"></i> {{ t.nav_about }}
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('marketplace') }}">
+                            <i class="fas fa-store"></i> {{ t.nav_marketplace }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('chatbot') }}">
+                            <i class="fas fa-robot"></i> {{ t.nav_agribot }}
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <!-- Language Selector -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-globe"></i> 
+                            {% for lang in languages %}
+                                {% if lang.code == current_lang %}{{ lang.flag }}{% endif %}
+                            {% endfor %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% for lang in languages %}
+                            <li>
+                                <a class="dropdown-item {% if lang.code == current_lang %}active{% endif %}" href="{{ url_for('set_language', lang=lang.code) }}">
+                                    <span class="me-2">{{ lang.flag }}</span> {{ lang.name }}
+                                    {% if lang.code == current_lang %}<i class="fas fa-check text-success ms-2"></i>{% endif %}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% if current_user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user"></i> {{ current_user.username }}
+                            <i class="fas fa-user-circle"></i> {{ current_user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ url_for('profile') }}">
-                                <i class="fas fa-id-badge"></i> Mon profil
+                                <i class="fas fa-id-badge text-primary"></i> {{ t.nav_profile }}
                             </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">
-                                <i class="fas fa-sign-out-alt"></i> Logout
+                            <li><a class="dropdown-item" href="{{ url_for('notifications') }}">
+                                <i class="fas fa-bell text-warning"></i> {{ t.nav_notifications }}
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> {{ t.nav_logout }}
                             </a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('login') }}">
-                            <i class="fas fa-sign-in-alt"></i> Login
+                            <i class="fas fa-sign-in-alt"></i> {{ t.nav_login }}
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-outline-light ms-2" href="{{ url_for('signup') }}">
-                            <i class="fas fa-user-plus"></i> Sign Up
+                        <a class="nav-link btn btn-signup-nav btn-sm ms-2 px-3" href="{{ url_for('signup') }}">
+                            <i class="fas fa-user-plus"></i> {{ t.nav_signup }}
                         </a>
                     </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <button id="theme-toggle" class="btn btn-outline-light ms-2" title="Toggle theme">
+                    <li class="nav-item ms-2">
+                        <button id="theme-toggle" class="btn btn-outline-light btn-sm" title="Toggle theme">
                             <i class="fas fa-moon" id="theme-icon"></i>
                         </button>
                     </li>
@@ -133,14 +211,16 @@
     <script>
         // Charger le thème sauvegardé
         const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
         document.body.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
 
         // Toggle du thème
         document.getElementById('theme-toggle').addEventListener('click', function() {
-            const currentTheme = document.body.getAttribute('data-theme');
+            const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             
+            document.documentElement.setAttribute('data-theme', newTheme);
             document.body.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeIcon(newTheme);

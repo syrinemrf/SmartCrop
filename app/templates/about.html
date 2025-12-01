@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}About - SmartCrop{% endblock %}
+{% block title %}{{ t.about_title }} - SmartCrop{% endblock %}
 
 {% block content %}
 <div class="about-hero py-5 mb-5 text-center" style="background: linear-gradient(135deg, #e8f5e9 0%, #f8fafc 100%);">
@@ -10,7 +10,7 @@
                 <i class="fas fa-seedling fa-3x text-white"></i>
             </div>
             <h1 class="display-4 fw-bold mb-2 text-success">SmartCrop</h1>
-            <p class="lead text-dark mb-4">AI-powered crop recommendations for every field, every season.</p>
+            <p class="lead text-dark mb-4">{{ t.about_mission_text }}</p>
         </div>
     </div>
 </div>

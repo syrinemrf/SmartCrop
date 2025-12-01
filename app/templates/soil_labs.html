@@ -1,0 +1,803 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ t.labs_title }} - SmartCrop{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+.lab-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.lab-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+#tunisiaMap {
+    border-radius: 0 0 8px 8px;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 10px;
+}
+
+.leaflet-popup-content {
+    margin: 10px 15px;
+}
+
+.lab-popup h6 {
+    color: var(--primary);
+    margin-bottom: 5px;
+}
+
+.lab-popup p {
+    margin-bottom: 3px;
+    font-size: 13px;
+}
+
+.lab-popup .badge {
+    font-size: 10px;
+}
+
+/* Dark mode map adjustments */
+[data-theme="dark"] .leaflet-tile {
+    filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
+}
+
+[data-theme="dark"] .leaflet-popup-content-wrapper {
+    background-color: var(--dark-bg-secondary);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .leaflet-popup-tip {
+    background-color: var(--dark-bg-secondary);
+}
+
+[data-theme="dark"] .lab-popup h6 {
+    color: var(--dark-primary);
+}
+
+[data-theme="dark"] .lab-popup p,
+[data-theme="dark"] .lab-popup small {
+    color: var(--dark-text-secondary);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-dark">
+            <i class="fas fa-flask text-success me-3"></i>{{ t.labs_title }}
+        </h1>
+        <p class="lead text-muted">
+            {{ t.labs_subtitle }}
+        </p>
+    </div>
+
+    <!-- Info Alert -->
+    <div class="alert alert-success border-0 shadow-sm mb-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle fa-2x me-3"></i>
+            <div>
+                <h5 class="mb-1">What parameters do you need?</h5>
+                <p class="mb-0">
+                    For SmartCrop predictions, you need: <strong>Nitrogen (N)</strong>, <strong>Phosphorus (P)</strong>, 
+                    <strong>Potassium (K)</strong>, and <strong>pH level</strong>. Temperature, humidity, and rainfall 
+                    can be obtained from weather data.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Laboratory Locations in Tunisia</h5>
+        </div>
+        <div class="card-body p-0">
+            <div id="tunisiaMap" style="height: 450px; z-index: 1;"></div>
+        </div>
+    </div>
+
+    <!-- Region Filter -->
+    <div class="mb-4">
+        <div class="btn-group flex-wrap" role="group">
+            <button type="button" class="btn btn-outline-success active" data-region="all">
+                <i class="fas fa-globe-africa me-1"></i>All Regions
+            </button>
+            <button type="button" class="btn btn-outline-success" data-region="north">
+                <i class="fas fa-compass me-1"></i>North
+            </button>
+            <button type="button" class="btn btn-outline-success" data-region="center">
+                <i class="fas fa-compass me-1"></i>Center
+            </button>
+            <button type="button" class="btn btn-outline-success" data-region="south">
+                <i class="fas fa-compass me-1"></i>South
+            </button>
+        </div>
+    </div>
+
+    <!-- Laboratories Grid -->
+    <div class="row g-4" id="labsContainer">
+        
+        <!-- INRAT - Main National Lab -->
+        <div class="col-lg-6" data-region="north">
+            <div class="card h-100 shadow-sm border-0 lab-card">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-star me-2"></i>INRAT</h5>
+                        <span class="badge bg-warning text-dark">Official</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-dark fw-bold">National Institute of Agronomic Research of Tunisia</h6>
+                    <p class="text-muted small mb-3">
+                        The main governmental institution for agricultural research, offering comprehensive soil analysis services.
+                    </p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>NPK Analysis</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>pH Testing</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>Organic Matter</span>
+                        <span class="badge bg-info"><i class="fas fa-check me-1"></i>Full Report</span>
+                    </div>
+                    
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <span class="text-dark">Rue Hédi Karray, 2049 Ariana, Tunisia</span>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <span class="text-dark">+216 71 230 024</span>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <span class="text-dark">contact@inrat.agrinet.tn</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-globe text-info me-2"></i>
+                            <a href="http://www.inrat.agrinet.tn" target="_blank" class="text-decoration-none">www.inrat.agrinet.tn</a>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fas fa-clock me-1"></i>Results in 7-10 days</span>
+                        <span class="text-success fw-bold">~50-100 TND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CRDA Tunis -->
+        <div class="col-lg-6" data-region="north">
+            <div class="card h-100 shadow-sm border-0 lab-card">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-building me-2"></i>CRDA Tunis</h5>
+                        <span class="badge bg-light text-dark">Regional</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-dark fw-bold">Regional Commission for Agricultural Development</h6>
+                    <p class="text-muted small mb-3">
+                        Government agricultural office providing soil testing services for farmers in the Tunis region.
+                    </p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>NPK Analysis</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>pH Testing</span>
+                        <span class="badge bg-secondary"><i class="fas fa-check me-1"></i>Basic Report</span>
+                    </div>
+                    
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <span class="text-dark">30 Rue Alain Savary, 1002 Tunis</span>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <span class="text-dark">+216 71 801 400</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <span class="text-dark">crda.tunis@iresa.agrinet.tn</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fas fa-clock me-1"></i>Results in 5-7 days</span>
+                        <span class="text-success fw-bold">~30-60 TND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INAT -->
+        <div class="col-lg-6" data-region="north">
+            <div class="card h-100 shadow-sm border-0 lab-card">
+                <div class="card-header bg-info text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-university me-2"></i>INAT</h5>
+                        <span class="badge bg-warning text-dark">Academic</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-dark fw-bold">National Agronomic Institute of Tunisia</h6>
+                    <p class="text-muted small mb-3">
+                        Leading agricultural university with advanced soil analysis laboratory and research facilities.
+                    </p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>NPK Analysis</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>pH Testing</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>Micronutrients</span>
+                        <span class="badge bg-info"><i class="fas fa-check me-1"></i>Research Grade</span>
+                    </div>
+                    
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <span class="text-dark">43 Avenue Charles Nicolle, 1082 Tunis</span>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <span class="text-dark">+216 71 287 110</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-globe text-info me-2"></i>
+                            <a href="http://www.inat.tn" target="_blank" class="text-decoration-none">www.inat.tn</a>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fas fa-clock me-1"></i>Results in 10-14 days</span>
+                        <span class="text-success fw-bold">~80-150 TND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CRDA Sfax -->
+        <div class="col-lg-6" data-region="center">
+            <div class="card h-100 shadow-sm border-0 lab-card">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-building me-2"></i>CRDA Sfax</h5>
+                        <span class="badge bg-light text-dark">Regional</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-dark fw-bold">Regional Commission for Agricultural Development - Sfax</h6>
+                    <p class="text-muted small mb-3">
+                        Major agricultural hub serving the Sfax governorate and surrounding olive-growing regions.
+                    </p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>NPK Analysis</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>pH Testing</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>Salinity Test</span>
+                    </div>
+                    
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <span class="text-dark">Route de Tunis Km 0.5, 3000 Sfax</span>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <span class="text-dark">+216 74 241 633</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <span class="text-dark">crda.sfax@iresa.agrinet.tn</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fas fa-clock me-1"></i>Results in 5-7 days</span>
+                        <span class="text-success fw-bold">~30-60 TND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CRDA Sousse -->
+        <div class="col-lg-6" data-region="center">
+            <div class="card h-100 shadow-sm border-0 lab-card">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-building me-2"></i>CRDA Sousse</h5>
+                        <span class="badge bg-light text-dark">Regional</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-dark fw-bold">Regional Commission for Agricultural Development - Sousse</h6>
+                    <p class="text-muted small mb-3">
+                        Serves the Sahel region, specializing in olive and fruit tree soil requirements.
+                    </p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>NPK Analysis</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>pH Testing</span>
+                    </div>
+                    
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <span class="text-dark">Avenue Léopold Senghor, 4000 Sousse</span>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <span class="text-dark">+216 73 225 036</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <span class="text-dark">crda.sousse@iresa.agrinet.tn</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fas fa-clock me-1"></i>Results in 5-7 days</span>
+                        <span class="text-success fw-bold">~30-60 TND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Institut des Régions Arides (IRA) -->
+        <div class="col-lg-6" data-region="south">
+            <div class="card h-100 shadow-sm border-0 lab-card">
+                <div class="card-header bg-warning text-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-sun me-2"></i>IRA Médenine</h5>
+                        <span class="badge bg-primary text-white">Specialized</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-dark fw-bold">Institute of Arid Regions</h6>
+                    <p class="text-muted small mb-3">
+                        Specialized research institute for arid and desert agriculture, ideal for southern Tunisia farms.
+                    </p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>NPK Analysis</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>pH Testing</span>
+                        <span class="badge bg-warning text-dark me-1"><i class="fas fa-check me-1"></i>Arid Soil Expert</span>
+                        <span class="badge bg-info"><i class="fas fa-check me-1"></i>Water Analysis</span>
+                    </div>
+                    
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <span class="text-dark">Route du Djorf Km 22.5, 4119 Médenine</span>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <span class="text-dark">+216 75 633 005</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-globe text-info me-2"></i>
+                            <a href="http://www.ira.agrinet.tn" target="_blank" class="text-decoration-none">www.ira.agrinet.tn</a>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fas fa-clock me-1"></i>Results in 7-14 days</span>
+                        <span class="text-success fw-bold">~60-120 TND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CRDA Gabès -->
+        <div class="col-lg-6" data-region="south">
+            <div class="card h-100 shadow-sm border-0 lab-card">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-building me-2"></i>CRDA Gabès</h5>
+                        <span class="badge bg-light text-dark">Regional</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-dark fw-bold">Regional Commission for Agricultural Development - Gabès</h6>
+                    <p class="text-muted small mb-3">
+                        Serves the oasis agriculture region of Gabès, specializing in date palm and irrigated crops.
+                    </p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>NPK Analysis</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>pH Testing</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>Salinity Test</span>
+                    </div>
+                    
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <span class="text-dark">Avenue Farhat Hached, 6000 Gabès</span>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <span class="text-dark">+216 75 275 322</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <span class="text-dark">crda.gabes@iresa.agrinet.tn</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fas fa-clock me-1"></i>Results in 5-7 days</span>
+                        <span class="text-success fw-bold">~30-60 TND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Private Lab - Laboratoire Central -->
+        <div class="col-lg-6" data-region="north">
+            <div class="card h-100 shadow-sm border-0 lab-card">
+                <div class="card-header bg-dark text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-microscope me-2"></i>Laboratoire Central</h5>
+                        <span class="badge bg-danger">Private</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-dark fw-bold">Central Analysis Laboratory</h6>
+                    <p class="text-muted small mb-3">
+                        Private certified laboratory offering fast turnaround and comprehensive soil analysis packages.
+                    </p>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>NPK Analysis</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>pH Testing</span>
+                        <span class="badge bg-success me-1"><i class="fas fa-check me-1"></i>Micronutrients</span>
+                        <span class="badge bg-danger me-1"><i class="fas fa-bolt me-1"></i>Express Service</span>
+                    </div>
+                    
+                    <ul class="list-unstyled mb-3">
+                        <li class="mb-2">
+                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                            <span class="text-dark">Zone Industrielle, La Charguia, 2035 Tunis</span>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            <span class="text-dark">+216 71 770 144</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <span class="text-dark">info@labcentral.tn</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="fas fa-clock me-1"></i>Results in 2-5 days</span>
+                        <span class="text-success fw-bold">~100-200 TND</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- How to Collect Samples Section -->
+    <div class="card shadow-sm border-0 mt-5">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-hand-holding-water me-2"></i>How to Collect Soil Samples</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-3 text-center">
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-map-marked-alt fa-2x text-success"></i>
+                    </div>
+                    <h6 class="text-dark">1. Choose Location</h6>
+                    <p class="text-muted small">Select 5-10 spots across your field in a zigzag pattern, avoiding edges and unusual areas.</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-shovel fa-2x text-success"></i>
+                    </div>
+                    <h6 class="text-dark">2. Dig Properly</h6>
+                    <p class="text-muted small">Use a clean shovel to dig 15-20 cm deep. Remove the top 2 cm of surface debris.</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-mortar-pestle fa-2x text-success"></i>
+                    </div>
+                    <h6 class="text-dark">3. Mix Samples</h6>
+                    <p class="text-muted small">Combine all samples in a clean bucket and mix thoroughly. Take about 500g of the mixture.</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-box fa-2x text-success"></i>
+                    </div>
+                    <h6 class="text-dark">4. Package & Label</h6>
+                    <p class="text-muted small">Place in a clean plastic bag, label with date and location, and deliver to the lab within 24 hours.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="text-center mt-5">
+        <div class="bg-success bg-opacity-10 rounded-4 p-5">
+            <h4 class="text-dark mb-3">Already have your soil analysis results?</h4>
+            <p class="text-muted mb-4">Enter your NPK values, pH, and environmental data to get personalized crop recommendations.</p>
+            <a href="{{ url_for('predict') }}" class="btn btn-success btn-lg px-5">
+                <i class="fas fa-seedling me-2"></i>Make a Prediction
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Initialize the map centered on Tunisia
+const map = L.map('tunisiaMap').setView([34.0, 9.5], 6);
+
+// Add OpenStreetMap tiles
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+// Custom marker icons
+const createIcon = (color) => L.divIcon({
+    className: 'custom-marker',
+    html: `<div style="
+        background-color: ${color};
+        width: 30px;
+        height: 30px;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        border: 3px solid white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    "><i class="fas fa-flask" style="
+        transform: rotate(45deg);
+        color: white;
+        font-size: 12px;
+    "></i></div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30]
+});
+
+const officialIcon = createIcon('#2E7D32');
+const regionalIcon = createIcon('#4CAF50');
+const academicIcon = createIcon('#00ACC1');
+const privateIcon = createIcon('#FB8C00');
+
+// Laboratory data with coordinates
+const laboratories = [
+    {
+        name: 'INRAT',
+        fullName: 'National Institute of Agronomic Research of Tunisia',
+        lat: 36.8602,
+        lng: 10.1657,
+        type: 'Official',
+        region: 'north',
+        address: 'Rue Hédi Karray, 2049 Ariana',
+        phone: '+216 71 230 024',
+        services: ['NPK', 'pH', 'Organic Matter', 'Full Report'],
+        price: '50-100 TND',
+        time: '7-10 days',
+        icon: officialIcon
+    },
+    {
+        name: 'INAT',
+        fullName: 'National Agronomic Institute of Tunisia',
+        lat: 36.8281,
+        lng: 10.1656,
+        type: 'Academic',
+        region: 'north',
+        address: '43 Avenue Charles Nicolle, 1082 Tunis',
+        phone: '+216 71 287 110',
+        services: ['NPK', 'pH', 'Micronutrients', 'Research Grade'],
+        price: '80-150 TND',
+        time: '10-14 days',
+        icon: academicIcon
+    },
+    {
+        name: 'CRDA Tunis',
+        fullName: 'Regional Commission for Agricultural Development',
+        lat: 36.8065,
+        lng: 10.1815,
+        type: 'Regional',
+        region: 'north',
+        address: '30 Rue Alain Savary, 1002 Tunis',
+        phone: '+216 71 801 400',
+        services: ['NPK', 'pH', 'Basic Report'],
+        price: '30-60 TND',
+        time: '5-7 days',
+        icon: regionalIcon
+    },
+    {
+        name: 'CRDA Sfax',
+        fullName: 'Regional Commission for Agricultural Development - Sfax',
+        lat: 34.7406,
+        lng: 10.7603,
+        type: 'Regional',
+        region: 'center',
+        address: 'Route de Tunis Km 0.5, 3000 Sfax',
+        phone: '+216 74 241 633',
+        services: ['NPK', 'pH', 'Salinity Test'],
+        price: '30-60 TND',
+        time: '5-7 days',
+        icon: regionalIcon
+    },
+    {
+        name: 'CRDA Sousse',
+        fullName: 'Regional Commission for Agricultural Development - Sousse',
+        lat: 35.8288,
+        lng: 10.6405,
+        type: 'Regional',
+        region: 'center',
+        address: 'Avenue Léopold Senghor, 4000 Sousse',
+        phone: '+216 73 225 036',
+        services: ['NPK', 'pH'],
+        price: '30-60 TND',
+        time: '5-7 days',
+        icon: regionalIcon
+    },
+    {
+        name: 'CRDA Gabès',
+        fullName: 'Regional Commission for Agricultural Development - Gabès',
+        lat: 33.8815,
+        lng: 10.0982,
+        type: 'Regional',
+        region: 'south',
+        address: 'Avenue Farhat Hached, 6000 Gabès',
+        phone: '+216 75 270 144',
+        services: ['NPK', 'pH', 'Salinity Test'],
+        price: '30-60 TND',
+        time: '5-7 days',
+        icon: regionalIcon
+    },
+    {
+        name: 'IRA Médenine',
+        fullName: 'Institute of Arid Regions',
+        lat: 33.3547,
+        lng: 10.4967,
+        type: 'Academic',
+        region: 'south',
+        address: 'Route du Djorf Km 22.5, 4119 Médenine',
+        phone: '+216 75 633 005',
+        services: ['NPK', 'pH', 'Arid Soil Analysis', 'Research Grade'],
+        price: '60-120 TND',
+        time: '7-14 days',
+        icon: academicIcon
+    },
+    {
+        name: 'Lab Central',
+        fullName: 'Central Analysis Laboratory',
+        lat: 36.8350,
+        lng: 10.2270,
+        type: 'Private',
+        region: 'north',
+        address: 'Zone Industrielle, La Charguia, 2035 Tunis',
+        phone: '+216 71 770 144',
+        services: ['NPK', 'pH', 'Micronutrients', 'Express Service'],
+        price: '100-200 TND',
+        time: '2-5 days',
+        icon: privateIcon
+    }
+];
+
+// Create markers and popups
+const markers = [];
+laboratories.forEach(lab => {
+    const servicesBadges = lab.services.map(s => 
+        `<span class="badge bg-success me-1 mb-1">${s}</span>`
+    ).join('');
+    
+    const popupContent = `
+        <div class="lab-popup">
+            <h6><i class="fas fa-flask me-1"></i>${lab.name}</h6>
+            <p class="fw-bold mb-1">${lab.fullName}</p>
+            <p><i class="fas fa-map-marker-alt text-danger me-1"></i>${lab.address}</p>
+            <p><i class="fas fa-phone text-success me-1"></i>${lab.phone}</p>
+            <div class="mb-2">${servicesBadges}</div>
+            <div class="d-flex justify-content-between">
+                <small><i class="fas fa-clock me-1"></i>${lab.time}</small>
+                <small class="text-success fw-bold">${lab.price}</small>
+            </div>
+        </div>
+    `;
+    
+    const marker = L.marker([lab.lat, lab.lng], { icon: lab.icon })
+        .addTo(map)
+        .bindPopup(popupContent, { maxWidth: 300 });
+    
+    marker.region = lab.region;
+    marker.labName = lab.name;
+    markers.push(marker);
+});
+
+// Region filter functionality
+document.querySelectorAll('[data-region]').forEach(button => {
+    if (button.classList.contains('btn')) {
+        button.addEventListener('click', function() {
+            const region = this.dataset.region;
+            
+            // Update active button
+            document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter cards
+            document.querySelectorAll('.lab-card').forEach(card => {
+                const cardRegion = card.closest('[data-region]').dataset.region;
+                if (region === 'all' || cardRegion === region) {
+                    card.closest('.col-lg-6').style.display = 'block';
+                } else {
+                    card.closest('.col-lg-6').style.display = 'none';
+                }
+            });
+            
+            // Filter map markers and zoom to region
+            if (region === 'all') {
+                markers.forEach(m => m.addTo(map));
+                map.setView([34.0, 9.5], 6);
+            } else {
+                const regionBounds = {
+                    north: [[36.5, 8.5], [37.5, 11.0]],
+                    center: [[34.5, 9.0], [36.5, 11.5]],
+                    south: [[32.5, 8.5], [34.5, 11.5]]
+                };
+                
+                markers.forEach(m => {
+                    if (m.region === region) {
+                        m.addTo(map);
+                    } else {
+                        map.removeLayer(m);
+                    }
+                });
+                
+                if (regionBounds[region]) {
+                    map.fitBounds(regionBounds[region]);
+                }
+            }
+        });
+    }
+});
+
+// Add legend
+const legend = L.control({ position: 'bottomright' });
+legend.onAdd = function() {
+    const div = L.DomUtil.create('div', 'legend');
+    div.style.cssText = 'background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);';
+    div.innerHTML = `
+        <div style="font-weight: bold; margin-bottom: 5px;">Laboratory Types</div>
+        <div style="display: flex; align-items: center; margin-bottom: 3px;">
+            <div style="width: 12px; height: 12px; background: #2E7D32; border-radius: 50%; margin-right: 8px;"></div>
+            <span style="font-size: 12px;">Official</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 3px;">
+            <div style="width: 12px; height: 12px; background: #4CAF50; border-radius: 50%; margin-right: 8px;"></div>
+            <span style="font-size: 12px;">Regional</span>
+        </div>
+        <div style="display: flex; align-items: center; margin-bottom: 3px;">
+            <div style="width: 12px; height: 12px; background: #00ACC1; border-radius: 50%; margin-right: 8px;"></div>
+            <span style="font-size: 12px;">Academic</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <div style="width: 12px; height: 12px; background: #FB8C00; border-radius: 50%; margin-right: 8px;"></div>
+            <span style="font-size: 12px;">Private</span>
+        </div>
+    `;
+    return div;
+};
+legend.addTo(map);
+
+// Force map to recalculate size after page load
+setTimeout(() => {
+    map.invalidateSize();
+}, 100);
+</script>
+{% endblock %}

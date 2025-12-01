@@ -1,0 +1,638 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.marketplace_title }} - SmartCrop{% endblock %}
+
+{% block extra_css %}
+<style>
+    .marketplace-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .seed-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .seed-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .seed-image {
+        height: 180px;
+        object-fit: cover;
+        width: 100%;
+    }
+    
+    .seed-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .seller-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+    
+    .price-tag {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+    
+    .filter-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+    }
+    
+    .category-btn {
+        border-radius: 20px;
+        margin: 3px;
+    }
+    
+    .category-btn.active {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    
+    .rating-stars {
+        color: #ffc107;
+    }
+    
+    .contact-seller-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 25px;
+    }
+    
+    .add-listing-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        z-index: 1000;
+    }
+    
+    .location-badge {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        padding: 3px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+    }
+    
+    .organic-badge {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+    
+    .certified-badge {
+        background-color: #fff3e0;
+        color: #ef6c00;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="marketplace-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-5 fw-bold mb-3">
+                    <i class="fas fa-store"></i> {{ t.marketplace_title }}
+                </h1>
+                <p class="lead mb-0">{{ t.marketplace_subtitle }}</p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <button class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#addListingModal">
+                    <i class="fas fa-plus"></i> {{ t.marketplace_post }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="filter-card sticky-top" style="top: 20px;">
+                <h5 class="mb-3"><i class="fas fa-filter text-success"></i> {{ t.marketplace_filters }}</h5>
+                
+                <!-- Search -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">{{ t.marketplace_search }}</label>
+                    <input type="text" class="form-control" id="searchSeeds" placeholder="{{ t.marketplace_search_placeholder }}">
+                </div>
+                
+                <!-- Categories -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">{{ t.marketplace_categories }}</label>
+                    <div class="d-flex flex-wrap">
+                        <button class="btn btn-outline-success btn-sm category-btn active" data-category="all">{{ t.marketplace_all }}</button>
+                        <button class="btn btn-outline-success btn-sm category-btn" data-category="cereals">{{ t.marketplace_cereals }}</button>
+                        <button class="btn btn-outline-success btn-sm category-btn" data-category="vegetables">{{ t.marketplace_vegetables }}</button>
+                        <button class="btn btn-outline-success btn-sm category-btn" data-category="fruits">{{ t.marketplace_fruits }}</button>
+                        <button class="btn btn-outline-success btn-sm category-btn" data-category="legumes">{{ t.marketplace_legumes }}</button>
+                        <button class="btn btn-outline-success btn-sm category-btn" data-category="herbs">{{ t.marketplace_herbs }}</button>
+                    </div>
+                </div>
+                
+                <!-- Price Range -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">{{ t.marketplace_price }} (TND)</label>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <input type="number" class="form-control" placeholder="{{ t.marketplace_min }}" id="priceMin">
+                        </div>
+                        <div class="col-6">
+                            <input type="number" class="form-control" placeholder="{{ t.marketplace_max }}" id="priceMax">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Location -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">{{ t.marketplace_location }}</label>
+                    <select class="form-select" id="locationFilter">
+                        <option value="all">{{ t.marketplace_all_tunisia }}</option>
+                        <option value="tunis">Tunis</option>
+                        <option value="sfax">Sfax</option>
+                        <option value="sousse">Sousse</option>
+                        <option value="kairouan">Kairouan</option>
+                        <option value="bizerte">Bizerte</option>
+                        <option value="gabes">Gabès</option>
+                        <option value="ariana">Ariana</option>
+                        <option value="gafsa">Gafsa</option>
+                        <option value="monastir">Monastir</option>
+                        <option value="medenine">Médenine</option>
+                    </select>
+                </div>
+                
+                <!-- Certifications -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">{{ t.marketplace_certifications }}</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="organicOnly">
+                        <label class="form-check-label" for="organicOnly">
+                            <i class="fas fa-leaf text-success"></i> {{ t.marketplace_organic }}
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="certifiedOnly">
+                        <label class="form-check-label" for="certifiedOnly">
+                            <i class="fas fa-certificate text-warning"></i> {{ t.marketplace_certified }}
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn btn-success w-100" onclick="applyFilters()">
+                    <i class="fas fa-search"></i> {{ t.marketplace_apply_filters }}
+                </button>
+            </div>
+        </div>
+        
+        <!-- Seed Listings -->
+        <div class="col-lg-9">
+            <!-- Sort Options -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <p class="text-muted mb-0"><span id="resultsCount">12</span> {{ t.marketplace_listings_found }}</p>
+                <select class="form-select w-auto" id="sortBy">
+                    <option value="newest">{{ t.marketplace_sort_newest }}</option>
+                    <option value="price-low">{{ t.marketplace_sort_price_low }}</option>
+                    <option value="price-high">{{ t.marketplace_sort_price_high }}</option>
+                    <option value="rating">{{ t.marketplace_sort_rating }}</option>
+                </select>
+            </div>
+            
+            <!-- Listings Grid -->
+            <div class="row g-4" id="seedListings">
+                <!-- Seed 1 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card seed-card h-100">
+                        <div class="position-relative">
+                            <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400" class="seed-image" alt="Wheat Seeds">
+                            <span class="seed-badge badge bg-success">{{ t.marketplace_new }}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">Premium Wheat Seeds</h6>
+                                <span class="badge organic-badge"><i class="fas fa-leaf"></i> {{ t.marketplace_organic_label }}</span>
+                            </div>
+                            <p class="text-muted small mb-2">Durum wheat variety, high yield</p>
+                            <div class="mb-2">
+                                <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Kairouan</span>
+                            </div>
+                            <div class="rating-stars mb-2">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                <span class="text-muted small">(24)</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price-tag">45 TND<small class="text-muted">{{ t.marketplace_per_kg }}</small></span>
+                                <button class="btn btn-sm contact-seller-btn text-white" onclick="contactSeller('Ahmed Ben Ali')">
+                                    <i class="fas fa-envelope"></i> {{ t.marketplace_contact }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <small class="text-muted"><i class="fas fa-user"></i> Ahmed Ben Ali · <span class="seller-badge">{{ t.marketplace_verified_seller }}</span></small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seed 2 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card seed-card h-100">
+                        <div class="position-relative">
+                            <img src="https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=400" class="seed-image" alt="Tomato Seeds">
+                            <span class="seed-badge badge bg-warning text-dark">{{ t.marketplace_popular }}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">Roma Tomato Seeds</h6>
+                                <span class="badge certified-badge"><i class="fas fa-certificate"></i> {{ t.marketplace_certified_label }}</span>
+                            </div>
+                            <p class="text-muted small mb-2">Disease resistant, ideal for sauce</p>
+                            <div class="mb-2">
+                                <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Sousse</span>
+                            </div>
+                            <div class="rating-stars mb-2">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <span class="text-muted small">(56)</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price-tag">12 TND<small class="text-muted">{{ t.marketplace_per_100g }}</small></span>
+                                <button class="btn btn-sm contact-seller-btn text-white" onclick="contactSeller('Fatma Trabelsi')">
+                                    <i class="fas fa-envelope"></i> {{ t.marketplace_contact }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <small class="text-muted"><i class="fas fa-user"></i> Fatma Trabelsi · <span class="seller-badge">{{ t.marketplace_verified_seller }}</span></small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seed 3 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card seed-card h-100">
+                        <div class="position-relative">
+                            <img src="https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?w=400" class="seed-image" alt="Olive Seeds">
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">Chetoui Olive Saplings</h6>
+                                <span class="badge organic-badge"><i class="fas fa-leaf"></i> {{ t.marketplace_organic_label }}</span>
+                            </div>
+                            <p class="text-muted small mb-2">Traditional Tunisian variety, 2 years old</p>
+                            <div class="mb-2">
+                                <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Sfax</span>
+                            </div>
+                            <div class="rating-stars mb-2">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <span class="text-muted small">(18)</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price-tag">25 TND<small class="text-muted">{{ t.marketplace_per_unit }}</small></span>
+                                <button class="btn btn-sm contact-seller-btn text-white" onclick="contactSeller('Mohamed Sfaxi')">
+                                    <i class="fas fa-envelope"></i> {{ t.marketplace_contact }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <small class="text-muted"><i class="fas fa-user"></i> Mohamed Sfaxi</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seed 4 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card seed-card h-100">
+                        <div class="position-relative">
+                            <img src="https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400" class="seed-image" alt="Pepper Seeds">
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">Baklouti Pepper Seeds</h6>
+                                <span class="badge certified-badge"><i class="fas fa-certificate"></i> {{ t.marketplace_certified_label }}</span>
+                            </div>
+                            <p class="text-muted small mb-2">Famous Tunisian hot pepper</p>
+                            <div class="mb-2">
+                                <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Gabès</span>
+                            </div>
+                            <div class="rating-stars mb-2">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <span class="text-muted small">(42)</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price-tag">8 TND<small class="text-muted">{{ t.marketplace_per_50g }}</small></span>
+                                <button class="btn btn-sm contact-seller-btn text-white" onclick="contactSeller('Salah Gabsi')">
+                                    <i class="fas fa-envelope"></i> {{ t.marketplace_contact }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <small class="text-muted"><i class="fas fa-user"></i> Salah Gabsi · <span class="seller-badge">{{ t.marketplace_verified_seller }}</span></small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seed 5 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card seed-card h-100">
+                        <div class="position-relative">
+                            <img src="https://images.unsplash.com/photo-1596591868231-05e908752cc5?w=400" class="seed-image" alt="Barley Seeds">
+                            <span class="seed-badge badge bg-info">{{ t.marketplace_bulk }}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">Barley Seeds (Bulk)</h6>
+                            </div>
+                            <p class="text-muted small mb-2">High germination rate, drought resistant</p>
+                            <div class="mb-2">
+                                <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Bizerte</span>
+                            </div>
+                            <div class="rating-stars mb-2">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                <span class="text-muted small">(31)</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price-tag">35 TND<small class="text-muted">{{ t.marketplace_per_kg }}</small></span>
+                                <button class="btn btn-sm contact-seller-btn text-white" onclick="contactSeller('Cooperative Bizerte')">
+                                    <i class="fas fa-envelope"></i> {{ t.marketplace_contact }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <small class="text-muted"><i class="fas fa-building"></i> Cooperative Bizerte · <span class="seller-badge">{{ t.marketplace_verified_seller }}</span></small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seed 6 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card seed-card h-100">
+                        <div class="position-relative">
+                            <img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400" class="seed-image" alt="Citrus Seeds">
+                            <span class="seed-badge badge bg-success">{{ t.marketplace_new }}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">Maltaise Orange Saplings</h6>
+                                <span class="badge organic-badge"><i class="fas fa-leaf"></i> {{ t.marketplace_organic_label }}</span>
+                            </div>
+                            <p class="text-muted small mb-2">Sweet blood orange, Cap Bon variety</p>
+                            <div class="mb-2">
+                                <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Nabeul</span>
+                            </div>
+                            <div class="rating-stars mb-2">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <span class="text-muted small">(67)</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price-tag">35 TND<small class="text-muted">{{ t.marketplace_per_unit }}</small></span>
+                                <button class="btn btn-sm contact-seller-btn text-white" onclick="contactSeller('Nabeul Nursery')">
+                                    <i class="fas fa-envelope"></i> {{ t.marketplace_contact }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0">
+                            <small class="text-muted"><i class="fas fa-building"></i> Nabeul Nursery · <span class="seller-badge">{{ t.marketplace_verified_seller }}</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Add Listing Modal -->
+<div class="modal fade" id="addListingModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-plus-circle"></i> {{ t.marketplace_post_listing }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addListingForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ t.marketplace_seed_name }} *</label>
+                            <input type="text" class="form-control" required placeholder="e.g., Roma Tomato Seeds">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ t.marketplace_category }} *</label>
+                            <select class="form-select" required>
+                                <option value="">{{ t.marketplace_select_category }}</option>
+                                <option value="cereals">{{ t.marketplace_cereals }}</option>
+                                <option value="vegetables">{{ t.marketplace_vegetables }}</option>
+                                <option value="fruits">{{ t.marketplace_fruits }}</option>
+                                <option value="legumes">{{ t.marketplace_legumes }}</option>
+                                <option value="herbs">{{ t.marketplace_herbs }}</option>
+                                <option value="trees">{{ t.marketplace_trees }}</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">{{ t.marketplace_description }} *</label>
+                            <textarea class="form-control" rows="3" required placeholder="{{ t.marketplace_describe_seeds }}"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ t.marketplace_price_tnd }} *</label>
+                            <input type="number" class="form-control" required placeholder="0.00">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ t.marketplace_unit }} *</label>
+                            <select class="form-select" required>
+                                <option value="kg">{{ t.marketplace_per_kg }}</option>
+                                <option value="100g">{{ t.marketplace_per_100g }}</option>
+                                <option value="50g">{{ t.marketplace_per_50g }}</option>
+                                <option value="unit">{{ t.marketplace_per_unit }}</option>
+                                <option value="pack">{{ t.marketplace_per_pack }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ t.marketplace_quantity }}</label>
+                            <input type="number" class="form-control" placeholder="e.g., 50">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ t.marketplace_location }} *</label>
+                            <select class="form-select" required>
+                                <option value="">{{ t.marketplace_select_region }}</option>
+                                <option value="tunis">Tunis</option>
+                                <option value="sfax">Sfax</option>
+                                <option value="sousse">Sousse</option>
+                                <option value="kairouan">Kairouan</option>
+                                <option value="bizerte">Bizerte</option>
+                                <option value="gabes">Gabès</option>
+                                <option value="nabeul">Nabeul</option>
+                                <option value="monastir">Monastir</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ t.marketplace_contact_phone }} *</label>
+                            <input type="tel" class="form-control" required placeholder="+216 XX XXX XXX">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">{{ t.marketplace_upload_images }}</label>
+                            <input type="file" class="form-control" accept="image/*" multiple>
+                            <small class="text-muted">{{ t.marketplace_max_images }}</small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">{{ t.marketplace_certifications }}</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="isOrganic">
+                                <label class="form-check-label" for="isOrganic">
+                                    <i class="fas fa-leaf text-success"></i> {{ t.marketplace_organic_label }}
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="isCertified">
+                                <label class="form-check-label" for="isCertified">
+                                    <i class="fas fa-certificate text-warning"></i> {{ t.marketplace_certified_label }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t.cancel }}</button>
+                <button type="button" class="btn btn-success" onclick="submitListing()">
+                    <i class="fas fa-check"></i> {{ t.marketplace_submit_listing }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Seller Modal -->
+<div class="modal fade" id="contactSellerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-envelope"></i> {{ t.marketplace_contact_seller }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">{{ t.marketplace_send_message }}: <strong id="sellerName"></strong></p>
+                <form id="contactForm">
+                    <div class="mb-3">
+                        <label class="form-label">{{ t.marketplace_your_name }}</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ t.marketplace_your_phone }}</label>
+                        <input type="tel" class="form-control" placeholder="+216 XX XXX XXX">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ t.marketplace_message }}</label>
+                        <textarea class="form-control" rows="4" placeholder="{{ t.marketplace_message_placeholder }}"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t.cancel }}</button>
+                <button type="button" class="btn btn-success" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i> {{ t.marketplace_send_message }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Add Button (Mobile) -->
+<button class="btn btn-success add-listing-btn d-lg-none" data-bs-toggle="modal" data-bs-target="#addListingModal">
+    <i class="fas fa-plus"></i>
+</button>
+
+<script>
+    // Category filter
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+    
+    // Contact seller
+    function contactSeller(sellerName) {
+        document.getElementById('sellerName').textContent = sellerName;
+        new bootstrap.Modal(document.getElementById('contactSellerModal')).show();
+    }
+    
+    // Send message
+    function sendMessage() {
+        alert('Message sent successfully! The seller will contact you soon.');
+        bootstrap.Modal.getInstance(document.getElementById('contactSellerModal')).hide();
+    }
+    
+    // Submit listing
+    function submitListing() {
+        alert('Your listing has been submitted for review. It will be visible once approved.');
+        bootstrap.Modal.getInstance(document.getElementById('addListingModal')).hide();
+    }
+    
+    // Apply filters
+    function applyFilters() {
+        // Simulate filtering
+        document.getElementById('resultsCount').textContent = Math.floor(Math.random() * 20) + 5;
+    }
+</script>
+{% endblock %}
