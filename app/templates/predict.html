@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ t.nav_predict }} - SmartCrop{% endblock %}
+{% block title %}{{ t.nav_predict }} - AgriPrime+{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -13,13 +13,13 @@
 
     <!-- Info banner for soil analysis -->
     <div class="alert alert-info border-0 shadow-sm mb-4">
-        <div class="d-flex align-items-center">
-            <i class="fas fa-flask fa-2x me-3 text-info"></i>
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+            <i class="fas fa-flask fa-2x text-info d-none d-md-block"></i>
             <div class="flex-grow-1">
                 <strong>{{ t.predict_need_analysis }}</strong>
                 <p class="mb-0 small">{{ t.labs_subtitle }}</p>
             </div>
-            <a href="{{ url_for('soil_labs') }}" class="btn btn-info btn-sm ms-3">
+            <a href="{{ url_for('soil_labs') }}" class="btn btn-info btn-sm mt-2 mt-md-0">
                 <i class="fas fa-map-marker-alt me-1"></i>{{ t.predict_find_lab }}
             </a>
         </div>

@@ -1,111 +1,146 @@
 {% extends "base.html" %}
 
-{% block title %}{{ t.nav_dashboard }} - SmartCrop{% endblock %}
+{% block title %}{{ t.nav_dashboard }} - AgriPrime+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <!-- Header with welcome and quick actions -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h1><i class="fas fa-tachometer-alt text-success"></i> {{ t.dashboard_title }}</h1>
-            <p class="text-muted">{{ t.dashboard_welcome }}, <strong>{{ current_user.username }}</strong>!</p>
+<div class="container py-4">
+    <!-- Header with welcome -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-12 col-md">
+            <h2 class="fw-bold text-dark mb-1">{{ t.dashboard_welcome or 'Welcome back' }}, {{ current_user.username }}! 👋</h2>
+            <p class="text-muted mb-0 mb-md-0 mb-3">{{ t.dashboard_subtitle or "Here's what's happening with your crops today." }}</p>
         </div>
-        <div class="col-md-4 text-end">
-            <a href="{{ url_for('predict') }}" class="btn btn-success">
-                <i class="fas fa-plus"></i> {{ t.nav_predict }}
+        <div class="col-12 col-md-auto mt-2 mt-md-0">
+            <a href="{{ url_for('predict') }}" class="btn btn-success px-4 w-100 w-md-auto">
+                <i class="fas fa-plus me-2"></i>{{ t.nav_predict }}
             </a>
         </div>
     </div>
     
-    <!-- Smart Tips Alert -->
-    {% if tips %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm smart-tips-card">
-                <div class="card-body">
-                    <h5 class="mb-3"><i class="fas fa-lightbulb text-warning"></i> {{ t.dashboard_tips }}</h5>
-                    <div class="row">
-                        {% for tip in tips %}
-                        <div class="col-md-4 mb-2">
-                            <div class="d-flex align-items-start">
-                                <span class="badge bg-{{ tip.type }} me-2 mt-1">
-                                    <i class="fas {{ tip.icon }}"></i>
-                                </span>
-                                <small>{{ tip.message }}</small>
+    <!-- Top Row: Weather + Stats -->
+    <div class="row g-4 mb-4">
+        <!-- Weather Widget -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100 dashboard-weather-widget">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h6 class="text-muted text-uppercase small fw-semibold mb-1">{{ t.weather_today or "Today's Weather" }}</h6>
+                        </div>
+                        <a href="{{ url_for('weather') }}" class="text-success small">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                    <div id="dashboard-weather" class="text-center py-2">
+                        <div class="spinner-border spinner-border-sm text-success" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted mt-2 small mb-0">{{ t.weather_detecting or 'Detecting location...' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="col-lg-8">
+            <div class="row g-3">
+                <div class="col-md-3 col-6">
+                    <div class="card border-0 shadow-sm h-100 stat-card">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="stat-icon bg-success-subtle text-success rounded-circle me-2">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-0">{{ total_predictions }}</h3>
+                            <small class="text-muted">{{ t.dashboard_predictions or 'Total Predictions' }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-6">
+                    <div class="card border-0 shadow-sm h-100 stat-card">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="stat-icon bg-primary-subtle text-primary rounded-circle me-2">
+                                    <i class="fas fa-calendar-week"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-0">{{ predictions_this_week }}</h3>
+                            <small class="text-muted">{{ t.dashboard_this_month or 'This Month' }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-6">
+                    <div class="card border-0 shadow-sm h-100 stat-card">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="stat-icon bg-info-subtle text-info rounded-circle me-2">
+                                    <i class="fas fa-bullseye"></i>
+                                </div>
+                            </div>
+                            <h3 class="fw-bold mb-0">{{ (avg_confidence * 100)|round(1) }}%</h3>
+                            <small class="text-muted">{{ t.dashboard_confidence or 'Avg Confidence' }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-6">
+                    <div class="card border-0 shadow-sm h-100 stat-card">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="stat-icon bg-warning-subtle text-warning rounded-circle me-2">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                            </div>
+                            <h5 class="fw-bold mb-0 text-truncate">{{ top_crop or 'N/A' }}</h5>
+                            <small class="text-muted">{{ t.dashboard_top_crop or 'Top Crop' }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Explore -->
+            <div class="row g-3 mt-1">
+                <div class="col-md-4">
+                    <a href="{{ url_for('crop_guide') }}" class="card border-0 shadow-sm h-100 text-decoration-none explore-link">
+                        <div class="card-body p-3 d-flex align-items-center">
+                            <div class="explore-icon-sm bg-success-subtle text-success rounded me-3">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 text-dark fw-semibold">{{ t.guide_title or 'Crop Guide' }}</h6>
+                                <small class="text-muted">{{ t.explore_guide_desc or 'Learn about 22 crops' }}</small>
                             </div>
                         </div>
-                        {% endfor %}
-                    </div>
+                    </a>
                 </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    
-    <!-- Statistics Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm bg-primary text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">{{ t.dashboard_predictions }}</h6>
-                            <h2 class="mb-0">{{ total_predictions }}</h2>
+                <div class="col-md-4">
+                    <a href="{{ url_for('soil_labs') }}" class="card border-0 shadow-sm h-100 text-decoration-none explore-link">
+                        <div class="card-body p-3 d-flex align-items-center">
+                            <div class="explore-icon-sm bg-primary-subtle text-primary rounded me-3">
+                                <i class="fas fa-flask"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 text-dark fw-semibold">{{ t.labs_title or 'Soil Labs' }}</h6>
+                                <small class="text-muted">{{ t.explore_labs_desc or 'Find testing labs' }}</small>
+                            </div>
                         </div>
-                        <div class="fs-1 opacity-50">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                    </div>
+                    </a>
                 </div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm bg-success text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">{{ t.dashboard_this_month }}</h6>
-                            <h2 class="mb-0">{{ predictions_this_week }}</h2>
+                <div class="col-md-4">
+                    <a href="{{ url_for('marketplace') }}" class="card border-0 shadow-sm h-100 text-decoration-none explore-link">
+                        <div class="card-body p-3 d-flex align-items-center">
+                            <div class="explore-icon-sm bg-warning-subtle text-warning rounded me-3">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 text-dark fw-semibold">{{ t.marketplace_title or 'Marketplace' }}</h6>
+                                <small class="text-muted">{{ t.explore_market_desc or 'Seeds & fertilizers' }}</small>
+                            </div>
                         </div>
-                        <div class="fs-1 opacity-50">
-                            <i class="fas fa-calendar-week"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm bg-info text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">Avg Confidence</h6>
-                            <h2 class="mb-0">{{ (avg_confidence * 100)|round(1) }}%</h2>
-                        </div>
-                        <div class="fs-1 opacity-50">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm bg-warning text-dark h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">Top Crop</h6>
-                            <h5 class="mb-0 text-truncate" style="max-width: 120px;">
-                                {{ top_crop or 'N/A' }}
-                            </h5>
-                        </div>
-                        <div class="fs-1 opacity-50">
-                            <i class="fas fa-trophy"></i>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -376,4 +411,187 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endif %}
+
+<!-- Dashboard Weather Widget Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load weather for dashboard
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                loadDashboardWeather(position.coords.latitude, position.coords.longitude);
+            },
+            function() {
+                // Default to Tunis if geolocation fails
+                loadDashboardWeather(36.8065, 10.1815);
+            }
+        );
+    } else {
+        loadDashboardWeather(36.8065, 10.1815);
+    }
+});
+
+function loadDashboardWeather(lat, lon) {
+    const weatherDiv = document.getElementById('dashboard-weather');
+    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`;
+    
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            const current = data.current;
+            const weatherCode = current.weather_code;
+            const weatherInfo = getWeatherInfo(weatherCode);
+            
+            weatherDiv.innerHTML = `
+                <div class="d-flex align-items-center mb-3">
+                    <div class="weather-icon-wrapper me-3">
+                        <i class="fas ${weatherInfo.icon} fa-2x" style="color: ${weatherInfo.color};"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-0 fw-bold text-dark">${Math.round(current.temperature_2m)}°C</h2>
+                        <small class="text-muted">${weatherInfo.description}</small>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-around text-center pt-3 border-top">
+                    <div>
+                        <i class="fas fa-tint text-primary opacity-75"></i>
+                        <div class="small text-muted mt-1">${current.relative_humidity_2m}%</div>
+                        <div class="small text-muted fw-semibold">Humidity</div>
+                    </div>
+                    <div>
+                        <i class="fas fa-wind text-secondary opacity-75"></i>
+                        <div class="small text-muted mt-1">${Math.round(current.wind_speed_10m)} km/h</div>
+                        <div class="small text-muted fw-semibold">Wind</div>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            weatherDiv.innerHTML = `
+                <div class="text-center text-muted">
+                    <i class="fas fa-cloud-sun fa-2x mb-2"></i>
+                    <p class="small mb-0">Weather unavailable</p>
+                </div>
+            `;
+        });
+}
+
+function getWeatherInfo(code) {
+    const weatherCodes = {
+        0: { description: 'Clear sky', icon: 'fa-sun', color: '#FFB300' },
+        1: { description: 'Mainly clear', icon: 'fa-sun', color: '#FFB300' },
+        2: { description: 'Partly cloudy', icon: 'fa-cloud-sun', color: '#78909C' },
+        3: { description: 'Overcast', icon: 'fa-cloud', color: '#607D8B' },
+        45: { description: 'Foggy', icon: 'fa-smog', color: '#90A4AE' },
+        48: { description: 'Rime fog', icon: 'fa-smog', color: '#90A4AE' },
+        51: { description: 'Light drizzle', icon: 'fa-cloud-rain', color: '#42A5F5' },
+        53: { description: 'Drizzle', icon: 'fa-cloud-rain', color: '#42A5F5' },
+        55: { description: 'Dense drizzle', icon: 'fa-cloud-rain', color: '#1E88E5' },
+        61: { description: 'Light rain', icon: 'fa-cloud-showers-heavy', color: '#42A5F5' },
+        63: { description: 'Rain', icon: 'fa-cloud-showers-heavy', color: '#1E88E5' },
+        65: { description: 'Heavy rain', icon: 'fa-cloud-showers-heavy', color: '#1565C0' },
+        71: { description: 'Light snow', icon: 'fa-snowflake', color: '#90CAF9' },
+        73: { description: 'Snow', icon: 'fa-snowflake', color: '#64B5F6' },
+        75: { description: 'Heavy snow', icon: 'fa-snowflake', color: '#42A5F5' },
+        80: { description: 'Light showers', icon: 'fa-cloud-rain', color: '#42A5F5' },
+        81: { description: 'Showers', icon: 'fa-cloud-showers-heavy', color: '#1E88E5' },
+        82: { description: 'Heavy showers', icon: 'fa-cloud-showers-heavy', color: '#1565C0' },
+        95: { description: 'Thunderstorm', icon: 'fa-bolt', color: '#FFA726' },
+        96: { description: 'Thunderstorm', icon: 'fa-bolt', color: '#FF9800' },
+        99: { description: 'Severe storm', icon: 'fa-bolt', color: '#F57C00' }
+    };
+    return weatherCodes[code] || { description: 'Unknown', icon: 'fa-cloud', color: '#78909C' };
+}
+</script>
+
+<style>
+/* Dashboard Styles - Clean & Modern */
+
+/* Stat Cards */
+.stat-card {
+    transition: all 0.2s ease;
+    background: #fff;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+/* Subtle background colors */
+.bg-success-subtle { background-color: #E8F5E9 !important; }
+.bg-primary-subtle { background-color: #E3F2FD !important; }
+.bg-info-subtle { background-color: #E0F7FA !important; }
+.bg-warning-subtle { background-color: #FFF8E1 !important; }
+
+/* Weather Widget */
+.dashboard-weather-widget {
+    background: linear-gradient(135deg, #f8fffe 0%, #f0f7f4 100%);
+    border-left: 3px solid #4CAF50;
+}
+
+/* Explore Links */
+.explore-link {
+    transition: all 0.2s ease;
+    background: #fff;
+}
+.explore-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+}
+.explore-link:hover .explore-icon-sm {
+    transform: scale(1.1);
+}
+.explore-icon-sm {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+}
+
+/* Cards general styling */
+.card {
+    border-radius: 12px;
+}
+.card-header {
+    border-radius: 12px 12px 0 0;
+}
+
+/* Charts section */
+.chart-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Table styling */
+.table {
+    font-size: 0.9rem;
+}
+.table th {
+    font-weight: 600;
+    color: #6c757d;
+    border-top: none;
+}
+
+/* Notifications */
+.notification-item {
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+.notification-item.unread {
+    border-left-color: #4CAF50;
+    background-color: #f8fff8;
+}
+</style>
 {% endblock %}

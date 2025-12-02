@@ -1,0 +1,1167 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ t.weather_title }} - AgriPrime+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =============================================
+   WEATHER DASHBOARD - CLEAN & MODERN DESIGN
+   ============================================= */
+
+/* Page Header */
+.weather-page-header {
+    background: var(--bg-secondary);
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 2rem;
+}
+
+.weather-page-header h1 {
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.weather-page-header p {
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+/* Location Bar */
+.location-bar {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border-light);
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.location-bar .location-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.location-bar .location-name i {
+    color: var(--primary);
+}
+
+.location-btn {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.location-btn:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.location-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Main Weather Card */
+.main-weather-card {
+    background: linear-gradient(145deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: 24px;
+    padding: 2.5rem;
+    color: white;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(46, 125, 50, 0.3);
+}
+
+.main-weather-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 60%;
+    height: 200%;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
+
+.main-weather-card .weather-temp {
+    font-size: 6rem;
+    font-weight: 200;
+    line-height: 1;
+    letter-spacing: -5px;
+}
+
+.main-weather-card .weather-temp sup {
+    font-size: 2.5rem;
+    font-weight: 300;
+    vertical-align: top;
+    margin-left: -10px;
+}
+
+.main-weather-card .weather-desc {
+    font-size: 1.5rem;
+    font-weight: 300;
+    opacity: 0.95;
+    margin-top: 0.5rem;
+}
+
+.main-weather-card .weather-icon-main {
+    font-size: 8rem;
+    opacity: 0.9;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.main-weather-card .weather-details-row {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.weather-detail-item {
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.weather-detail-item i {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+.weather-detail-item .detail-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.weather-detail-item .detail-label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+/* Forecast Cards */
+.forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 992px) {
+    .forecast-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .forecast-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.forecast-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    border: 1px solid var(--border-light);
+    transition: all 0.3s ease;
+}
+
+.forecast-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    border-color: var(--primary-light);
+}
+
+.forecast-card.today {
+    background: linear-gradient(145deg, var(--success-bg) 0%, #fff 100%);
+    border-color: var(--primary);
+}
+
+.forecast-card .day-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.forecast-card .day-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.forecast-card .weather-icon {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+}
+
+.forecast-card .temps {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.forecast-card .temp-max {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.forecast-card .temp-min {
+    color: var(--text-secondary);
+}
+
+.forecast-card .rain-chance {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--accent);
+}
+
+.forecast-card .rain-chance i {
+    margin-right: 0.25rem;
+}
+
+/* Alert Cards */
+.alerts-container {
+    margin-bottom: 2rem;
+}
+
+.alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    border-left: 4px solid;
+}
+
+.alert-item.alert-success {
+    background: var(--success-bg);
+    border-left-color: var(--success);
+    color: var(--primary-dark);
+}
+
+.alert-item.alert-warning {
+    background: var(--warning-bg);
+    border-left-color: var(--warning);
+    color: #e65100;
+}
+
+.alert-item.alert-danger {
+    background: var(--error-bg);
+    border-left-color: var(--error);
+    color: #c62828;
+}
+
+.alert-item.alert-info {
+    background: #e0f7fa;
+    border-left-color: var(--accent);
+    color: var(--accent-dark);
+}
+
+.alert-item .alert-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.alert-item .alert-text h6 {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+}
+
+.alert-item .alert-text p {
+    margin: 0;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 992px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.stat-box {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 1.25rem;
+    text-align: center;
+    border: 1px solid var(--border-light);
+    transition: all 0.2s;
+}
+
+.stat-box:hover {
+    border-color: var(--primary-light);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.stat-box .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    font-size: 1.25rem;
+}
+
+.stat-box .stat-icon.bg-temp { background: #fff3e0; color: var(--warning); }
+.stat-box .stat-icon.bg-humidity { background: #e0f7fa; color: var(--accent); }
+.stat-box .stat-icon.bg-rain { background: #e3f2fd; color: #1976d2; }
+.stat-box .stat-icon.bg-wind { background: var(--success-bg); color: var(--primary); }
+.stat-box .stat-icon.bg-uv { background: #fffde7; color: #f9a825; }
+.stat-box .stat-icon.bg-pressure { background: #f3e5f5; color: #7b1fa2; }
+
+.stat-box .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.stat-box .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Agri Tips Card */
+.agri-tips-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.agri-tips-card .card-header-custom {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.agri-tips-card .card-header-custom i {
+    margin-right: 0.5rem;
+}
+
+.agri-tips-card .card-body {
+    padding: 1.5rem;
+}
+
+.tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--bg-tertiary);
+    margin-bottom: 1rem;
+}
+
+.tip-item:last-child {
+    margin-bottom: 0;
+}
+
+.tip-item .tip-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tip-item .tip-icon.irrigation { background: #e0f7fa; color: var(--accent); }
+.tip-item .tip-icon.planting { background: var(--success-bg); color: var(--primary); }
+.tip-item .tip-icon.protection { background: var(--warning-bg); color: var(--warning); }
+
+.tip-item .tip-content h6 {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+}
+
+.tip-item .tip-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Hourly Scroll */
+.hourly-container {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.hourly-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-light) var(--bg-tertiary);
+}
+
+.hourly-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.hourly-scroll::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+}
+
+.hourly-scroll::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 3px;
+}
+
+.hourly-item {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 1rem;
+    background: var(--bg-tertiary);
+    border-radius: 12px;
+    min-width: 75px;
+    transition: all 0.2s;
+}
+
+.hourly-item:hover {
+    background: var(--success-bg);
+}
+
+.hourly-item.now {
+    background: var(--primary);
+    color: white;
+}
+
+.hourly-item .hour-time {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.hourly-item.now .hour-time {
+    color: rgba(255,255,255,0.9);
+}
+
+.hourly-item .hour-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.hourly-item .hour-temp {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.hourly-item.now .hour-temp {
+    color: white;
+}
+
+/* CTA Section */
+.cta-section {
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--success-bg) 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-light);
+}
+
+.cta-section h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.cta-section p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+/* Dark Mode Adjustments */
+[data-theme="dark"] .weather-page-header,
+[data-theme="dark"] .location-bar,
+[data-theme="dark"] .forecast-card,
+[data-theme="dark"] .stat-box,
+[data-theme="dark"] .agri-tips-card,
+[data-theme="dark"] .hourly-container {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .weather-page-header h1,
+[data-theme="dark"] .section-title,
+[data-theme="dark"] .forecast-card .day-name,
+[data-theme="dark"] .stat-box .stat-value,
+[data-theme="dark"] .tip-item .tip-content h6 {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .weather-page-header p,
+[data-theme="dark"] .forecast-card .day-date,
+[data-theme="dark"] .forecast-card .temp-min,
+[data-theme="dark"] .stat-box .stat-label,
+[data-theme="dark"] .tip-item .tip-content p,
+[data-theme="dark"] .hourly-item .hour-time {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .location-btn {
+    background: var(--dark-bg-tertiary);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .hourly-item,
+[data-theme="dark"] .tip-item {
+    background: var(--dark-bg-tertiary);
+}
+
+[data-theme="dark"] .forecast-card.today {
+    background: linear-gradient(145deg, rgba(46, 125, 50, 0.15) 0%, var(--dark-bg-secondary) 100%);
+}
+
+[data-theme="dark"] .cta-section {
+    background: linear-gradient(135deg, var(--dark-bg-tertiary) 0%, rgba(46, 125, 50, 0.1) 100%);
+}
+
+[data-theme="dark"] .main-weather-card {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .forecast-card .temp-max,
+[data-theme="dark"] .hourly-item .hour-temp {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .alert-item.alert-success {
+    background: rgba(76, 175, 80, 0.15);
+    color: var(--secondary-light);
+}
+
+[data-theme="dark"] .alert-item.alert-warning {
+    background: rgba(251, 140, 0, 0.15);
+    color: #ffb74d;
+}
+
+[data-theme="dark"] .alert-item.alert-danger {
+    background: rgba(229, 57, 53, 0.15);
+    color: #ef9a9a;
+}
+
+[data-theme="dark"] .alert-item.alert-info {
+    background: rgba(0, 172, 193, 0.15);
+    color: var(--accent-light);
+}
+
+/* Loading State */
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+}
+
+.loading-spinner .spinner-border {
+    color: var(--primary);
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .main-weather-card {
+        padding: 1.5rem;
+    }
+    
+    .main-weather-card .weather-temp {
+        font-size: 4rem;
+    }
+    
+    .main-weather-card .weather-icon-main {
+        font-size: 5rem;
+    }
+    
+    .main-weather-card .weather-desc {
+        font-size: 1.2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="weather-page-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1><i class="fas fa-cloud-sun me-2 text-primary"></i>{{ t.weather_title }}</h1>
+                <p>{{ t.weather_subtitle }}</p>
+            </div>
+            <div id="currentDate" class="text-secondary"></div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-4">
+    <!-- Location Bar -->
+    <div class="location-bar">
+        <div class="row align-items-center g-3">
+            <div class="col-md-5">
+                <div class="location-name">
+                    <i class="fas fa-map-marker-alt me-2"></i>
+                    <span id="locationName">{{ t.weather_detecting }}</span>
+                    <button class="btn btn-sm btn-link text-primary ms-2 p-0" onclick="detectLocation()" title="{{ t.weather_detect_location }}">
+                        <i class="fas fa-crosshairs"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                    <button class="location-btn" onclick="setLocation(36.8065, 10.1815, 'Tunis')">
+                        <i class="fas fa-map-pin me-1"></i>Tunis
+                    </button>
+                    <button class="location-btn" onclick="setLocation(34.7406, 10.7603, 'Sfax')">
+                        <i class="fas fa-map-pin me-1"></i>Sfax
+                    </button>
+                    <button class="location-btn" onclick="setLocation(35.8245, 10.6346, 'Sousse')">
+                        <i class="fas fa-map-pin me-1"></i>Sousse
+                    </button>
+                    <button class="location-btn" onclick="setLocation(33.8869, 10.0982, 'Gabès')">
+                        <i class="fas fa-map-pin me-1"></i>Gabès
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Weather Card -->
+    <div class="main-weather-card" id="mainWeatherCard">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="weather-temp" id="currentTemp">--<sup>°C</sup></div>
+                <div class="weather-desc" id="weatherDescription">{{ t.weather_loading }}</div>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <div class="weather-icon-main" id="weatherIconLarge">
+                    <i class="fas fa-cloud-sun"></i>
+                </div>
+            </div>
+        </div>
+        <div class="weather-details-row">
+            <div class="row">
+                <div class="col-3">
+                    <div class="weather-detail-item">
+                        <i class="fas fa-tint d-block"></i>
+                        <div class="detail-value" id="currentHumidity">--%</div>
+                        <div class="detail-label">{{ t.weather_humidity }}</div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="weather-detail-item">
+                        <i class="fas fa-wind d-block"></i>
+                        <div class="detail-value" id="currentWind">--</div>
+                        <div class="detail-label">{{ t.weather_wind }}</div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="weather-detail-item">
+                        <i class="fas fa-cloud-rain d-block"></i>
+                        <div class="detail-value" id="currentRain">--</div>
+                        <div class="detail-label">{{ t.weather_rain }}</div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="weather-detail-item">
+                        <i class="fas fa-sun d-block"></i>
+                        <div class="detail-value" id="currentUV">--</div>
+                        <div class="detail-label">UV</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Farming Alerts -->
+    <div class="alerts-container">
+        <h5 class="section-title"><i class="fas fa-bell"></i>{{ t.weather_farming_alerts }}</h5>
+        <div id="alertsContainer">
+            <div class="loading-spinner">
+                <div class="spinner-border" role="status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7-Day Forecast -->
+    <div>
+        <h5 class="section-title"><i class="fas fa-calendar-alt"></i>{{ t.weather_7day_forecast }}</h5>
+        <div class="forecast-grid" id="forecastContainer">
+            <div class="loading-spinner" style="grid-column: 1/-1;">
+                <div class="spinner-border" role="status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hourly Forecast -->
+    <div class="hourly-container">
+        <h5 class="section-title mb-3"><i class="fas fa-clock"></i>{{ t.weather_hourly_forecast }}</h5>
+        <div class="hourly-scroll" id="hourlyContainer">
+            <!-- Hourly items will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <h5 class="section-title"><i class="fas fa-chart-bar"></i>{{ t.weather_details }}</h5>
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-icon bg-temp"><i class="fas fa-temperature-high"></i></div>
+            <div class="stat-value" id="statFeelsLike">--°</div>
+            <div class="stat-label">{{ t.weather_feels_like }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon bg-humidity"><i class="fas fa-tint"></i></div>
+            <div class="stat-value" id="statHumidity">--%</div>
+            <div class="stat-label">{{ t.weather_humidity }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon bg-rain"><i class="fas fa-cloud-rain"></i></div>
+            <div class="stat-value" id="statRainChance">--</div>
+            <div class="stat-label">{{ t.weather_rain }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon bg-wind"><i class="fas fa-wind"></i></div>
+            <div class="stat-value" id="statWindSpeed">--</div>
+            <div class="stat-label">{{ t.weather_wind }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon bg-uv"><i class="fas fa-sun"></i></div>
+            <div class="stat-value" id="statUVIndex">--</div>
+            <div class="stat-label">UV Index</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon bg-pressure"><i class="fas fa-tachometer-alt"></i></div>
+            <div class="stat-value" id="statPressure">--</div>
+            <div class="stat-label">{{ t.weather_pressure }}</div>
+        </div>
+    </div>
+
+    <!-- Agriculture Tips -->
+    <div class="agri-tips-card">
+        <div class="card-header-custom">
+            <i class="fas fa-seedling"></i>{{ t.weather_agri_tips }}
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="tip-item">
+                        <div class="tip-icon irrigation"><i class="fas fa-tint"></i></div>
+                        <div class="tip-content">
+                            <h6>{{ t.weather_irrigation_tip }}</h6>
+                            <p id="irrigationTip">{{ t.weather_loading }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="tip-item">
+                        <div class="tip-icon planting"><i class="fas fa-seedling"></i></div>
+                        <div class="tip-content">
+                            <h6>{{ t.weather_planting_tip }}</h6>
+                            <p id="plantingTip">{{ t.weather_loading }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="tip-item">
+                        <div class="tip-icon protection"><i class="fas fa-shield-alt"></i></div>
+                        <div class="tip-content">
+                            <h6>{{ t.weather_protection_tip }}</h6>
+                            <p id="protectionTip">{{ t.weather_loading }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+        <h4><i class="fas fa-magic me-2 text-primary"></i>{{ t.weather_use_data }}</h4>
+        <p>{{ t.weather_cta_desc }}</p>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('predict') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-leaf me-2"></i>{{ t.weather_use_for_prediction }}
+        </a>
+        {% else %}
+        <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg me-2">
+            <i class="fas fa-user-plus me-2"></i>{{ t.nav_signup }}
+        </a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-sign-in-alt me-2"></i>{{ t.nav_login }}
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Weather configuration
+let currentLat = 36.8065;
+let currentLon = 10.1815;
+let currentLocationName = 'Tunis, Tunisia';
+
+// Weather code mapping
+const weatherCodes = {
+    0: { icon: 'fa-sun', desc: '{{ t.weather_clear }}', color: '#ffc107' },
+    1: { icon: 'fa-sun', desc: '{{ t.weather_mainly_clear }}', color: '#ffc107' },
+    2: { icon: 'fa-cloud-sun', desc: '{{ t.weather_partly_cloudy }}', color: '#78909c' },
+    3: { icon: 'fa-cloud', desc: '{{ t.weather_overcast }}', color: '#607d8b' },
+    45: { icon: 'fa-smog', desc: '{{ t.weather_fog }}', color: '#90a4ae' },
+    48: { icon: 'fa-smog', desc: '{{ t.weather_fog }}', color: '#90a4ae' },
+    51: { icon: 'fa-cloud-rain', desc: '{{ t.weather_light_drizzle }}', color: '#4fc3f7' },
+    53: { icon: 'fa-cloud-rain', desc: '{{ t.weather_drizzle }}', color: '#29b6f6' },
+    55: { icon: 'fa-cloud-rain', desc: '{{ t.weather_heavy_drizzle }}', color: '#03a9f4' },
+    61: { icon: 'fa-cloud-showers-heavy', desc: '{{ t.weather_light_rain }}', color: '#29b6f6' },
+    63: { icon: 'fa-cloud-showers-heavy', desc: '{{ t.weather_rain }}', color: '#039be5' },
+    65: { icon: 'fa-cloud-showers-heavy', desc: '{{ t.weather_heavy_rain }}', color: '#0277bd' },
+    71: { icon: 'fa-snowflake', desc: '{{ t.weather_light_snow }}', color: '#b3e5fc' },
+    73: { icon: 'fa-snowflake', desc: '{{ t.weather_snow }}', color: '#81d4fa' },
+    75: { icon: 'fa-snowflake', desc: '{{ t.weather_heavy_snow }}', color: '#4fc3f7' },
+    80: { icon: 'fa-cloud-rain', desc: '{{ t.weather_rain_showers }}', color: '#29b6f6' },
+    81: { icon: 'fa-cloud-showers-heavy', desc: '{{ t.weather_rain_showers }}', color: '#039be5' },
+    82: { icon: 'fa-cloud-showers-heavy', desc: '{{ t.weather_heavy_showers }}', color: '#0277bd' },
+    95: { icon: 'fa-bolt', desc: '{{ t.weather_thunderstorm }}', color: '#7c4dff' },
+    96: { icon: 'fa-bolt', desc: '{{ t.weather_thunderstorm_hail }}', color: '#651fff' },
+    99: { icon: 'fa-bolt', desc: '{{ t.weather_thunderstorm_hail }}', color: '#6200ea' }
+};
+
+const dayNames = ['{{ t.weather_sun }}', '{{ t.weather_mon }}', '{{ t.weather_tue }}', '{{ t.weather_wed }}', '{{ t.weather_thu }}', '{{ t.weather_fri }}', '{{ t.weather_sat }}'];
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    updateCurrentDate();
+    detectLocation();
+});
+
+function updateCurrentDate() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('currentDate').textContent = now.toLocaleDateString('{{ current_lang }}', options);
+}
+
+function detectLocation() {
+    document.getElementById('locationName').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>{{ t.weather_detecting }}';
+    
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                currentLat = position.coords.latitude;
+                currentLon = position.coords.longitude;
+                reverseGeocode(currentLat, currentLon);
+                fetchWeather();
+            },
+            () => {
+                document.getElementById('locationName').textContent = currentLocationName;
+                fetchWeather();
+            },
+            { timeout: 10000 }
+        );
+    } else {
+        document.getElementById('locationName').textContent = currentLocationName;
+        fetchWeather();
+    }
+}
+
+function reverseGeocode(lat, lon) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+        .then(r => r.json())
+        .then(data => {
+            const city = data.address.city || data.address.town || data.address.village || data.address.county;
+            currentLocationName = city ? `${city}, ${data.address.country}` : data.address.country;
+            document.getElementById('locationName').textContent = currentLocationName;
+        })
+        .catch(() => {
+            document.getElementById('locationName').textContent = `${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`;
+        });
+}
+
+function setLocation(lat, lon, name) {
+    currentLat = lat;
+    currentLon = lon;
+    currentLocationName = name + ', Tunisia';
+    document.getElementById('locationName').textContent = currentLocationName;
+    
+    // Update active button
+    document.querySelectorAll('.location-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.closest('.location-btn').classList.add('active');
+    
+    fetchWeather();
+}
+
+function fetchWeather() {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${currentLat}&longitude=${currentLon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,weather_code,wind_speed_10m,uv_index,surface_pressure&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,uv_index_max&timezone=auto&forecast_days=7`;
+    
+    fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            updateCurrentWeather(data.current);
+            updateForecast(data.daily);
+            updateHourlyForecast(data.hourly);
+            updateStats(data.current);
+            generateFarmingAlerts(data);
+            generateAgriTips(data);
+        })
+        .catch(() => {
+            document.getElementById('forecastContainer').innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                    <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
+                    <p class="text-muted">{{ t.weather_fetch_error }}</p>
+                    <button class="btn btn-primary" onclick="fetchWeather()">{{ t.weather_retry }}</button>
+                </div>
+            `;
+        });
+}
+
+function updateCurrentWeather(current) {
+    const weatherInfo = weatherCodes[current.weather_code] || weatherCodes[0];
+    
+    document.getElementById('currentTemp').innerHTML = `${Math.round(current.temperature_2m)}<sup>°C</sup>`;
+    document.getElementById('weatherDescription').textContent = weatherInfo.desc;
+    document.getElementById('weatherIconLarge').innerHTML = `<i class="fas ${weatherInfo.icon}" style="color: ${weatherInfo.color}"></i>`;
+    document.getElementById('currentHumidity').textContent = current.relative_humidity_2m + '%';
+    document.getElementById('currentWind').textContent = Math.round(current.wind_speed_10m) + ' km/h';
+    document.getElementById('currentRain').textContent = (current.rain || 0) + ' mm';
+    document.getElementById('currentUV').textContent = Math.round(current.uv_index);
+}
+
+function updateForecast(daily) {
+    const container = document.getElementById('forecastContainer');
+    container.innerHTML = '';
+    
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(daily.time[i]);
+        const dayName = i === 0 ? '{{ t.weather_today }}' : dayNames[date.getDay()];
+        const weatherInfo = weatherCodes[daily.weather_code[i]] || weatherCodes[0];
+        
+        container.innerHTML += `
+            <div class="forecast-card ${i === 0 ? 'today' : ''}">
+                <div class="day-name">${dayName}</div>
+                <div class="day-date">${date.toLocaleDateString('{{ current_lang }}', { month: 'short', day: 'numeric' })}</div>
+                <div class="weather-icon" style="color: ${weatherInfo.color}">
+                    <i class="fas ${weatherInfo.icon}"></i>
+                </div>
+                <div class="temps">
+                    <span class="temp-max">${Math.round(daily.temperature_2m_max[i])}°</span>
+                    <span class="temp-min">${Math.round(daily.temperature_2m_min[i])}°</span>
+                </div>
+                <div class="rain-chance">
+                    <i class="fas fa-tint"></i>${daily.precipitation_probability_max[i]}%
+                </div>
+            </div>
+        `;
+    }
+}
+
+function updateHourlyForecast(hourly) {
+    const container = document.getElementById('hourlyContainer');
+    container.innerHTML = '';
+    
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    for (let i = 0; i < 24; i++) {
+        const hourIndex = currentHour + i;
+        if (hourIndex >= hourly.time.length) break;
+        
+        const time = new Date(hourly.time[hourIndex]);
+        const weatherInfo = weatherCodes[hourly.weather_code[hourIndex]] || weatherCodes[0];
+        
+        container.innerHTML += `
+            <div class="hourly-item ${i === 0 ? 'now' : ''}">
+                <div class="hour-time">${i === 0 ? '{{ t.weather_now }}' : time.getHours() + ':00'}</div>
+                <div class="hour-icon" style="color: ${i === 0 ? 'white' : weatherInfo.color}">
+                    <i class="fas ${weatherInfo.icon}"></i>
+                </div>
+                <div class="hour-temp">${Math.round(hourly.temperature_2m[hourIndex])}°</div>
+            </div>
+        `;
+    }
+}
+
+function updateStats(current) {
+    document.getElementById('statFeelsLike').textContent = Math.round(current.apparent_temperature) + '°';
+    document.getElementById('statHumidity').textContent = current.relative_humidity_2m + '%';
+    document.getElementById('statWindSpeed').textContent = Math.round(current.wind_speed_10m) + ' km/h';
+    document.getElementById('statUVIndex').textContent = Math.round(current.uv_index);
+    document.getElementById('statPressure').textContent = Math.round(current.surface_pressure) + ' hPa';
+    document.getElementById('statRainChance').textContent = (current.precipitation > 0 ? current.precipitation + ' mm' : '0 mm');
+}
+
+function generateFarmingAlerts(data) {
+    const container = document.getElementById('alertsContainer');
+    container.innerHTML = '';
+    
+    const alerts = [];
+    const daily = data.daily;
+    const current = data.current;
+    
+    // Rain alert
+    for (let i = 0; i < 3; i++) {
+        if (daily.precipitation_probability_max[i] > 60) {
+            const dayName = i === 0 ? '{{ t.weather_today }}' : i === 1 ? '{{ t.weather_tomorrow }}' : dayNames[new Date(daily.time[i]).getDay()];
+            alerts.push({
+                type: 'info',
+                icon: 'fa-cloud-rain',
+                title: `{{ t.weather_alert_rain }} ${dayName}`,
+                message: `{{ t.weather_alert_rain_msg }} (${daily.precipitation_probability_max[i]}%)`
+            });
+            break;
+        }
+    }
+    
+    // Heat alert
+    if (current.temperature_2m > 35) {
+        alerts.push({
+            type: 'danger',
+            icon: 'fa-temperature-high',
+            title: '{{ t.weather_alert_heat }}',
+            message: '{{ t.weather_alert_heat_msg }}'
+        });
+    }
+    
+    // Cold alert
+    if (daily.temperature_2m_min[0] < 5) {
+        alerts.push({
+            type: 'warning',
+            icon: 'fa-snowflake',
+            title: '{{ t.weather_alert_cold }}',
+            message: '{{ t.weather_alert_cold_msg }}'
+        });
+    }
+    
+    // UV alert
+    if (current.uv_index > 7) {
+        alerts.push({
+            type: 'warning',
+            icon: 'fa-sun',
+            title: '{{ t.weather_alert_uv }}',
+            message: '{{ t.weather_alert_uv_msg }}'
+        });
+    }
+    
+    // Good conditions
+    if (alerts.length === 0 && current.temperature_2m >= 15 && current.temperature_2m <= 30) {
+        alerts.push({
+            type: 'success',
+            icon: 'fa-seedling',
+            title: '{{ t.weather_alert_good }}',
+            message: '{{ t.weather_alert_good_msg }}'
+        });
+    }
+    
+    alerts.forEach(alert => {
+        container.innerHTML += `
+            <div class="alert-item alert-${alert.type}">
+                <div class="alert-icon"><i class="fas ${alert.icon}"></i></div>
+                <div class="alert-text">
+                    <h6>${alert.title}</h6>
+                    <p>${alert.message}</p>
+                </div>
+            </div>
+        `;
+    });
+    
+    if (alerts.length === 0) {
+        container.innerHTML = `<p class="text-muted mb-0">{{ t.weather_no_alerts }}</p>`;
+    }
+}
+
+function generateAgriTips(data) {
+    const current = data.current;
+    const daily = data.daily;
+    
+    // Irrigation
+    let irrigationTip = daily.precipitation_probability_max[0] > 60 || daily.precipitation_probability_max[1] > 60
+        ? '{{ t.weather_tip_delay_irrigation }}'
+        : current.temperature_2m > 30
+            ? '{{ t.weather_tip_irrigate_morning }}'
+            : '{{ t.weather_tip_normal_irrigation }}';
+    document.getElementById('irrigationTip').textContent = irrigationTip;
+    
+    // Planting
+    let plantingTip = current.temperature_2m >= 15 && current.temperature_2m <= 28 && current.relative_humidity_2m >= 50
+        ? '{{ t.weather_tip_good_planting }}'
+        : current.temperature_2m > 35
+            ? '{{ t.weather_tip_avoid_planting }}'
+            : '{{ t.weather_tip_check_crops }}';
+    document.getElementById('plantingTip').textContent = plantingTip;
+    
+    // Protection
+    let protectionTip = current.uv_index > 7
+        ? '{{ t.weather_tip_shade_needed }}'
+        : daily.temperature_2m_min[0] < 10
+            ? '{{ t.weather_tip_cover_crops }}'
+            : current.wind_speed_10m > 30
+                ? '{{ t.weather_tip_wind_protection }}'
+                : '{{ t.weather_tip_no_protection }}';
+    document.getElementById('protectionTip').textContent = protectionTip;
+}
+</script>
+{% endblock %}

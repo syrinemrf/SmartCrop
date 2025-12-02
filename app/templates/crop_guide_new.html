@@ -1,0 +1,1154 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ t.guide_title }} - AgriPrime+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Modern Crop Guide Styles */
+.crop-guide-hero {
+    background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #43A047 100%);
+    padding: 3rem 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.crop-guide-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+}
+
+/* Crop Cards Grid */
+.crop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+.crop-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.crop-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(46, 125, 50, 0.2);
+    border-color: #4CAF50;
+}
+
+.crop-card.active {
+    border-color: #2E7D32;
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+}
+
+.crop-card .crop-emoji {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.crop-card .crop-name {
+    font-weight: 600;
+    color: #1B5E20;
+    font-size: 0.95rem;
+}
+
+/* Category Pills */
+.category-pills {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.category-pill {
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid #E0E0E0;
+    background: white;
+    color: #546E7A;
+}
+
+.category-pill:hover {
+    border-color: #4CAF50;
+    color: #2E7D32;
+}
+
+.category-pill.active {
+    background: #2E7D32;
+    border-color: #2E7D32;
+    color: white;
+}
+
+/* Detail Panel */
+.crop-detail-panel {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.crop-detail-header {
+    background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.crop-detail-header .crop-emoji-large {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Info Cards */
+.info-card {
+    background: #F8F9FA;
+    border-radius: 12px;
+    padding: 1.25rem;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    background: #E8F5E9;
+}
+
+.info-card-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.info-card-icon.green { background: #E8F5E9; color: #2E7D32; }
+.info-card-icon.blue { background: #E3F2FD; color: #1976D2; }
+.info-card-icon.orange { background: #FFF3E0; color: #EF6C00; }
+.info-card-icon.red { background: #FFEBEE; color: #D32F2F; }
+.info-card-icon.purple { background: #F3E5F5; color: #7B1FA2; }
+.info-card-icon.teal { background: #E0F2F1; color: #00796B; }
+
+/* Requirements Grid */
+.requirement-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: #F8F9FA;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+}
+
+.requirement-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.requirement-bar {
+    flex-grow: 1;
+    height: 8px;
+    background: #E0E0E0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-left: 1rem;
+}
+
+.requirement-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+/* Timeline */
+.timeline {
+    position: relative;
+    padding: 1rem 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #4CAF50, #8BC34A, #FFC107, #FF5722);
+    border-radius: 3px;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.timeline-item:nth-child(odd) {
+    flex-direction: row-reverse;
+}
+
+.timeline-item:nth-child(odd) .timeline-content {
+    text-align: right;
+    margin-right: 2rem;
+    margin-left: 0;
+}
+
+.timeline-dot {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.timeline-content {
+    flex: 1;
+    background: white;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-left: 2rem;
+    max-width: 45%;
+}
+
+/* NPK Chart */
+.npk-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.npk-label {
+    width: 100px;
+    font-weight: 600;
+}
+
+.npk-track {
+    flex-grow: 1;
+    height: 24px;
+    background: #E0E0E0;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.npk-fill {
+    height: 100%;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: width 0.5s ease;
+}
+
+.npk-fill.nitrogen { background: linear-gradient(90deg, #4CAF50, #2E7D32); }
+.npk-fill.phosphorus { background: linear-gradient(90deg, #2196F3, #1565C0); }
+.npk-fill.potassium { background: linear-gradient(90deg, #FF9800, #EF6C00); }
+
+/* Tips List */
+.tip-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    background: #F8F9FA;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    border-left: 4px solid #4CAF50;
+}
+
+.tip-number {
+    width: 28px;
+    height: 28px;
+    background: #2E7D32;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+/* Disease Cards */
+.disease-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid #E0E0E0;
+    transition: all 0.3s ease;
+}
+
+.disease-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.severity-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.severity-high { background: #FFEBEE; color: #C62828; }
+.severity-medium { background: #FFF3E0; color: #EF6C00; }
+.severity-low { background: #E8F5E9; color: #2E7D32; }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .crop-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .crop-card {
+        padding: 1rem 0.5rem;
+    }
+    
+    .crop-card .crop-emoji {
+        font-size: 2rem;
+    }
+    
+    .crop-card .crop-name {
+        font-size: 0.8rem;
+    }
+    
+    .timeline::before {
+        left: 25px;
+    }
+    
+    .timeline-item,
+    .timeline-item:nth-child(odd) {
+        flex-direction: row;
+    }
+    
+    .timeline-content,
+    .timeline-item:nth-child(odd) .timeline-content {
+        text-align: left;
+        margin-left: 1.5rem;
+        margin-right: 0;
+        max-width: none;
+    }
+    
+    .category-pill {
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .crop-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Dark Mode */
+[data-theme="dark"] .crop-card {
+    background: var(--dark-bg-secondary);
+}
+
+[data-theme="dark"] .crop-card .crop-name {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .crop-detail-panel {
+    background: var(--dark-bg-secondary);
+}
+
+[data-theme="dark"] .info-card {
+    background: var(--dark-bg-tertiary);
+}
+
+[data-theme="dark"] .timeline-content {
+    background: var(--dark-bg-tertiary);
+}
+
+[data-theme="dark"] .category-pill {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+    color: var(--dark-text-secondary);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="crop-guide-hero">
+    <div class="container position-relative">
+        <div class="text-center">
+            <h1 class="display-5 fw-bold mb-3">
+                <i class="fas fa-book-open me-3"></i>{{ t.guide_title }}
+            </h1>
+            <p class="lead mb-0 opacity-90">{{ t.guide_subtitle }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Category Filter -->
+    <div class="category-pills mb-4">
+        <span class="category-pill active" data-category="all">
+            <i class="fas fa-th-large me-2"></i>{{ t.guide_all_crops or 'All Crops' }}
+        </span>
+        <span class="category-pill" data-category="grains">
+            <i class="fas fa-wheat-awn me-2"></i>{{ t.crop_category_grains }}
+        </span>
+        <span class="category-pill" data-category="legumes">
+            <i class="fas fa-circle me-2"></i>{{ t.crop_category_legumes }}
+        </span>
+        <span class="category-pill" data-category="fruits">
+            <i class="fas fa-apple-whole me-2"></i>{{ t.crop_category_fruits }}
+        </span>
+        <span class="category-pill" data-category="fiber">
+            <i class="fas fa-leaf me-2"></i>{{ t.crop_category_fiber }}
+        </span>
+    </div>
+
+    <!-- Crops Grid -->
+    <div class="crop-grid mb-5" id="cropsGrid">
+        <!-- Grains -->
+        <div class="crop-card" data-crop="rice" data-category="grains">
+            <span class="crop-emoji">🌾</span>
+            <span class="crop-name">Rice</span>
+        </div>
+        <div class="crop-card" data-crop="wheat" data-category="grains">
+            <span class="crop-emoji">🌾</span>
+            <span class="crop-name">Wheat</span>
+        </div>
+        <div class="crop-card" data-crop="maize" data-category="grains">
+            <span class="crop-emoji">🌽</span>
+            <span class="crop-name">Maize</span>
+        </div>
+        
+        <!-- Legumes -->
+        <div class="crop-card" data-crop="chickpea" data-category="legumes">
+            <span class="crop-emoji">🫘</span>
+            <span class="crop-name">Chickpea</span>
+        </div>
+        <div class="crop-card" data-crop="lentil" data-category="legumes">
+            <span class="crop-emoji">🫘</span>
+            <span class="crop-name">Lentil</span>
+        </div>
+        <div class="crop-card" data-crop="kidneybeans" data-category="legumes">
+            <span class="crop-emoji">🫘</span>
+            <span class="crop-name">Kidney Beans</span>
+        </div>
+        <div class="crop-card" data-crop="pigeonpeas" data-category="legumes">
+            <span class="crop-emoji">🫘</span>
+            <span class="crop-name">Pigeon Peas</span>
+        </div>
+        <div class="crop-card" data-crop="mothbeans" data-category="legumes">
+            <span class="crop-emoji">🫘</span>
+            <span class="crop-name">Moth Beans</span>
+        </div>
+        <div class="crop-card" data-crop="mungbean" data-category="legumes">
+            <span class="crop-emoji">🫘</span>
+            <span class="crop-name">Mung Bean</span>
+        </div>
+        <div class="crop-card" data-crop="blackgram" data-category="legumes">
+            <span class="crop-emoji">🫘</span>
+            <span class="crop-name">Black Gram</span>
+        </div>
+        
+        <!-- Fruits -->
+        <div class="crop-card" data-crop="banana" data-category="fruits">
+            <span class="crop-emoji">🍌</span>
+            <span class="crop-name">Banana</span>
+        </div>
+        <div class="crop-card" data-crop="mango" data-category="fruits">
+            <span class="crop-emoji">🥭</span>
+            <span class="crop-name">Mango</span>
+        </div>
+        <div class="crop-card" data-crop="apple" data-category="fruits">
+            <span class="crop-emoji">🍎</span>
+            <span class="crop-name">Apple</span>
+        </div>
+        <div class="crop-card" data-crop="orange" data-category="fruits">
+            <span class="crop-emoji">🍊</span>
+            <span class="crop-name">Orange</span>
+        </div>
+        <div class="crop-card" data-crop="grapes" data-category="fruits">
+            <span class="crop-emoji">🍇</span>
+            <span class="crop-name">Grapes</span>
+        </div>
+        <div class="crop-card" data-crop="watermelon" data-category="fruits">
+            <span class="crop-emoji">🍉</span>
+            <span class="crop-name">Watermelon</span>
+        </div>
+        <div class="crop-card" data-crop="muskmelon" data-category="fruits">
+            <span class="crop-emoji">🍈</span>
+            <span class="crop-name">Muskmelon</span>
+        </div>
+        <div class="crop-card" data-crop="pomegranate" data-category="fruits">
+            <span class="crop-emoji">🍎</span>
+            <span class="crop-name">Pomegranate</span>
+        </div>
+        <div class="crop-card" data-crop="papaya" data-category="fruits">
+            <span class="crop-emoji">🍈</span>
+            <span class="crop-name">Papaya</span>
+        </div>
+        <div class="crop-card" data-crop="coconut" data-category="fruits">
+            <span class="crop-emoji">🥥</span>
+            <span class="crop-name">Coconut</span>
+        </div>
+        
+        <!-- Fiber & Others -->
+        <div class="crop-card" data-crop="cotton" data-category="fiber">
+            <span class="crop-emoji">🏵️</span>
+            <span class="crop-name">Cotton</span>
+        </div>
+        <div class="crop-card" data-crop="jute" data-category="fiber">
+            <span class="crop-emoji">🌿</span>
+            <span class="crop-name">Jute</span>
+        </div>
+        <div class="crop-card" data-crop="coffee" data-category="fiber">
+            <span class="crop-emoji">☕</span>
+            <span class="crop-name">Coffee</span>
+        </div>
+    </div>
+
+    <!-- Placeholder when no crop selected -->
+    <div id="noCropSelected" class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-hand-pointer fa-4x text-success opacity-50"></i>
+        </div>
+        <h4 class="text-muted">{{ t.guide_select_crop_message or 'Select a crop above to see detailed information' }}</h4>
+        <p class="text-muted">{{ t.guide_select_crop_hint or 'Click on any crop card to explore growing requirements, tips, and more.' }}</p>
+    </div>
+
+    <!-- Crop Details (hidden by default) -->
+    <div id="cropDetails" class="crop-detail-panel" style="display: none;">
+        <!-- Header -->
+        <div class="crop-detail-header">
+            <span class="crop-emoji-large" id="detailEmoji">🌱</span>
+            <h2 class="fw-bold mb-2" id="detailName">Crop Name</h2>
+            <p class="mb-0 opacity-90" id="detailSeason">Growing Season</p>
+        </div>
+
+        <div class="p-4">
+            <!-- Quick Stats Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="info-card text-center">
+                        <div class="info-card-icon green mx-auto">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="fw-bold text-dark" id="statDuration">--</div>
+                        <small class="text-muted">{{ t.guide_duration or 'Duration' }}</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="info-card text-center">
+                        <div class="info-card-icon orange mx-auto">
+                            <i class="fas fa-temperature-high"></i>
+                        </div>
+                        <div class="fw-bold text-dark" id="statTemp">--</div>
+                        <small class="text-muted">{{ t.guide_temperature or 'Temperature' }}</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="info-card text-center">
+                        <div class="info-card-icon blue mx-auto">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="fw-bold text-dark" id="statWater">--</div>
+                        <small class="text-muted">{{ t.guide_water or 'Water Need' }}</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="info-card text-center">
+                        <div class="info-card-icon purple mx-auto">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="fw-bold text-dark" id="statYield">--</div>
+                        <small class="text-muted">{{ t.guide_yield or 'Avg Yield' }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+                <h5 class="fw-bold text-dark mb-3">
+                    <i class="fas fa-info-circle text-success me-2"></i>{{ t.guide_overview or 'Overview' }}
+                </h5>
+                <p class="text-muted" id="detailDescription">--</p>
+            </div>
+
+            <!-- Requirements -->
+            <div class="row g-4 mb-4">
+                <!-- Climate & Soil -->
+                <div class="col-md-6">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="fas fa-cloud-sun text-warning me-2"></i>{{ t.guide_climate or 'Climate & Soil' }}
+                    </h5>
+                    <div class="requirement-item">
+                        <div class="requirement-icon" style="background: #FFF3E0; color: #EF6C00;">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold text-dark">{{ t.guide_climate_req or 'Climate' }}</div>
+                            <small class="text-muted" id="reqClimate">--</small>
+                        </div>
+                    </div>
+                    <div class="requirement-item">
+                        <div class="requirement-icon" style="background: #EFEBE9; color: #6D4C41;">
+                            <i class="fas fa-mountain"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold text-dark">{{ t.guide_soil or 'Soil Type' }}</div>
+                            <small class="text-muted" id="reqSoil">--</small>
+                        </div>
+                    </div>
+                    <div class="requirement-item">
+                        <div class="requirement-icon" style="background: #E8F5E9; color: #2E7D32;">
+                            <i class="fas fa-vial"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold text-dark">{{ t.guide_ph or 'pH Level' }}</div>
+                            <small class="text-muted" id="reqPh">--</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NPK Requirements -->
+                <div class="col-md-6">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="fas fa-flask text-info me-2"></i>{{ t.guide_npk or 'NPK Requirements' }}
+                    </h5>
+                    <div class="npk-bar">
+                        <span class="npk-label"><i class="fas fa-leaf text-success me-2"></i>N</span>
+                        <div class="npk-track">
+                            <div class="npk-fill nitrogen" id="npkN" style="width: 0%">0</div>
+                        </div>
+                    </div>
+                    <div class="npk-bar">
+                        <span class="npk-label"><i class="fas fa-circle text-primary me-2"></i>P</span>
+                        <div class="npk-track">
+                            <div class="npk-fill phosphorus" id="npkP" style="width: 0%">0</div>
+                        </div>
+                    </div>
+                    <div class="npk-bar">
+                        <span class="npk-label"><i class="fas fa-fire text-warning me-2"></i>K</span>
+                        <div class="npk-track">
+                            <div class="npk-fill potassium" id="npkK" style="width: 0%">0</div>
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ t.guide_npk_unit or 'Values in kg/ha' }}</small>
+                </div>
+            </div>
+
+            <!-- Planting Tips -->
+            <div class="mb-4">
+                <h5 class="fw-bold text-dark mb-3">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>{{ t.guide_tips or 'Planting Tips' }}
+                </h5>
+                <div id="tipsList">
+                    <!-- Tips will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Common Diseases -->
+            <div class="mb-4">
+                <h5 class="fw-bold text-dark mb-3">
+                    <i class="fas fa-bug text-danger me-2"></i>{{ t.guide_diseases or 'Common Diseases' }}
+                </h5>
+                <div class="row g-3" id="diseasesList">
+                    <!-- Diseases will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex flex-wrap gap-2 justify-content-center pt-3 border-top">
+                <a href="{{ url_for('predict') }}" class="btn btn-success btn-lg px-4">
+                    <i class="fas fa-magic me-2"></i>{{ t.guide_predict_now or 'Predict for This Crop' }}
+                </a>
+                <a href="{{ url_for('soil_labs') }}" class="btn btn-outline-primary btn-lg px-4">
+                    <i class="fas fa-flask me-2"></i>{{ t.guide_find_lab or 'Find Soil Lab' }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Crop Data
+const cropData = {
+    rice: {
+        name: "Rice", emoji: "🌾",
+        description: "Rice is the staple food for more than half of the world's population. It's a semi-aquatic crop that thrives in flooded conditions.",
+        climate: "Tropical/subtropical, 20-35°C, high humidity",
+        season: "Kharif (June-Nov) or Rabi (Nov-Apr)",
+        duration: "120-150 days",
+        temperature: "20-35°C",
+        water: "High",
+        yield: "4-6 tons/ha",
+        soil: "Clay loam, alluvial soils with good water retention",
+        ph: "5.5-7.0",
+        npk: { n: 120, p: 60, k: 60 },
+        tips: [
+            "Maintain 2-5 cm water level during vegetative stage",
+            "Use certified seeds with 85%+ germination rate",
+            "Apply nitrogen in 3 split doses for best results",
+            "Drain field 10-15 days before harvest",
+            "Practice crop rotation to prevent soil depletion"
+        ],
+        diseases: [
+            { name: "Blast", severity: "high" },
+            { name: "Bacterial Blight", severity: "high" },
+            { name: "Brown Spot", severity: "medium" },
+            { name: "Sheath Rot", severity: "low" }
+        ]
+    },
+    wheat: {
+        name: "Wheat", emoji: "🌾",
+        description: "Wheat is one of the most important cereal crops globally. It requires cool temperatures during early growth and warm, dry conditions for ripening.",
+        climate: "Cool, temperate, 10-25°C",
+        season: "Rabi season (October-March)",
+        duration: "100-120 days",
+        temperature: "15-20°C",
+        water: "Medium",
+        yield: "3-5 tons/ha",
+        soil: "Well-drained loamy soil, fertile with good organic matter",
+        ph: "6.0-7.5",
+        npk: { n: 100, p: 50, k: 40 },
+        tips: [
+            "Sow at optimal depth of 4-5 cm for best germination",
+            "Irrigate at crown root initiation for tillering",
+            "Apply first nitrogen dose at sowing, second at tillering",
+            "Watch for rust and aphid infestations",
+            "Harvest when grain moisture is below 14%"
+        ],
+        diseases: [
+            { name: "Rust", severity: "high" },
+            { name: "Powdery Mildew", severity: "medium" },
+            { name: "Loose Smut", severity: "medium" },
+            { name: "Karnal Bunt", severity: "low" }
+        ]
+    },
+    maize: {
+        name: "Maize", emoji: "🌽",
+        description: "Maize (Corn) is a versatile crop used for food, feed, and industrial purposes. It's a warm-season crop with high yield potential.",
+        climate: "Warm, 18-32°C, frost-free period",
+        season: "Kharif (Jun-Sep) or Spring (Feb-May)",
+        duration: "90-120 days",
+        temperature: "25-30°C",
+        water: "Medium-High",
+        yield: "5-8 tons/ha",
+        soil: "Well-drained sandy loam to loam with good fertility",
+        ph: "5.5-7.5",
+        npk: { n: 150, p: 60, k: 40 },
+        tips: [
+            "Plant when soil temperature is above 10°C",
+            "Maintain 60x20 cm spacing for optimal yield",
+            "Critical irrigation at tasseling and silking stage",
+            "Apply nitrogen in split doses (at sowing and knee-high)",
+            "Harvest when kernels are hard and moisture is 20-25%"
+        ],
+        diseases: [
+            { name: "Maize Stalk Borer", severity: "high" },
+            { name: "Downy Mildew", severity: "medium" },
+            { name: "Leaf Blight", severity: "medium" },
+            { name: "Ear Rot", severity: "low" }
+        ]
+    },
+    banana: {
+        name: "Banana", emoji: "🍌",
+        description: "Banana is a tropical fruit crop that produces year-round. It's one of the world's most popular fruits and requires consistent warmth and moisture.",
+        climate: "Tropical, 25-35°C, high humidity",
+        season: "Year-round planting possible",
+        duration: "10-12 months",
+        temperature: "27-30°C",
+        water: "High",
+        yield: "30-40 tons/ha",
+        soil: "Deep, well-drained, fertile loamy soil",
+        ph: "6.0-7.5",
+        npk: { n: 200, p: 60, k: 300 },
+        tips: [
+            "Use disease-free tissue culture plants",
+            "Maintain 2x2m or 2.5x2.5m spacing",
+            "Remove dried leaves regularly to prevent disease",
+            "Support bunches with props to prevent toppling",
+            "Harvest when fingers are plump and edges round"
+        ],
+        diseases: [
+            { name: "Panama Disease", severity: "high" },
+            { name: "Black Sigatoka", severity: "high" },
+            { name: "Bunchy Top Virus", severity: "medium" },
+            { name: "Anthracnose", severity: "low" }
+        ]
+    },
+    mango: {
+        name: "Mango", emoji: "🥭",
+        description: "Mango is the 'King of Fruits', a tropical tree that bears fruit seasonally. Trees are long-lived and productive for decades with proper care.",
+        climate: "Tropical/subtropical, 24-30°C",
+        season: "Flower: Dec-Feb, Harvest: May-Jul",
+        duration: "4-5 months",
+        temperature: "25-30°C",
+        water: "Medium",
+        yield: "10-15 tons/ha",
+        soil: "Deep, well-drained alluvial or lateritic soil",
+        ph: "5.5-7.5",
+        npk: { n: 100, p: 50, k: 100 },
+        tips: [
+            "Plant grafted saplings for earlier fruiting",
+            "Maintain 10x10m spacing for traditional varieties",
+            "Prune after harvest to maintain tree shape",
+            "Stop irrigation before flowering to induce bloom",
+            "Harvest when fruit shows color and aroma"
+        ],
+        diseases: [
+            { name: "Anthracnose", severity: "high" },
+            { name: "Powdery Mildew", severity: "high" },
+            { name: "Bacterial Canker", severity: "medium" },
+            { name: "Malformation", severity: "low" }
+        ]
+    },
+    grapes: {
+        name: "Grapes", emoji: "🍇",
+        description: "Grapes are climbing vines grown for fresh fruit, raisins, and wine. They require careful training, pruning, and pest management.",
+        climate: "Mediterranean, hot dry summers",
+        season: "Pruning: Jan-Feb, Harvest: May-Jun",
+        duration: "140-160 days",
+        temperature: "20-25°C",
+        water: "Medium",
+        yield: "15-25 tons/ha",
+        soil: "Well-drained sandy loam to clay loam",
+        ph: "6.0-7.5",
+        npk: { n: 80, p: 60, k: 80 },
+        tips: [
+            "Train vines on trellis systems",
+            "Prune to 2-3 buds per spur for optimal fruiting",
+            "Apply Gibberellic acid for berry sizing",
+            "Thin bunches for better quality grapes",
+            "Reduce irrigation before harvest for sweetness"
+        ],
+        diseases: [
+            { name: "Downy Mildew", severity: "high" },
+            { name: "Powdery Mildew", severity: "high" },
+            { name: "Anthracnose", severity: "medium" },
+            { name: "Botrytis Rot", severity: "low" }
+        ]
+    },
+    watermelon: {
+        name: "Watermelon", emoji: "🍉",
+        description: "Watermelon is a warm-season fruit grown for its sweet, juicy flesh. It needs warm soil and plenty of space for vines to spread.",
+        climate: "Warm, 25-35°C, frost-free",
+        season: "Summer, Feb-Jun planting",
+        duration: "80-100 days",
+        temperature: "28-32°C",
+        water: "Medium-High",
+        yield: "25-40 tons/ha",
+        soil: "Well-drained sandy loam",
+        ph: "6.0-7.0",
+        npk: { n: 100, p: 50, k: 50 },
+        tips: [
+            "Use black plastic mulch to warm soil",
+            "Space hills 2-3 meters apart",
+            "Check ripeness by ground spot color (yellow)",
+            "Reduce water as fruit matures for sweetness",
+            "Harvest in morning for best sugar content"
+        ],
+        diseases: [
+            { name: "Fusarium Wilt", severity: "high" },
+            { name: "Anthracnose", severity: "medium" },
+            { name: "Powdery Mildew", severity: "medium" },
+            { name: "Gummy Stem Blight", severity: "low" }
+        ]
+    },
+    coffee: {
+        name: "Coffee", emoji: "☕",
+        description: "Coffee is a tropical shrub grown for its beans. It requires shade, consistent moisture, and specific altitude for quality production.",
+        climate: "Tropical highlands, 15-24°C",
+        season: "Plant with monsoon, harvest Nov-Feb",
+        duration: "3-4 years to first harvest",
+        temperature: "18-22°C",
+        water: "High",
+        yield: "1-2 tons/ha",
+        soil: "Deep, well-drained, slightly acidic volcanic soils",
+        ph: "5.5-6.5",
+        npk: { n: 160, p: 45, k: 160 },
+        tips: [
+            "Plant under 40-50% shade cover",
+            "Maintain 2.5-3m spacing between plants",
+            "Apply organic mulch around plants",
+            "Prune to maintain productive canopy",
+            "Harvest only red, fully ripe cherries"
+        ],
+        diseases: [
+            { name: "Coffee Leaf Rust", severity: "high" },
+            { name: "Berry Disease", severity: "high" },
+            { name: "Root Rot", severity: "medium" },
+            { name: "Stem Borer", severity: "low" }
+        ]
+    },
+    cotton: {
+        name: "Cotton", emoji: "🏵️",
+        description: "Cotton is a major fiber crop for textile production. It requires warm temperatures and a long frost-free growing season.",
+        climate: "Warm tropical/subtropical, 21-30°C",
+        season: "Kharif, April-May sowing",
+        duration: "150-180 days",
+        temperature: "25-30°C",
+        water: "Medium",
+        yield: "2-3 tons/ha",
+        soil: "Deep black cotton soil or alluvial",
+        ph: "6.0-8.0",
+        npk: { n: 120, p: 60, k: 60 },
+        tips: [
+            "Use Bt cotton for bollworm resistance",
+            "Maintain 90x60 cm spacing",
+            "Apply growth regulators to control height",
+            "Scout regularly for pests - use IPM",
+            "Pick cotton when bolls are fully open"
+        ],
+        diseases: [
+            { name: "Bacterial Blight", severity: "high" },
+            { name: "Fusarium Wilt", severity: "high" },
+            { name: "Bollworm", severity: "medium" },
+            { name: "Root Rot", severity: "low" }
+        ]
+    },
+    orange: {
+        name: "Orange", emoji: "🍊",
+        description: "Orange is a citrus fruit grown in subtropical regions. Trees are evergreen and produce fruit annually once mature.",
+        climate: "Subtropical, 15-30°C, mild winters",
+        season: "Harvest: Nov-Mar",
+        duration: "8-12 months",
+        temperature: "23-28°C",
+        water: "Medium",
+        yield: "15-25 tons/ha",
+        soil: "Well-drained sandy loam to clay loam",
+        ph: "6.0-7.5",
+        npk: { n: 120, p: 40, k: 120 },
+        tips: [
+            "Plant grafted trees on resistant rootstock",
+            "Maintain 6x6m spacing",
+            "Apply micronutrients regularly",
+            "Control suckers and water sprouts",
+            "Harvest at full color and sugar content"
+        ],
+        diseases: [
+            { name: "Citrus Canker", severity: "high" },
+            { name: "Greening (HLB)", severity: "high" },
+            { name: "Gummosis", severity: "medium" },
+            { name: "Citrus Mites", severity: "low" }
+        ]
+    },
+    lentil: {
+        name: "Lentil", emoji: "🫘",
+        description: "Lentil is a nutritious pulse crop that's drought-tolerant and improves soil fertility through nitrogen fixation.",
+        climate: "Cool, 18-25°C",
+        season: "Rabi, Oct-Nov sowing",
+        duration: "100-120 days",
+        temperature: "18-24°C",
+        water: "Low",
+        yield: "1-1.5 tons/ha",
+        soil: "Well-drained sandy loam to clay loam",
+        ph: "6.0-8.0",
+        npk: { n: 20, p: 40, k: 20 },
+        tips: [
+            "Inoculate seeds with Rhizobium",
+            "Sow at 3-4 cm depth",
+            "Minimal irrigation - usually rainfed",
+            "Control weeds in first 4-5 weeks",
+            "Harvest when 80% pods turn brown"
+        ],
+        diseases: [
+            { name: "Rust", severity: "high" },
+            { name: "Wilt", severity: "high" },
+            { name: "Ascochyta Blight", severity: "medium" },
+            { name: "Root Rot", severity: "low" }
+        ]
+    },
+    chickpea: {
+        name: "Chickpea", emoji: "🫘",
+        description: "Chickpea is a protein-rich legume and one of the oldest cultivated crops. It's drought-tolerant and fixes nitrogen in soil.",
+        climate: "Cool, dry, 15-25°C",
+        season: "Rabi, Oct-Nov sowing",
+        duration: "90-120 days",
+        temperature: "20-25°C",
+        water: "Low",
+        yield: "1.5-2 tons/ha",
+        soil: "Well-drained sandy loam to clay loam",
+        ph: "6.0-8.0",
+        npk: { n: 20, p: 50, k: 20 },
+        tips: [
+            "Inoculate with Rhizobium for nitrogen fixation",
+            "Avoid waterlogging - very sensitive",
+            "One pre-sowing irrigation is usually sufficient",
+            "Watch for pod borer infestation",
+            "Harvest when leaves turn yellow and pods dry"
+        ],
+        diseases: [
+            { name: "Wilt", severity: "high" },
+            { name: "Ascochyta Blight", severity: "high" },
+            { name: "Botrytis Gray Mold", severity: "medium" },
+            { name: "Dry Root Rot", severity: "low" }
+        ]
+    }
+};
+
+// Add placeholder data for other crops
+const defaultCrop = {
+    description: "Select this crop to learn about its growing requirements, optimal conditions, and expert tips for successful cultivation.",
+    climate: "Varies by region",
+    season: "Consult local calendar",
+    duration: "90-150 days",
+    temperature: "20-30°C",
+    water: "Medium",
+    yield: "Varies",
+    soil: "Well-drained loamy soil",
+    ph: "6.0-7.5",
+    npk: { n: 80, p: 40, k: 40 },
+    tips: [
+        "Use certified disease-free seeds",
+        "Maintain proper spacing for air circulation",
+        "Apply balanced fertilizers based on soil test",
+        "Monitor for pests and diseases regularly",
+        "Harvest at optimal maturity"
+    ],
+    diseases: [
+        { name: "Fungal Diseases", severity: "medium" },
+        { name: "Bacterial Infections", severity: "medium" },
+        { name: "Pest Infestation", severity: "low" }
+    ]
+};
+
+// Fill in missing crops
+const allCrops = ['kidneybeans', 'pigeonpeas', 'mothbeans', 'mungbean', 'blackgram', 
+                  'pomegranate', 'muskmelon', 'apple', 'papaya', 'coconut', 'jute'];
+allCrops.forEach(crop => {
+    if (!cropData[crop]) {
+        cropData[crop] = {
+            name: crop.charAt(0).toUpperCase() + crop.slice(1).replace(/([a-z])([A-Z])/g, '$1 $2'),
+            emoji: document.querySelector(`[data-crop="${crop}"] .crop-emoji`)?.textContent || "🌱",
+            ...defaultCrop
+        };
+    }
+});
+
+// Category filtering
+document.querySelectorAll('.category-pill').forEach(pill => {
+    pill.addEventListener('click', function() {
+        document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        
+        const category = this.dataset.category;
+        document.querySelectorAll('.crop-card').forEach(card => {
+            if (category === 'all' || card.dataset.category === category) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Crop card selection
+document.querySelectorAll('.crop-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const cropId = this.dataset.crop;
+        const crop = cropData[cropId];
+        
+        if (!crop) return;
+        
+        // Update active state
+        document.querySelectorAll('.crop-card').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Show details panel
+        document.getElementById('noCropSelected').style.display = 'none';
+        document.getElementById('cropDetails').style.display = 'block';
+        
+        // Update header
+        document.getElementById('detailEmoji').textContent = crop.emoji;
+        document.getElementById('detailName').textContent = crop.name;
+        document.getElementById('detailSeason').textContent = crop.season;
+        
+        // Update stats
+        document.getElementById('statDuration').textContent = crop.duration;
+        document.getElementById('statTemp').textContent = crop.temperature;
+        document.getElementById('statWater').textContent = crop.water;
+        document.getElementById('statYield').textContent = crop.yield;
+        
+        // Update description & requirements
+        document.getElementById('detailDescription').textContent = crop.description;
+        document.getElementById('reqClimate').textContent = crop.climate;
+        document.getElementById('reqSoil').textContent = crop.soil;
+        document.getElementById('reqPh').textContent = crop.ph;
+        
+        // Update NPK bars
+        const maxNpk = 200;
+        document.getElementById('npkN').style.width = (crop.npk.n / maxNpk * 100) + '%';
+        document.getElementById('npkN').textContent = crop.npk.n + ' kg';
+        document.getElementById('npkP').style.width = (crop.npk.p / maxNpk * 100) + '%';
+        document.getElementById('npkP').textContent = crop.npk.p + ' kg';
+        document.getElementById('npkK').style.width = (crop.npk.k / maxNpk * 100) + '%';
+        document.getElementById('npkK').textContent = crop.npk.k + ' kg';
+        
+        // Update tips
+        const tipsList = document.getElementById('tipsList');
+        tipsList.innerHTML = crop.tips.map((tip, i) => `
+            <div class="tip-item">
+                <span class="tip-number">${i + 1}</span>
+                <span class="text-muted">${tip}</span>
+            </div>
+        `).join('');
+        
+        // Update diseases
+        const diseasesList = document.getElementById('diseasesList');
+        diseasesList.innerHTML = crop.diseases.map(d => `
+            <div class="col-md-6 col-lg-3">
+                <div class="disease-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold text-dark">${d.name}</span>
+                        <span class="severity-badge severity-${d.severity}">${d.severity}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        // Scroll to details
+        document.getElementById('cropDetails').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+</script>
+{% endblock %}

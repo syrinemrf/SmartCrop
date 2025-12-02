@@ -118,7 +118,7 @@
 }
 
 .hero-title {
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: clamp(1.8rem, 4vw, 3rem);
     font-weight: 800;
     line-height: 1.2;
     color: var(--text-primary);
@@ -241,19 +241,19 @@
 
 .floating-card-1 {
     top: 10%;
-    left: -10%;
+    left: 0%;
     animation-delay: 0s;
 }
 
 .floating-card-2 {
     bottom: 15%;
-    right: -5%;
+    right: 0%;
     animation-delay: 1.5s;
 }
 
 .floating-card-3 {
     top: 50%;
-    left: -15%;
+    left: -5%;
     animation-delay: 0.75s;
 }
 
@@ -1288,6 +1288,7 @@
 @media (max-width: 767px) {
     .hero-title {
         text-align: center;
+        font-size: 1.6rem;
     }
     
     .hero-subtitle {
@@ -1310,6 +1311,21 @@
     .section-badge {
         display: block;
         text-align: center;
+    }
+    
+    .floating-card {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .hero-title {
+        font-size: 1.8rem;
+    }
+    
+    .floating-card-1,
+    .floating-card-3 {
+        left: 5%;
     }
 }
 
@@ -1467,11 +1483,11 @@
     <div class="leaf-decoration leaf-3">🌱</div>
     
     <div class="container">
-        <div class="row align-items-center min-vh-100 py-5">
-            <div class="col-lg-6 hero-content">
+        <div class="row align-items-center min-vh-100 py-5 g-5">
+            <div class="col-lg-6 hero-content pe-lg-5">
                 <h1 class="hero-title mb-4">
-                    🌱 {{ t.hero_title }} <br>
-                    <span class="highlight">SmartCrop AI</span>
+                    {{ t.hero_title }} <br>
+                    <span class="highlight">AgriPrime+ AI</span>
                     <span class="typing-cursor"></span>
                 </h1>
                 <p class="hero-subtitle mb-4">
@@ -1542,28 +1558,28 @@
                 <div class="stat-item">
                     <div class="stat-icon"></div>
                     <div class="stat-number" data-count="22">22+</div>
-                    <div class="stat-label">{{ t.dashboard_crops }}</div>
+                    <div class="stat-label">{{ t.stat_crops_supported }}</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item">
                     <div class="stat-icon"></div>
                     <div class="stat-number">99.5%</div>
-                    <div class="stat-label">Accuracy</div>
+                    <div class="stat-label">{{ t.stat_accuracy }}</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item">
                     <div class="stat-icon"></div>
                     <div class="stat-number" data-count="7">7</div>
-                    <div class="stat-label">Parameters</div>
+                    <div class="stat-label">{{ t.stat_parameters }}</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item">
                     <div class="stat-icon"></div>
                     <div class="stat-number">24/7</div>
-                    <div class="stat-label">Available</div>
+                    <div class="stat-label">{{ t.stat_available }}</div>
                 </div>
             </div>
         </div>
@@ -1620,8 +1636,8 @@
                     <div class="feature-icon-wrapper">
                         <i class="fas fa-map-marker-alt"></i>
                     </div>
-                    <h5 class="fw-bold mb-3">GPS Integration</h5>
-                    <p class="text-muted mb-0">Automatic location detection and climate data fetching based on your coordinates.</p>
+                    <h5 class="fw-bold mb-3">{{ t.feature_gps_title }}</h5>
+                    <p class="text-muted mb-0">{{ t.feature_gps_desc }}</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
@@ -1630,8 +1646,8 @@
                     <div class="feature-icon-wrapper">
                         <i class="fas fa-lightbulb"></i>
                     </div>
-                    <h5 class="fw-bold mb-3">Explainable AI (XAI)</h5>
-                    <p class="text-muted mb-0">Understand why each crop is recommended with detailed explanations.</p>
+                    <h5 class="fw-bold mb-3">{{ t.feature_xai_title }}</h5>
+                    <p class="text-muted mb-0">{{ t.feature_xai_desc }}</p>
                 </div>
             </div>
             <div class="col-md-6 col-lg-4">
@@ -1640,8 +1656,8 @@
                     <div class="feature-icon-wrapper">
                         <i class="fas fa-globe"></i>
                     </div>
-                    <h5 class="fw-bold mb-3">Multi-language</h5>
-                    <p class="text-muted mb-0">Available in English, French, and Arabic with full RTL support.</p>
+                    <h5 class="fw-bold mb-3">{{ t.feature_multilang_title }}</h5>
+                    <p class="text-muted mb-0">{{ t.feature_multilang_desc }}</p>
                 </div>
             </div>
         </div>
@@ -1654,10 +1670,10 @@
         <div class="row justify-content-center mb-5">
             <div class="col-lg-8 text-center reveal">
                 <span class="section-badge">
-                    <i class="fas fa-cogs me-1"></i> How It Works
+                    <i class="fas fa-cogs me-1"></i> {{ t.how_it_works_badge }}
                 </span>
-                <h2 class="section-title section-title-underline">3 Simple Steps</h2>
-                <p class="text-muted mt-4">Get personalized crop recommendations in minutes</p>
+                <h2 class="section-title section-title-underline">{{ t.how_it_works_title }}</h2>
+                <p class="text-muted mt-4">{{ t.how_it_works_subtitle }}</p>
             </div>
         </div>
         
@@ -1667,8 +1683,8 @@
                     <div class="step-connector"></div>
                     <div class="step-number">1</div>
                     <div class="step-content">
-                        <h5 class="fw-bold mb-3">Enter Soil Data</h5>
-                        <p class="text-muted mb-0">Input your soil parameters (N, P, K, pH) or use GPS for auto-detection.</p>
+                        <h5 class="fw-bold mb-3">{{ t.step1_title }}</h5>
+                        <p class="text-muted mb-0">{{ t.step1_desc }}</p>
                     </div>
                 </div>
             </div>
@@ -1677,8 +1693,8 @@
                     <div class="step-connector"></div>
                     <div class="step-number">2</div>
                     <div class="step-content">
-                        <h5 class="fw-bold mb-3">AI Analysis</h5>
-                        <p class="text-muted mb-0">Our ML model analyzes your data using advanced algorithms.</p>
+                        <h5 class="fw-bold mb-3">{{ t.step2_title }}</h5>
+                        <p class="text-muted mb-0">{{ t.step2_desc }}</p>
                     </div>
                 </div>
             </div>
@@ -1686,8 +1702,8 @@
                 <div class="step-card reveal stagger-3">
                     <div class="step-number">3</div>
                     <div class="step-content">
-                        <h5 class="fw-bold mb-3">Get Results</h5>
-                        <p class="text-muted mb-0">Receive personalized crop recommendations with confidence scores.</p>
+                        <h5 class="fw-bold mb-3">{{ t.step3_title }}</h5>
+                        <p class="text-muted mb-0">{{ t.step3_desc }}</p>
                     </div>
                 </div>
             </div>
@@ -1701,10 +1717,10 @@
         <div class="row justify-content-center mb-5">
             <div class="col-lg-8 text-center reveal">
                 <span class="section-badge">
-                    <i class="fas fa-leaf me-1"></i> {{ t.dashboard_crops }}
+                    <i class="fas fa-leaf me-1"></i> {{ t.crops_badge }}
                 </span>
-                <h2 class="section-title section-title-underline">22 Supported Crops</h2>
-                <p class="text-muted mt-4">From grains to fruits, we cover the most important crops</p>
+                <h2 class="section-title section-title-underline">{{ t.crops_title }}</h2>
+                <p class="text-muted mt-4">{{ t.crops_subtitle }}</p>
             </div>
         </div>
         
@@ -1730,19 +1746,19 @@
         <div class="d-flex justify-content-center gap-4 mt-4 flex-wrap reveal">
             <div class="d-flex align-items-center gap-2">
                 <span class="crop-category grain" style="position:static;width:12px;height:12px;"></span>
-                <small class="text-muted">Grains</small>
+                <small class="text-muted">{{ t.crop_category_grains }}</small>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <span class="crop-category fruit" style="position:static;width:12px;height:12px;"></span>
-                <small class="text-muted">Fruits</small>
+                <small class="text-muted">{{ t.crop_category_fruits }}</small>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <span class="crop-category legume" style="position:static;width:12px;height:12px;"></span>
-                <small class="text-muted">Legumes</small>
+                <small class="text-muted">{{ t.crop_category_legumes }}</small>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <span class="crop-category fiber" style="position:static;width:12px;height:12px;"></span>
-                <small class="text-muted">Fiber</small>
+                <small class="text-muted">{{ t.crop_category_fiber }}</small>
             </div>
         </div>
     </div>
@@ -1754,10 +1770,10 @@
         <div class="row justify-content-center mb-5">
             <div class="col-lg-8 text-center reveal">
                 <span class="section-badge">
-                    <i class="fas fa-comments me-1"></i> Testimonials
+                    <i class="fas fa-comments me-1"></i> {{ t.testimonials_badge }}
                 </span>
-                <h2 class="section-title section-title-underline">What Farmers Say</h2>
-                <p class="text-muted mt-4">Real feedback from our agricultural community</p>
+                <h2 class="section-title section-title-underline">{{ t.testimonials_title }}</h2>
+                <p class="text-muted mt-4">{{ t.testimonials_subtitle }}</p>
             </div>
         </div>
         
@@ -1765,12 +1781,12 @@
             <div class="col-md-4">
                 <div class="testimonial-card reveal stagger-1">
                     <span class="testimonial-quote">"</span>
-                    <p class="testimonial-text">SmartCrop helped me increase my yield by 40% by recommending the perfect crops for my soil conditions.</p>
+                    <p class="testimonial-text">{{ t.testimonial1_text }}</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">A</div>
                         <div>
-                            <div class="testimonial-name">Ahmed Ben Salem</div>
-                            <div class="testimonial-role">Farmer, Sfax</div>
+                            <div class="testimonial-name">{{ t.testimonial1_name }}</div>
+                            <div class="testimonial-role">{{ t.testimonial1_role }}</div>
                         </div>
                     </div>
                     <div class="testimonial-stars">
@@ -1785,12 +1801,12 @@
             <div class="col-md-4">
                 <div class="testimonial-card reveal stagger-2">
                     <span class="testimonial-quote">"</span>
-                    <p class="testimonial-text">The GPS integration and automatic weather data make it so easy to get accurate recommendations every season.</p>
+                    <p class="testimonial-text">{{ t.testimonial2_text }}</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">M</div>
                         <div>
-                            <div class="testimonial-name">Marie Dubois</div>
-                            <div class="testimonial-role">Agricultural Engineer</div>
+                            <div class="testimonial-name">{{ t.testimonial2_name }}</div>
+                            <div class="testimonial-role">{{ t.testimonial2_role }}</div>
                         </div>
                     </div>
                     <div class="testimonial-stars">
@@ -1805,12 +1821,12 @@
             <div class="col-md-4">
                 <div class="testimonial-card reveal stagger-3">
                     <span class="testimonial-quote">"</span>
-                    <p class="testimonial-text">Finally, AI technology accessible to small farmers! The explainable AI feature helps me understand the science behind recommendations.</p>
+                    <p class="testimonial-text">{{ t.testimonial3_text }}</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">K</div>
                         <div>
-                            <div class="testimonial-name">Karim Trabelsi</div>
-                            <div class="testimonial-role">Organic Farmer</div>
+                            <div class="testimonial-name">{{ t.testimonial3_name }}</div>
+                            <div class="testimonial-role">{{ t.testimonial3_role }}</div>
                         </div>
                     </div>
                     <div class="testimonial-stars">
@@ -1832,9 +1848,9 @@
         <div class="row justify-content-center mb-5">
             <div class="col-lg-8 text-center reveal">
                 <span class="section-badge">
-                    <i class="fas fa-award me-1"></i> Why Choose Us
+                    <i class="fas fa-award me-1"></i> {{ t.trust_badge }}
                 </span>
-                <h2 class="section-title section-title-underline">Built on Trust</h2>
+                <h2 class="section-title section-title-underline">{{ t.trust_title }}</h2>
             </div>
         </div>
         
@@ -1844,8 +1860,8 @@
                     <div class="trust-icon">
                         <i class="fas fa-shield-alt"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Secure & Private</h5>
-                    <p class="text-muted mb-0">Your data is encrypted and never shared with third parties.</p>
+                    <h5 class="fw-bold mb-2">{{ t.trust_secure_title }}</h5>
+                    <p class="text-muted mb-0">{{ t.trust_secure_desc }}</p>
                 </div>
             </div>
             <div class="col-md-4">
@@ -1853,8 +1869,8 @@
                     <div class="trust-icon">
                         <i class="fas fa-flask"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">Science-Based</h5>
-                    <p class="text-muted mb-0">Built on real agricultural research and validated datasets.</p>
+                    <h5 class="fw-bold mb-2">{{ t.trust_science_title }}</h5>
+                    <p class="text-muted mb-0">{{ t.trust_science_desc }}</p>
                 </div>
             </div>
             <div class="col-md-4">
@@ -1862,8 +1878,58 @@
                     <div class="trust-icon">
                         <i class="fas fa-heart"></i>
                     </div>
-                    <h5 class="fw-bold mb-2">100% Free</h5>
-                    <p class="text-muted mb-0">No hidden costs, no premium features. Free forever.</p>
+                    <h5 class="fw-bold mb-2">{{ t.trust_free_title }}</h5>
+                    <p class="text-muted mb-0">{{ t.trust_free_desc }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7 text-white reveal">
+                <span class="badge bg-light text-success px-3 py-2 rounded-pill mb-3">
+                    <i class="fas fa-bullseye me-2"></i>{{ t.about_mission_title }}
+                </span>
+                <h2 class="display-5 fw-bold mb-4">{{ t.home_mission_title }}</h2>
+                <p class="lead mb-4" style="opacity: 0.95;">{{ t.home_mission_text }}</p>
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>{{ t.about_mission_point_1 }}</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>{{ t.about_mission_point_2 }}</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span>{{ t.about_mission_point_3 }}</span>
+                        </div>
+                    </div>
+                </div>
+                <a href="{{ url_for('about') }}" class="btn btn-light btn-lg px-4">
+                    <i class="fas fa-info-circle me-2"></i>{{ t.home_learn_about }}
+                </a>
+            </div>
+            <div class="col-lg-5 text-center reveal stagger-1 d-none d-lg-block">
+                <div class="position-relative">
+                    <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3f32?w=500&q=80" 
+                         alt="Agriculture" class="img-fluid rounded-4 shadow-lg" style="max-height: 400px; object-fit: cover;">
+                    <div class="position-absolute bottom-0 start-0 translate-middle-x mb-3 ms-5">
+                        <div class="bg-white rounded-4 shadow p-3 text-center" style="min-width: 140px;">
+                            <div class="display-6 fw-bold text-success">22</div>
+                            <small class="text-muted">{{ t.stat_crops_supported }}</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1876,10 +1942,10 @@
         <div class="row justify-content-center mb-5">
             <div class="col-lg-8 text-center reveal">
                 <span class="section-badge">
-                    <i class="fas fa-gem me-1"></i> Resources & Tools
+                    <i class="fas fa-gem me-1"></i> {{ t.resources_badge }}
                 </span>
-                <h2 class="section-title section-title-underline">Explore Our Platform</h2>
-                <p class="text-muted mt-4">Powerful tools and resources to help you make the best farming decisions</p>
+                <h2 class="section-title section-title-underline">{{ t.resources_title }}</h2>
+                <p class="text-muted mt-4">{{ t.resources_subtitle }}</p>
             </div>
         </div>
         
@@ -1890,21 +1956,21 @@
                     <div class="resource-image">
                         <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&q=80" alt="Crop Guide">
                         <div class="resource-image-overlay"></div>
-                        <span class="resource-badge"><i class="fas fa-fire"></i> Popular</span>
+                        <span class="resource-badge"><i class="fas fa-fire"></i> {{ t.resources_popular }}</span>
                     </div>
                     <div class="resource-body">
                         <div class="resource-icon">
                             <i class="fas fa-book-open"></i>
                         </div>
-                        <h4 class="resource-title">Crop Guide</h4>
-                        <p class="resource-description">Comprehensive encyclopedia of all 22 supported crops with growing requirements, optimal conditions, and expert tips.</p>
+                        <h4 class="resource-title">{{ t.resource_guide_title }}</h4>
+                        <p class="resource-description">{{ t.resource_guide_desc }}</p>
                         <div class="resource-features">
-                            <span class="resource-feature-tag">22 Crops</span>
-                            <span class="resource-feature-tag">Soil Tips</span>
-                            <span class="resource-feature-tag">Seasons</span>
+                            <span class="resource-feature-tag">{{ t.resource_guide_tag1 }}</span>
+                            <span class="resource-feature-tag">{{ t.resource_guide_tag2 }}</span>
+                            <span class="resource-feature-tag">{{ t.resource_guide_tag3 }}</span>
                         </div>
                         <a href="{{ url_for('crop_guide') }}" class="resource-link">
-                            Explore Guide <i class="fas fa-arrow-right"></i>
+                            {{ t.resource_guide_link }} <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -1916,21 +1982,21 @@
                     <div class="resource-image">
                         <img src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=600&q=80" alt="Soil Labs">
                         <div class="resource-image-overlay"></div>
-                        <span class="resource-badge"><i class="fas fa-map-marker-alt"></i> Tunisia</span>
+                        <span class="resource-badge"><i class="fas fa-map-marker-alt"></i> {{ t.resources_tunisia }}</span>
                     </div>
                     <div class="resource-body">
                         <div class="resource-icon">
                             <i class="fas fa-flask"></i>
                         </div>
-                        <h4 class="resource-title">Soil Labs</h4>
-                        <p class="resource-description">Find accredited soil testing laboratories near you. Interactive map with contact information and services offered.</p>
+                        <h4 class="resource-title">{{ t.resource_labs_title }}</h4>
+                        <p class="resource-description">{{ t.resource_labs_desc }}</p>
                         <div class="resource-features">
-                            <span class="resource-feature-tag">8+ Labs</span>
-                            <span class="resource-feature-tag">Interactive Map</span>
-                            <span class="resource-feature-tag">Contacts</span>
+                            <span class="resource-feature-tag">{{ t.resource_labs_tag1 }}</span>
+                            <span class="resource-feature-tag">{{ t.resource_labs_tag2 }}</span>
+                            <span class="resource-feature-tag">{{ t.resource_labs_tag3 }}</span>
                         </div>
                         <a href="{{ url_for('soil_labs') }}" class="resource-link">
-                            Find Labs <i class="fas fa-arrow-right"></i>
+                            {{ t.resource_labs_link }} <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -1942,26 +2008,26 @@
                     <div class="resource-image">
                         <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80" alt="AI Prediction">
                         <div class="resource-image-overlay"></div>
-                        <span class="resource-badge"><i class="fas fa-star"></i> Core Feature</span>
+                        <span class="resource-badge"><i class="fas fa-star"></i> {{ t.resources_core }}</span>
                     </div>
                     <div class="resource-body">
                         <div class="resource-icon">
                             <i class="fas fa-magic"></i>
                         </div>
-                        <h4 class="resource-title">AI Predictions</h4>
-                        <p class="resource-description">Get instant crop recommendations based on your soil parameters using our state-of-the-art machine learning model.</p>
+                        <h4 class="resource-title">{{ t.resource_predict_title }}</h4>
+                        <p class="resource-description">{{ t.resource_predict_desc }}</p>
                         <div class="resource-features">
-                            <span class="resource-feature-tag">99.5% Accuracy</span>
-                            <span class="resource-feature-tag">XAI</span>
-                            <span class="resource-feature-tag">GPS</span>
+                            <span class="resource-feature-tag">{{ t.resource_predict_tag1 }}</span>
+                            <span class="resource-feature-tag">{{ t.resource_predict_tag2 }}</span>
+                            <span class="resource-feature-tag">{{ t.resource_predict_tag3 }}</span>
                         </div>
                         {% if current_user.is_authenticated %}
                         <a href="{{ url_for('predict') }}" class="resource-link">
-                            Make Prediction <i class="fas fa-arrow-right"></i>
+                            {{ t.resource_predict_link }} <i class="fas fa-arrow-right"></i>
                         </a>
                         {% else %}
                         <a href="{{ url_for('signup') }}" class="resource-link">
-                            Get Started <i class="fas fa-arrow-right"></i>
+                            {{ t.resource_getstarted_link }} <i class="fas fa-arrow-right"></i>
                         </a>
                         {% endif %}
                     </div>
@@ -1975,52 +2041,52 @@
                 <div class="quick-access-icon">
                     <i class="fas fa-info-circle"></i>
                 </div>
-                <span class="quick-access-label">About Us</span>
+                <span class="quick-access-label">{{ t.quick_about }}</span>
             </a>
             {% if current_user.is_authenticated %}
             <a href="{{ url_for('dashboard') }}" class="quick-access-item">
                 <div class="quick-access-icon">
                     <i class="fas fa-chart-pie"></i>
                 </div>
-                <span class="quick-access-label">Dashboard</span>
+                <span class="quick-access-label">{{ t.quick_dashboard }}</span>
             </a>
             <a href="{{ url_for('history') }}" class="quick-access-item">
                 <div class="quick-access-icon">
                     <i class="fas fa-history"></i>
                 </div>
-                <span class="quick-access-label">History</span>
+                <span class="quick-access-label">{{ t.quick_history }}</span>
             </a>
             <a href="{{ url_for('profile') }}" class="quick-access-item">
                 <div class="quick-access-icon">
                     <i class="fas fa-user-cog"></i>
                 </div>
-                <span class="quick-access-label">Profile</span>
+                <span class="quick-access-label">{{ t.quick_profile }}</span>
             </a>
             {% else %}
             <a href="{{ url_for('login') }}" class="quick-access-item">
                 <div class="quick-access-icon">
                     <i class="fas fa-sign-in-alt"></i>
                 </div>
-                <span class="quick-access-label">Login</span>
+                <span class="quick-access-label">{{ t.quick_login }}</span>
             </a>
             <a href="{{ url_for('signup') }}" class="quick-access-item">
                 <div class="quick-access-icon">
                     <i class="fas fa-user-plus"></i>
                 </div>
-                <span class="quick-access-label">Sign Up</span>
+                <span class="quick-access-label">{{ t.quick_signup }}</span>
             </a>
             {% endif %}
             <a href="{{ url_for('crop_guide') }}" class="quick-access-item">
                 <div class="quick-access-icon">
                     <i class="fas fa-seedling"></i>
                 </div>
-                <span class="quick-access-label">Crop Guide</span>
+                <span class="quick-access-label">{{ t.quick_cropguide }}</span>
             </a>
             <a href="{{ url_for('soil_labs') }}" class="quick-access-item">
                 <div class="quick-access-icon">
                     <i class="fas fa-vial"></i>
                 </div>
-                <span class="quick-access-label">Soil Labs</span>
+                <span class="quick-access-label">{{ t.quick_soillabs }}</span>
             </a>
         </div>
     </div>

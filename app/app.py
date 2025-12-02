@@ -115,7 +115,8 @@ class User(UserMixin, db.Model):
         from flask import url_for
         if self.profile_image:
             return url_for('static', filename=f'images/profiles/{self.profile_image}')
-        return url_for('static', filename='images/default_profile.png')
+        # Fallback to UI Avatars with user's initials
+        return f"https://ui-avatars.com/api/?name={self.username}&background=2E7D32&color=fff&size=150&bold=true"
 
 
 class Prediction(db.Model):
@@ -327,6 +328,12 @@ def crop_guide():
     return render_template('crop_guide.html')
 
 
+@app.route('/weather')
+def weather():
+    """Weather dashboard - accessible without login"""
+    return render_template('weather.html')
+
+
 @app.route('/marketplace')
 def marketplace():
     """Seed marketplace"""
@@ -475,7 +482,7 @@ def logout():
 
 from werkzeug.utils import secure_filename
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-PROFILE_IMG_FOLDER = os.path.join('static', 'images', 'profiles')
+PROFILE_IMG_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'images', 'profiles')
 os.makedirs(PROFILE_IMG_FOLDER, exist_ok=True)
 
 def allowed_file(filename):

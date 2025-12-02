@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ t.labs_title }} - SmartCrop{% endblock %}
+{% block title %}{{ t.labs_title }} - AgriPrime+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -81,11 +81,9 @@
         <div class="d-flex align-items-center">
             <i class="fas fa-info-circle fa-2x me-3"></i>
             <div>
-                <h5 class="mb-1">What parameters do you need?</h5>
+                <h5 class="mb-1">{{ t.labs_info_title }}</h5>
                 <p class="mb-0">
-                    For SmartCrop predictions, you need: <strong>Nitrogen (N)</strong>, <strong>Phosphorus (P)</strong>, 
-                    <strong>Potassium (K)</strong>, and <strong>pH level</strong>. Temperature, humidity, and rainfall 
-                    can be obtained from weather data.
+                    {{ t.labs_info_text|safe }}
                 </p>
             </div>
         </div>
@@ -94,7 +92,7 @@
     <!-- Map Section -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-success text-white">
-            <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Laboratory Locations in Tunisia</h5>
+            <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>{{ t.labs_map_title }}</h5>
         </div>
         <div class="card-body p-0">
             <div id="tunisiaMap" style="height: 450px; z-index: 1;"></div>
@@ -105,16 +103,16 @@
     <div class="mb-4">
         <div class="btn-group flex-wrap" role="group">
             <button type="button" class="btn btn-outline-success active" data-region="all">
-                <i class="fas fa-globe-africa me-1"></i>All Regions
+                <i class="fas fa-globe-africa me-1"></i>{{ t.labs_all_regions }}
             </button>
             <button type="button" class="btn btn-outline-success" data-region="north">
-                <i class="fas fa-compass me-1"></i>North
+                <i class="fas fa-compass me-1"></i>{{ t.labs_north }}
             </button>
             <button type="button" class="btn btn-outline-success" data-region="center">
-                <i class="fas fa-compass me-1"></i>Center
+                <i class="fas fa-compass me-1"></i>{{ t.labs_center }}
             </button>
             <button type="button" class="btn btn-outline-success" data-region="south">
-                <i class="fas fa-compass me-1"></i>South
+                <i class="fas fa-compass me-1"></i>{{ t.labs_south }}
             </button>
         </div>
     </div>

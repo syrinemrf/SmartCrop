@@ -1,21 +1,46 @@
-/* SmartCrop Logo in Navbar */
-.smartcrop-logo {
+/* AgriPrime+ Logo in Navbar */
+.agripro-logo {
     display: flex;
     align-items: center;
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-    color: #fff;
-    padding: 0.25em 1em;
-    border-radius: 1.5em;
-    box-shadow: 0 2px 8px rgba(46, 125, 50, 0.15);
-    text-shadow: 0 2px 8px rgba(46, 125, 50, 0.15);
+    gap: 0.5rem;
+    text-decoration: none;
+    padding: 0.25rem 0;
 }
-.smartcrop-logo .fa-seedling {
-    margin-right: 0.5em;
-    font-size: 1.5em;
+
+.agripro-logo img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.agripro-logo .brand-text {
+    font-size: 1.5rem;
+    font-weight: 700;
     color: #fff;
+    letter-spacing: -0.5px;
+}
+
+.agripro-logo .brand-text .brand-plus {
+    color: #A5D6A7;
+    font-weight: 800;
+}
+
+.agripro-logo:hover {
+    text-decoration: none;
+}
+
+.agripro-logo:hover .brand-text {
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Dark mode logo adjustments */
+[data-theme="dark"] .agripro-logo .brand-text {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .agripro-logo .brand-plus {
+    color: var(--dark-primary);
 }
 
 /* Sign Up Button in Navbar */
@@ -53,7 +78,7 @@
 }
 
 /* ============================================
-    SMARTCROP - CUSTOM STYLES
+    AGRIPRO+ - CUSTOM STYLES
    ============================================ */
 
 :root {
@@ -2276,9 +2301,21 @@ body,
         font-size: 1rem;
     }
     
+    .display-4, .display-5, .display-6 {
+        font-size: 1.5rem;
+    }
+    
     /* Navbar */
     .navbar-brand {
         font-size: 1rem;
+    }
+    
+    .agripro-logo img {
+        height: 30px;
+    }
+    
+    .agripro-logo .brand-text {
+        font-size: 1.1rem;
     }
     
     .smartcrop-logo {
@@ -2321,6 +2358,100 @@ body,
     .form-control {
         padding: 10px;
         font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    /* Cards */
+    .card {
+        border-radius: 12px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    /* About page */
+    .about-hero h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .about-hero .lead {
+        font-size: 1rem !important;
+    }
+    
+    .about-hero .rounded-circle {
+        width: 80px !important;
+        height: 80px !important;
+    }
+    
+    .about-hero .fa-3x {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Dashboard mobile */
+    .stat-card .card-body {
+        padding: 12px;
+    }
+    
+    .stat-card h3 {
+        font-size: 1.25rem;
+    }
+    
+    .stat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .explore-link .card-body {
+        padding: 10px;
+    }
+    
+    .explore-icon-sm {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    
+    /* Fix row columns on mobile */
+    .row.g-4 {
+        --bs-gutter-y: 1rem;
+    }
+    
+    /* Vision cards */
+    .rounded-circle[style*="width: 80px"] {
+        width: 60px !important;
+        height: 60px !important;
+    }
+    
+    /* Full width buttons on mobile */
+    .w-100-mobile {
+        width: 100% !important;
+    }
+    
+    /* Hide decorative elements */
+    .d-none-mobile {
+        display: none !important;
+    }
+    
+    /* Stack flex items */
+    .flex-column-mobile {
+        flex-direction: column !important;
+    }
+    
+    /* Prediction page */
+    .prediction-form .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    /* History table */
+    .table td, .table th {
+        padding: 8px 6px;
+        font-size: 12px;
+    }
+    
+    /* Floating cards hidden on mobile */
+    .floating-card {
+        display: none !important;
     }
     
     .form-select {

@@ -1,117 +1,243 @@
 {% extends "base.html" %}
 
-{% block title %}{{ t.about_title }} - SmartCrop{% endblock %}
+{% block title %}{{ t.about_title }} - AgriPrime+{% endblock %}
 
 {% block content %}
-<div class="about-hero py-5 mb-5 text-center" style="background: linear-gradient(135deg, #e8f5e9 0%, #f8fafc 100%);">
-    <div class="container">
-        <div class="d-flex flex-column align-items-center justify-content-center">
-            <div class="rounded-circle shadow-lg mb-3" style="background: linear-gradient(135deg, #20c997 0%, #198754 100%); width: 110px; height: 110px; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-seedling fa-3x text-white"></i>
-            </div>
-            <h1 class="display-4 fw-bold mb-2 text-success">SmartCrop</h1>
-            <p class="lead text-dark mb-4">{{ t.about_mission_text }}</p>
-        </div>
-    </div>
-</div>
-<div class="container">
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100 rounded-4">
-                <div class="card-body p-4">
-                    <h3 class="mb-3 text-success"><i class="fas fa-seedling me-2"></i> Our Approach</h3>
-                    <p class="lead mb-2">Empowering farmers and agronomists with instant, data-driven crop recommendations.</p>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="fas fa-map-marker-alt text-success me-2"></i> Geolocation and climate autofill for every field</li>
-                        <li class="mb-2"><i class="fas fa-vial text-success me-2"></i> Soil analysis and manual override for accuracy</li>
-                        <li class="mb-2"><i class="fas fa-history text-success me-2"></i> Personal prediction history and analytics</li>
-                    </ul>
+<!-- Hero Section -->
+<div class="about-hero py-5 text-center" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="rounded-circle shadow-lg mb-4 mx-auto" style="background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%); width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-leaf fa-3x text-white"></i>
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100 rounded-4">
-                <div class="card-body p-4">
-                    <h3 class="mb-3 text-info"><i class="fas fa-brain me-2"></i> How Our Algorithm Works</h3>
-                    <p class="mb-2">We use an optimized <strong>Naive Bayes classifier</strong> for crop recommendation, ideal for agricultural data.</p>
-                    <ul class="mb-2">
-                        <li><strong>Training:</strong> Learns from thousands of real crop samples.</li>
-                        <li><strong>Prediction:</strong> Calculates the probability of each crop for your parameters.</li>
-                        <li><strong>Selection:</strong> Recommends the crop with the highest probability and confidence.</li>
-                    </ul>
-                    <span class="badge bg-success-subtle text-success fw-bold">99%+ accuracy</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100 rounded-4">
-                <div class="card-body p-4">
-                    <h3 class="mb-3 text-success"><i class="fas fa-cogs me-2"></i> Technology</h3>
-                    <ul class="list-unstyled mb-2">
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> 22 supported crops</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> 7 analyzed parameters (NPK, temperature, humidity, pH, rainfall)</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> 10-fold cross-validation</li>
-                        <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Instant predictions (&lt; 0.1s)</li>
-                    </ul>
-                    <span class="badge bg-info-subtle text-info fw-bold">2200 samples</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100 rounded-4">
-                <div class="card-body p-4">
-                    <h3 class="mb-3 text-warning"><i class="fas fa-layer-group me-2"></i> Technical Stack</h3>
-                    <div class="row g-2">
-                        <div class="col-6 col-md-3 text-center">
-                            <i class="fab fa-python fa-3x text-primary mb-2"></i>
-                            <div class="fw-bold">Python</div>
-                            <div class="text-muted small">Backend & ML</div>
-                        </div>
-                        <div class="col-6 col-md-3 text-center">
-                            <i class="fas fa-flask fa-3x text-success mb-2"></i>
-                            <div class="fw-bold">Flask</div>
-                            <div class="text-muted small">Web Framework</div>
-                        </div>
-                        <div class="col-6 col-md-3 text-center">
-                            <i class="fas fa-brain fa-3x text-info mb-2"></i>
-                            <div class="fw-bold">Scikit-learn</div>
-                            <div class="text-muted small">Machine Learning</div>
-                        </div>
-                        <div class="col-6 col-md-3 text-center">
-                            <i class="fas fa-database fa-3x text-primary mb-2"></i>
-                            <div class="fw-bold">PostgreSQL</div>
-                            <div class="text-muted small">Database</div>
-                        </div>
-                    </div>
-                </div>
+                <h1 class="display-4 fw-bold mb-3" style="color: #1B5E20;">{{ t.about_title }}</h1>
+                <p class="lead text-dark mb-0" style="font-size: 1.3rem;">{{ t.about_tagline }}</p>
             </div>
         </div>
     </div>
 </div>
-    </div>
-    
-    <!-- Metrics -->
-    <div class="row">
+
+<div class="container py-5">
+    <!-- Who We Are Section -->
+    <div class="row mb-5">
         <div class="col-lg-10 mx-auto">
-            <div class="card border-0 shadow-sm bg-light">
-                <div class="card-body p-5">
-                    <h2 class="text-center mb-4">Model Performance</h2>
-                    <div class="row justify-content-center text-center">
-                        <div class="col-md-4">
-                            <h3 class="text-success">99.55%</h3>
-                            <p class="text-muted">Test Accuracy</p>
-                        </div>
-                        <div class="col-md-4">
-                            <h3 class="text-success">99.58%</h3>
-                            <p class="text-muted">Precision</p>
-                        </div>
-                        <div class="col-md-4">
-                            <h3 class="text-success">0.053s</h3>
-                            <p class="text-muted">Training Time</p>
+            <div class="text-center mb-5">
+                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill mb-3">
+                    <i class="fas fa-users me-2"></i>{{ t.about_who_we_are }}
+                </span>
+                <h2 class="display-6 fw-bold text-dark mb-4">{{ t.about_who_title }}</h2>
+            </div>
+            <div class="row g-4 align-items-center">
+                <div class="col-md-6">
+                    <img src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=600&q=80" 
+                         alt="Team" class="img-fluid rounded-4 shadow">
+                </div>
+                <div class="col-md-6">
+                    <p class="lead text-muted mb-4">{{ t.about_who_text_1 }}</p>
+                    <p class="text-muted mb-4">{{ t.about_who_text_2 }}</p>
+                    <div class="card border-0 shadow-sm rounded-3 p-3" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-success rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="fas fa-graduation-cap text-white fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">{{ t.about_academic_project }}</h6>
+                                <p class="text-muted mb-0 small">{{ t.about_academic_desc }}</p>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Our Vision Section -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="text-center mb-5">
+                <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill mb-3">
+                    <i class="fas fa-eye me-2"></i>{{ t.about_vision }}
+                </span>
+                <h2 class="display-6 fw-bold text-dark mb-4">{{ t.about_vision_title }}</h2>
+                <p class="lead text-muted col-lg-8 mx-auto">{{ t.about_vision_text }}</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4 text-center p-4">
+                        <div class="rounded-circle bg-success-subtle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-globe-africa text-success fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark">{{ t.about_vision_1_title }}</h5>
+                        <p class="text-muted small mb-0">{{ t.about_vision_1_text }}</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4 text-center p-4">
+                        <div class="rounded-circle bg-info-subtle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-hand-holding-heart text-info fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark">{{ t.about_vision_2_title }}</h5>
+                        <p class="text-muted small mb-0">{{ t.about_vision_2_text }}</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4 text-center p-4">
+                        <div class="rounded-circle bg-warning-subtle mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-lightbulb text-warning fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark">{{ t.about_vision_3_title }}</h5>
+                        <p class="text-muted small mb-0">{{ t.about_vision_3_text }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="text-center mb-5">
+                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill mb-3">
+                    <i class="fas fa-cogs me-2"></i>{{ t.about_how_it_works }}
+                </span>
+                <h2 class="display-6 fw-bold text-dark mb-4">{{ t.about_how_title }}</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-success text-white rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h5 class="mb-0 text-dark">{{ t.about_algorithm_title }}</h5>
+                            </div>
+                            <p class="text-muted mb-3">{{ t.about_algorithm_intro }}</p>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>{{ t.about_algorithm_training }} {{ t.about_algorithm_training_desc }}</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>{{ t.about_algorithm_prediction }} {{ t.about_algorithm_prediction_desc }}</li>
+                                <li><i class="fas fa-check text-success me-2"></i>{{ t.about_algorithm_selection }} {{ t.about_algorithm_selection_desc }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-info text-white rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <h5 class="mb-0 text-dark">{{ t.about_tech_title }}</h5>
+                            </div>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><i class="fas fa-leaf text-success me-2"></i>{{ t.about_tech_crops }}</li>
+                                <li class="mb-2"><i class="fas fa-sliders-h text-info me-2"></i>{{ t.about_tech_params }}</li>
+                                <li class="mb-2"><i class="fas fa-shield-alt text-warning me-2"></i>{{ t.about_tech_validation }}</li>
+                                <li><i class="fas fa-bolt text-danger me-2"></i>{{ t.about_tech_speed }}</li>
+                            </ul>
+                            <div class="mt-3">
+                                <span class="badge bg-primary-subtle text-primary">{{ t.about_tech_samples }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                <div class="card-body p-5">
+                    <h3 class="text-center fw-bold text-dark mb-4">
+                        <i class="fas fa-chart-line text-success me-2"></i>{{ t.about_performance_title }}
+                    </h3>
+                    <div class="row text-center g-4">
+                        <div class="col-md-3">
+                            <div class="display-5 fw-bold text-success">99.5%</div>
+                            <p class="text-muted mb-0">{{ t.about_test_accuracy }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="display-5 fw-bold text-info">22</div>
+                            <p class="text-muted mb-0">{{ t.stat_crops_supported }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="display-5 fw-bold text-warning">7</div>
+                            <p class="text-muted mb-0">{{ t.stat_parameters }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="display-5 fw-bold text-primary">&lt;1s</div>
+                            <p class="text-muted mb-0">{{ t.about_training_time }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="text-center mb-4">
+                <h3 class="fw-bold text-dark"><i class="fas fa-layer-group text-warning me-2"></i>{{ t.about_stack_title }}</h3>
+            </div>
+            <div class="row g-3 justify-content-center">
+                <div class="col-6 col-md-2 text-center">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                        <i class="fab fa-python fa-2x text-primary mb-2"></i>
+                        <div class="fw-bold small">{{ t.about_stack_python }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2 text-center">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                        <i class="fas fa-flask fa-2x text-success mb-2"></i>
+                        <div class="fw-bold small">{{ t.about_stack_flask }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2 text-center">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                        <i class="fas fa-brain fa-2x text-info mb-2"></i>
+                        <div class="fw-bold small">{{ t.about_stack_sklearn }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2 text-center">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                        <i class="fas fa-database fa-2x text-primary mb-2"></i>
+                        <div class="fw-bold small">{{ t.about_stack_postgres }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2 text-center">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                        <i class="fab fa-bootstrap fa-2x mb-2" style="color: #7952b3;"></i>
+                        <div class="fw-bold small">Bootstrap 5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+            <div class="card border-0 shadow-lg rounded-4 p-5" style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);">
+                <h3 class="fw-bold text-white mb-3">{{ t.about_cta_title }}</h3>
+                <p class="text-white mb-4" style="opacity: 0.9;">{{ t.about_cta_text }}</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('predict') }}" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-magic me-2"></i>{{ t.nav_predict }}
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-rocket me-2"></i>{{ t.hero_cta }}
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-sign-in-alt me-2"></i>{{ t.nav_login }}
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
