@@ -46,16 +46,16 @@
                         <input type="hidden" id="longitude" name="longitude" value="{{ request.form.longitude or longitude }}">
                     </div>
                     <div class="mb-4">
-                        <label for="prediction_name" class="form-label"><i class="fas fa-tag"></i> {{ t.profile_location }}</label>
-                        <input type="text" class="form-control" id="prediction_name" name="prediction_name" placeholder="{{ t.profile_location }}" autocomplete="off" value="{{ request.form.prediction_name or prediction_name }}">
+                        <label for="prediction_name" class="form-label"><i class="fas fa-tag"></i> {{ t.predict_name }}</label>
+                        <input type="text" class="form-control" id="prediction_name" name="prediction_name" placeholder="{{ t.predict_name }}" autocomplete="off" value="{{ request.form.prediction_name or prediction_name }}">
                     </div>
                     <div class="mb-4">
-                        <label for="season" class="form-label"><i class="fas fa-calendar-alt"></i> {{ t.guide_calendar }}</label>
+                        <label for="season" class="form-label"><i class="fas fa-calendar-alt"></i> {{ t.predict_season }}</label>
                         <select class="form-select" id="season" name="season">
-                            <option value="spring" {% if (request.form.season or season) == 'spring' %}selected{% endif %}>Spring</option>
-                            <option value="summer" {% if (request.form.season or season) == 'summer' %}selected{% endif %}>Summer</option>
-                            <option value="autumn" {% if (request.form.season or season) == 'autumn' %}selected{% endif %}>Autumn</option>
-                            <option value="winter" {% if (request.form.season or season) == 'winter' %}selected{% endif %}>Winter</option>
+                            <option value="spring" {% if (request.form.season or season) == 'spring' %}selected{% endif %}>{{ t.predict_spring }}</option>
+                            <option value="summer" {% if (request.form.season or season) == 'summer' %}selected{% endif %}>{{ t.predict_summer }}</option>
+                            <option value="autumn" {% if (request.form.season or season) == 'autumn' %}selected{% endif %}>{{ t.predict_autumn }}</option>
+                            <option value="winter" {% if (request.form.season or season) == 'winter' %}selected{% endif %}>{{ t.predict_winter }}</option>
                         </select>
                     </div>
                     <form method="POST" id="predictionForm">
@@ -97,7 +97,7 @@
                         <!-- Climate -->
                         <div class="mb-3">
                             <label for="temperature" class="form-label">
-                                <i class="fas fa-thermometer-half"></i> Temperature
+                                <i class="fas fa-thermometer-half"></i> {{ t.predict_temperature }}
                                 <span class="info-bulle" data-bs-toggle="tooltip" title="Soil or air temperature (°C). Typical agricultural range: 5–40°C. Min: -5°C, Max: 50°C.">
                                     <i class="fas fa-circle-info text-primary"></i>
                                 </span>
@@ -108,7 +108,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="humidity" class="form-label">
-                                <i class="fas fa-tint"></i> Relative Humidity
+                                <i class="fas fa-tint"></i> {{ t.predict_humidity }}
                                 <span class="info-bulle" data-bs-toggle="tooltip" title="Air or soil humidity (%). Typical: 20–90%. Min: 0%, Max: 100%.">
                                     <i class="fas fa-circle-info text-primary"></i>
                                 </span>
@@ -119,7 +119,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="ph" class="form-label">
-                                <i class="fas fa-vial"></i> Soil pH
+                                <i class="fas fa-vial"></i> {{ t.predict_ph }}
                                 <span class="info-bulle" data-bs-toggle="tooltip" title="Soil acidity or alkalinity. Productive range: 4.5–8.5. Absolute min: 3.5, Max: 10.5. Most crops prefer 5.5–7.5.">
                                     <i class="fas fa-circle-info text-primary"></i>
                                 </span>
@@ -130,7 +130,7 @@
                         </div>
                         <div class="mb-4">
                             <label for="rainfall" class="form-label">
-                                <i class="fas fa-cloud-rain"></i> Rainfall
+                                <i class="fas fa-cloud-rain"></i> {{ t.predict_rainfall }}
                                 <span class="info-bulle" data-bs-toggle="tooltip" title="Monthly precipitation (mm). General agriculture: 20–400 mm/month. Min: 0, Max: 1000.">
                                     <i class="fas fa-circle-info text-primary"></i>
                                 </span>
@@ -140,7 +140,7 @@
                                    required min="0" max="1000" step="0.1" value="{{ request.form.rainfall or rainfall or 202.9 }}">
                         </div>
                         <button type="submit" class="btn btn-success w-100 py-2">
-                            <i class="fas fa-magic"></i> Predict Crop
+                            <i class="fas fa-magic"></i> {{ t.predict_button }}
                         </button>
                     </form>
                 </div>
@@ -152,17 +152,17 @@
             {% if result %}
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Result</h5>
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> {{ t.predict_result }}</h5>
                 </div>
                 <div class="card-body text-center">
                     <div class="mb-4">
                         <i class="fas fa-seedling fa-4x text-success mb-3"></i>
                         <h2 class="text-success text-uppercase">{{ result.crop }}</h2>
-                        <p class="lead">Recommended Crop</p>
+                        <p class="lead">{{ t.predict_recommended }}</p>
                     </div>
                     
                     <div class="mb-4">
-                        <h4>Confidence</h4>
+                        <h4>{{ t.predict_confidence }}</h4>
                         <div class="progress" style="height: 30px;">
                             <div class="progress-bar bg-success" role="progressbar" 
                                  style="width: {{ (result.confidence * 100)|round }}%">
@@ -173,14 +173,14 @@
                     
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i> 
-                        This recommendation is based on the parameters provided and our AI model with 99.5% accuracy.
+                        {{ t.predict_accuracy_note }}
                     </div>
                 </div>
             </div>
             <!-- Top 3 -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> Top 3 Crops</h5>
+                    <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> {{ t.predict_top3 }}</h5>
                 </div>
                 <div class="card-body">
                     {% for crop in result.top_3 %}
@@ -199,14 +199,14 @@
             {% if result.explanation and result.explanation.contributions %}
             <div class="card border-0 shadow-sm mt-4">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-brain"></i> Why This Recommendation? (AI Explainability)</h5>
+                    <h5 class="mb-0"><i class="fas fa-brain"></i> {{ t.predict_xai_title }}</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted mb-3">
                         <i class="fas fa-info-circle"></i> 
-                        This explanation shows which parameters had the most influence on the prediction. 
-                        <strong class="text-success">Green bars</strong> indicate factors that support this crop choice, 
-                        while <strong class="text-danger">red bars</strong> indicate factors that slightly oppose it.
+                        {{ t.predict_xai_intro }} 
+                        <strong class="text-success">{{ t.predict_xai_positive }}</strong>, 
+                        <strong class="text-danger">{{ t.predict_xai_negative }}</strong>
                     </p>
                     
                     {% for contrib in result.explanation.contributions %}
@@ -214,19 +214,19 @@
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="fw-bold">
                                 {% if contrib.feature == 'N' %}
-                                    <i class="fas fa-flask text-primary"></i> Nitrogen (N)
+                                    <i class="fas fa-flask text-primary"></i> {{ t.predict_nitrogen }}
                                 {% elif contrib.feature == 'P' %}
-                                    <i class="fas fa-flask text-primary"></i> Phosphorus (P)
+                                    <i class="fas fa-flask text-primary"></i> {{ t.predict_phosphorus }}
                                 {% elif contrib.feature == 'K' %}
-                                    <i class="fas fa-flask text-primary"></i> Potassium (K)
+                                    <i class="fas fa-flask text-primary"></i> {{ t.predict_potassium }}
                                 {% elif contrib.feature == 'temperature' %}
-                                    <i class="fas fa-thermometer-half text-warning"></i> Temperature
+                                    <i class="fas fa-thermometer-half text-warning"></i> {{ t.predict_temperature }}
                                 {% elif contrib.feature == 'humidity' %}
-                                    <i class="fas fa-tint text-info"></i> Humidity
+                                    <i class="fas fa-tint text-info"></i> {{ t.predict_humidity }}
                                 {% elif contrib.feature == 'ph' %}
-                                    <i class="fas fa-vial text-secondary"></i> pH
+                                    <i class="fas fa-vial text-secondary"></i> {{ t.predict_ph }}
                                 {% elif contrib.feature == 'rainfall' %}
-                                    <i class="fas fa-cloud-rain text-primary"></i> Rainfall
+                                    <i class="fas fa-cloud-rain text-primary"></i> {{ t.predict_rainfall }}
                                 {% else %}
                                     {{ contrib.feature }}
                                 {% endif %}
@@ -249,8 +249,8 @@
                     
                     <div class="alert alert-light mt-3 mb-0">
                         <i class="fas fa-lightbulb text-warning"></i> 
-                        <strong>Interpretation:</strong> The factors with the largest green bars are the main reasons why 
-                        <strong class="text-success">{{ result.crop }}</strong> is recommended for your field conditions.
+                        <strong>{{ t.predict_xai_interpretation }}:</strong> {{ t.predict_xai_reason }} 
+                        <strong class="text-success">{{ result.crop }}</strong> {{ t.predict_xai_recommended_for }}
                     </div>
                 </div>
             </div>
@@ -258,27 +258,27 @@
             
             <!-- Instructions block: always below result/top3, right column -->
             <div class="mt-4 p-4 bg-light rounded-4 shadow-sm text-start mx-auto" style="max-width: 600px;">
-                <h5 class="fw-bold mb-3 text-success"><i class="fas fa-info-circle me-2"></i> How to Use</h5>
+                <h5 class="fw-bold mb-3 text-success"><i class="fas fa-info-circle me-2"></i> {{ t.predict_how_to_use }}</h5>
                 <ul class="list-unstyled mb-3">
                     <li class="mb-3">
-                        <span class="fw-bold text-success"><i class="fas fa-vial me-2"></i> Soil Analysis:</span>
-                           For best results, use recent soil test results for Nitrogen (N), Phosphorus (P), Potassium (K), and soil pH. You can get these values from a local lab or agricultural service.
+                        <span class="fw-bold text-success"><i class="fas fa-vial me-2"></i> {{ t.predict_soil_analysis }}</span>
+                           {{ t.predict_soil_analysis_desc }}
                     </li>
                     <li class="mb-3">
-                        <span class="fw-bold text-success"><i class="fas fa-map-marker-alt me-2"></i> Location & Climate Autofill:</span>
-                        Select your field location on the map or search for an address. The system will automatically fill in temperature, humidity, and rainfall for your chosen season and location using real-time climate data.
+                        <span class="fw-bold text-success"><i class="fas fa-map-marker-alt me-2"></i> {{ t.predict_location_autofill }}</span>
+                        {{ t.predict_location_autofill_desc }}
                     </li>
                     <li class="mb-3">
-                        <span class="fw-bold text-success"><i class="fas fa-edit me-2"></i> Manual Override:</span>
-                        You can manually change any climate field (temperature, humidity, rainfall) if you have more accurate or local data. The automatic values are just a starting point.
+                        <span class="fw-bold text-success"><i class="fas fa-edit me-2"></i> {{ t.predict_manual_override }}</span>
+                        {{ t.predict_manual_override_desc }}
                     </li>
                     <li class="mb-3">
-                        <span class="fw-bold text-success"><i class="fas fa-history me-2"></i> Prediction History:</span>
-                        All your predictions are saved and accessible in your personal history page for future reference and analysis.
+                        <span class="fw-bold text-success"><i class="fas fa-history me-2"></i> {{ t.predict_history_info }}</span>
+                        {{ t.predict_history_info_desc }}
                     </li>
                 </ul>
                 <div class="tip-box bg-success text-white mt-3 mb-0 p-3 rounded-3">
-                    <i class="fas fa-lightbulb"></i> Tip: The more accurate your soil and climate data, the better your crop recommendation!
+                    <i class="fas fa-lightbulb"></i> {{ t.predict_tip }}
                 </div>
             </div>
             
@@ -286,35 +286,35 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center py-5">
                     <i class="fas fa-arrow-left fa-3x text-muted mb-3"></i>
-                    <h4 class="text-muted">Enter parameters</h4>
+                    <h4 class="text-muted">{{ t.predict_enter_params }}</h4>
                     <p class="text-muted">
-                        Fill out the form on the left to get a crop recommendation
+                        {{ t.predict_fill_form }}
                     </p>
                 </div>
             </div>
             <!-- Instructions block: always below empty state, right column -->
             <div class="mt-4 p-4 bg-light rounded-4 shadow-sm text-start mx-auto" style="max-width: 600px;">
-                <h5 class="fw-bold mb-3 text-success"><i class="fas fa-info-circle me-2"></i> How to Use</h5>
+                <h5 class="fw-bold mb-3 text-success"><i class="fas fa-info-circle me-2"></i> {{ t.predict_how_to_use }}</h5>
                 <ul class="list-unstyled mb-3">
                     <li class="mb-3">
-                        <span class="fw-bold text-success"><i class="fas fa-vial me-2"></i> Soil Analysis:</span>
-                        For best results, use recent soil test results for Nitrogen (N), Phosphorus (P), Potassium (K), and soil pH. You can get these values from a local lab or agricultural service.
+                        <span class="fw-bold text-success"><i class="fas fa-vial me-2"></i> {{ t.predict_soil_analysis }}</span>
+                        {{ t.predict_soil_analysis_desc }}
                     </li>
                     <li class="mb-3">
-                        <span class="fw-bold text-success"><i class="fas fa-map-marker-alt me-2"></i> Location & Climate Autofill:</span>
-                        Select your field location on the map or search for an address. The system will automatically fill in temperature, humidity, and rainfall for your chosen season and location using real-time climate data.
+                        <span class="fw-bold text-success"><i class="fas fa-map-marker-alt me-2"></i> {{ t.predict_location_autofill }}</span>
+                        {{ t.predict_location_autofill_desc }}
                     </li>
                     <li class="mb-3">
-                        <span class="fw-bold text-success"><i class="fas fa-edit me-2"></i> Manual Override:</span>
-                        You can manually change any climate field (temperature, humidity, rainfall) if you have more accurate or local data. The automatic values are just a starting point.
+                        <span class="fw-bold text-success"><i class="fas fa-edit me-2"></i> {{ t.predict_manual_override }}</span>
+                        {{ t.predict_manual_override_desc }}
                     </li>
                     <li class="mb-3">
-                        <span class="fw-bold text-success"><i class="fas fa-history me-2"></i> Prediction History:</span>
-                        All your predictions are saved and accessible in your personal history page for future reference and analysis.
+                        <span class="fw-bold text-success"><i class="fas fa-history me-2"></i> {{ t.predict_history_info }}</span>
+                        {{ t.predict_history_info_desc }}
                     </li>
                 </ul>
                 <div class="tip-box bg-success text-white mt-3 mb-0 p-3 rounded-3">
-                    <i class="fas fa-lightbulb"></i> Tip: The more accurate your soil and climate data, the better your crop recommendation!
+                    <i class="fas fa-lightbulb"></i> {{ t.predict_tip }}
                 </div>
             </div>
             {% endif %}

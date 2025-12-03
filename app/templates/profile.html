@@ -187,53 +187,10 @@
                         
                         <div class="mt-4">
                             <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-key me-2"></i>Change Password
+                                <i class="fas fa-key me-2"></i>{{ t.profile_change_password }}
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-            
-            <!-- Recent Activity -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 text-dark"><i class="fas fa-history text-info me-2"></i>Recent Activity</h5>
-                    <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-primary">View All</a>
-                </div>
-                <div class="card-body">
-                    {% if recent_predictions %}
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="text-dark">Date</th>
-                                    <th class="text-dark">Recommended Crop</th>
-                                    <th class="text-dark">Confidence</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for pred in recent_predictions[:5] %}
-                                <tr>
-                                    <td class="text-muted">{{ pred.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
-                                    <td><span class="badge bg-success">{{ pred.recommended_crop }}</span></td>
-                                    <td>
-                                        <div class="progress" style="height: 6px; width: 100px;">
-                                            <div class="progress-bar bg-success" style="width: {{ pred.confidence }}%"></div>
-                                        </div>
-                                        <small>{{ "%.1f"|format(pred.confidence) }}%</small>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center text-muted py-3">
-                        <i class="fas fa-seedling fa-2x mb-2"></i>
-                        <p class="mb-0">No predictions yet</p>
-                        <a href="{{ url_for('predict') }}" class="btn btn-sm btn-success mt-2">Make my first prediction</a>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
             
