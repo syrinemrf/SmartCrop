@@ -25,11 +25,23 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production-2024')
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    f"postgresql+psycopg2://{os.environ['DB_USER']}:{os.environ['DB_PASSWORD']}"
-    f"@{os.environ['DB_HOST']}:{os.environ['DB_PORT']}/{os.environ['DB_NAME']}"
-)
+
+# Database configuration - supports DATABASE_URL (Neon/Heroku) or individual vars
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Neon/Heroku style URL
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    # Local PostgreSQL with individual variables
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        f"postgresql+psycopg2://{os.environ.get('DB_USER', 'postgres')}:{os.environ.get('DB_PASSWORD', '')}"
+        f"@{os.environ.get('DB_HOST', 'localhost')}:{os.environ.get('DB_PORT', '5432')}/{os.environ.get('DB_NAME', 'smartcrop')}"
+    )
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,  # Better for cloud databases
+}
 app.config['LANGUAGES'] = ['en', 'fr', 'ar']
 
 # Extensions
@@ -219,6 +231,18 @@ def create_notification(user_id, title, message, notif_type='info', icon='fa-bel
     db.session.add(notif)
     db.session.commit()
     return notif
+
+
+def cleanup_old_notifications():
+    """Delete notifications older than 1 day"""
+    from datetime import timedelta
+    one_day_ago = datetime.utcnow() - timedelta(days=1)
+    old_notifications = Notification.query.filter(Notification.created_at < one_day_ago).all()
+    for notif in old_notifications:
+        db.session.delete(notif)
+    if old_notifications:
+        db.session.commit()
+    return len(old_notifications)
 
 
 def generate_seasonal_notifications(user_id):
@@ -609,6 +633,9 @@ def delete_account():
 @login_required
 def notifications():
     """View all notifications"""
+    # Cleanup old notifications (older than 1 day)
+    cleanup_old_notifications()
+    
     user_notifications = Notification.query.filter_by(user_id=current_user.id)\
         .order_by(Notification.created_at.desc()).limit(50).all()
     return render_template('notifications.html', notifications=user_notifications)

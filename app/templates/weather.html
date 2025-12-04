@@ -47,6 +47,99 @@
     color: var(--primary);
 }
 
+/* Search Input */
+.search-location-wrapper {
+    position: relative;
+}
+
+.search-location-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 2px solid var(--border-light);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    transition: all 0.2s;
+}
+
+.search-location-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+}
+
+.search-location-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.search-location-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    margin-top: 0.5rem;
+}
+
+.search-results.show {
+    display: block;
+}
+
+.search-result-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.15s;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.search-result-item i {
+    color: var(--primary);
+    font-size: 1rem;
+}
+
+.search-result-item .result-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.search-result-item .result-details {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.search-loading {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
 .location-btn {
     background: var(--bg-tertiary);
     border: 1px solid var(--border-light);
@@ -664,7 +757,15 @@
     <!-- Location Bar -->
     <div class="location-bar">
         <div class="row align-items-center g-3">
-            <div class="col-md-5">
+            <div class="col-lg-5 col-md-6">
+                <div class="search-location-wrapper">
+                    <i class="fas fa-search search-location-icon"></i>
+                    <input type="text" class="search-location-input" id="searchLocation" 
+                           placeholder="{{ t.weather_search_placeholder }}" autocomplete="off">
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
                 <div class="location-name">
                     <i class="fas fa-map-marker-alt me-2"></i>
                     <span id="locationName">{{ t.weather_detecting }}</span>
@@ -673,19 +774,16 @@
                     </button>
                 </div>
             </div>
-            <div class="col-md-7">
-                <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+            <div class="col-lg-3">
+                <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
                     <button class="location-btn" onclick="setLocation(36.8065, 10.1815, 'Tunis')">
-                        <i class="fas fa-map-pin me-1"></i>Tunis
+                        Tunis
                     </button>
                     <button class="location-btn" onclick="setLocation(34.7406, 10.7603, 'Sfax')">
-                        <i class="fas fa-map-pin me-1"></i>Sfax
+                        Sfax
                     </button>
                     <button class="location-btn" onclick="setLocation(35.8245, 10.6346, 'Sousse')">
-                        <i class="fas fa-map-pin me-1"></i>Sousse
-                    </button>
-                    <button class="location-btn" onclick="setLocation(33.8869, 10.0982, 'Gabès')">
-                        <i class="fas fa-map-pin me-1"></i>Gabès
+                        Sousse
                     </button>
                 </div>
             </div>
@@ -898,7 +996,99 @@ const dayNames = ['{{ t.weather_sun }}', '{{ t.weather_mon }}', '{{ t.weather_tu
 document.addEventListener('DOMContentLoaded', () => {
     updateCurrentDate();
     detectLocation();
+    initSearchLocation();
 });
+
+// Search location functionality
+let searchTimeout = null;
+
+function initSearchLocation() {
+    const searchInput = document.getElementById('searchLocation');
+    const searchResults = document.getElementById('searchResults');
+    
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        if (searchTimeout) clearTimeout(searchTimeout);
+        
+        if (query.length < 2) {
+            searchResults.classList.remove('show');
+            return;
+        }
+        
+        searchResults.innerHTML = '<div class="search-loading"><i class="fas fa-spinner fa-spin"></i> {{ t.weather_searching }}</div>';
+        searchResults.classList.add('show');
+        
+        searchTimeout = setTimeout(() => {
+            searchLocation(query);
+        }, 400);
+    });
+    
+    searchInput.addEventListener('focus', function() {
+        if (this.value.trim().length >= 2) {
+            searchResults.classList.add('show');
+        }
+    });
+    
+    // Close on click outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.remove('show');
+        }
+    });
+}
+
+function searchLocation(query) {
+    const searchResults = document.getElementById('searchResults');
+    
+    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.length === 0) {
+                searchResults.innerHTML = '<div class="search-loading">{{ t.weather_no_results }}</div>';
+                return;
+            }
+            
+            searchResults.innerHTML = '';
+            data.forEach(place => {
+                const city = place.address.city || place.address.town || place.address.village || place.address.municipality || place.name;
+                const country = place.address.country || '';
+                const state = place.address.state || '';
+                
+                const item = document.createElement('div');
+                item.className = 'search-result-item';
+                item.innerHTML = `
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <div class="result-name">${city}</div>
+                        <div class="result-details">${state ? state + ', ' : ''}${country}</div>
+                    </div>
+                `;
+                item.addEventListener('click', () => {
+                    selectSearchResult(parseFloat(place.lat), parseFloat(place.lon), city, country);
+                });
+                searchResults.appendChild(item);
+            });
+        })
+        .catch(() => {
+            searchResults.innerHTML = '<div class="search-loading">{{ t.weather_search_error }}</div>';
+        });
+}
+
+function selectSearchResult(lat, lon, city, country) {
+    currentLat = lat;
+    currentLon = lon;
+    currentLocationName = country ? `${city}, ${country}` : city;
+    
+    document.getElementById('locationName').textContent = currentLocationName;
+    document.getElementById('searchLocation').value = '';
+    document.getElementById('searchResults').classList.remove('show');
+    
+    // Remove active from preset buttons
+    document.querySelectorAll('.location-btn').forEach(btn => btn.classList.remove('active'));
+    
+    fetchWeather();
+}
 
 function updateCurrentDate() {
     const now = new Date();

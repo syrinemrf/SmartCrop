@@ -207,7 +207,6 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Date</th>
-                                    <th>Location</th>
                                     <th>Crop</th>
                                     <th>Confidence</th>
                                     <th>N-P-K</th>
@@ -221,9 +220,6 @@
                                             {{ pred.created_at.strftime('%d/%m/%Y') }}<br>
                                             {{ pred.created_at.strftime('%H:%M') }}
                                         </small>
-                                    </td>
-                                    <td>
-                                        <small>{{ pred.prediction_name or 'Unnamed' }}</small>
                                     </td>
                                     <td>
                                         <span class="badge bg-success">{{ pred.predicted_crop }}</span>
