@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.data.loader import DataLoader
 from src.data.preprocessing import DataPreprocessor
 from src.utils.logger import setup_logger
-from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 import joblib
 import json
@@ -20,10 +20,10 @@ logger = setup_logger('Training')
 
 
 def train_model(data_path: str = "data/Crop_recommendation.csv",
-                model_path: str = "models/tuned/naive_bayes_best.pkl",
+                model_path: str = "models/tuned/random_forest_best.pkl",
                 cv_folds: int = 10):
     """
-    Entraîne le modèle Naive Bayes
+    Entraîne le modèle Random Forest
     
     Args:
         data_path: Chemin vers les données
@@ -45,8 +45,16 @@ def train_model(data_path: str = "data/Crop_recommendation.csv",
     X_train, X_test, y_train, y_test = preprocessor.fit_transform(df)
     
     # Entraînement
-    logger.info("Entraînement du modèle Naive Bayes...")
-    model = GaussianNB()
+    logger.info("Entraînement du modèle Random Forest...")
+    model = RandomForestClassifier(
+        n_estimators=100,
+        max_depth=10,
+        max_features='sqrt',
+        min_samples_split=5,
+        min_samples_leaf=1,
+        random_state=42,
+        n_jobs=-1
+    )
     model.fit(X_train, y_train)
     
     # Validation croisée
@@ -78,7 +86,7 @@ def train_model(data_path: str = "data/Crop_recommendation.csv",
     
     # Sauvegarder les métriques
     metrics = {
-        'model_name': 'Naive Bayes',
+        'model_name': 'Random Forest',
         'train_score': float(train_score),
         'test_score': float(test_score),
         'cv_score': float(cv_scores.mean()),
@@ -100,7 +108,7 @@ def main():
     parser = argparse.ArgumentParser(description='Entraîner le modèle de recommandation')
     parser.add_argument('--data', type=str, default='data/Crop_recommendation.csv',
                        help='Chemin vers les données')
-    parser.add_argument('--model', type=str, default='models/tuned/naive_bayes_best.pkl',
+    parser.add_argument('--model', type=str, default='models/tuned/random_forest_best.pkl',
                        help='Chemin de sauvegarde du modèle')
     parser.add_argument('--cv-folds', type=int, default=10,
                        help='Nombre de folds pour CV')

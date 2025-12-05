@@ -78,7 +78,7 @@ Exemples d'utilisation:
     parser.add_argument('--json', action='store_true',
                        help='Sortie en format JSON')
     parser.add_argument('--model-path', type=str,
-                       default='models/tuned/naive_bayes_best.pkl',
+                       default='models/tuned/random_forest_best.pkl',
                        help='Chemin vers le modèle')
     
     args = parser.parse_args()

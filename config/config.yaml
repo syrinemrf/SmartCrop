@@ -18,8 +18,8 @@ data:
 
 # Model Configuration
 model:
-  name: "Naive Bayes"
-  path: "models/tuned/naive_bayes_best.pkl"
+  name: "Random Forest"
+  path: "models/tuned/random_forest_best.pkl"
   scaler_path: "models/scaler.pkl"
   label_encoder_path: "models/label_encoder.pkl"
 

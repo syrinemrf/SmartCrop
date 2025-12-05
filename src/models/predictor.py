@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class CropPredictor:
     """Classe pour effectuer des prédictions de cultures"""
     
-    def __init__(self, model_path: str = "models/tuned/naive_bayes_best.pkl"):
+    def __init__(self, model_path: str = "models/tuned/random_forest_best.pkl"):
         """
         Initialise le prédicteur
         
@@ -158,9 +158,9 @@ class CropPredictor:
         if self.model is None:
             self.load_model()
         
-        # Naive Bayes n'a pas de feature_importances_ mais on peut utiliser les variances
-        if hasattr(self.model, 'var_'):
-            importances = np.mean(self.model.var_, axis=0)
+        # Random Forest a feature_importances_
+        if hasattr(self.model, 'feature_importances_'):
+            importances = self.model.feature_importances_
             return {
                 name: float(imp) 
                 for name, imp in zip(self.feature_names, importances)

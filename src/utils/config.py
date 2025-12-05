@@ -36,8 +36,8 @@ class Config:
                 'random_state': 42
             },
             'model': {
-                'name': 'Naive Bayes',
-                'path': 'models/tuned/naive_bayes_best.pkl'
+                'name': 'Random Forest',
+                'path': 'models/tuned/random_forest_best.pkl'
             },
             'training': {
                 'cv_folds': 10,

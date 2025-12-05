@@ -1,8 +1,7 @@
 {
-    "model_name": "Naive Bayes",
-    "best_params": {},
-    "cv_score": 0.9948863636363635,
-    "test_score": 0.9954545454545455,
-    "train_score": 0.9948863636363636,
-    "time": 0.05329108238220215
+  "model_name": "Random Forest",
+  "train_score": 0.9965909090909091,
+  "test_score": 0.9954545454545455,
+  "cv_score": 0.9943181818181819,
+  "cv_std": 0.005681818181818188
 }
