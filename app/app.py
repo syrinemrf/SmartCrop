@@ -12,8 +12,9 @@ import sys
 from pathlib import Path
 import pandas as pd
 
-# Ajouter le chemin src au PYTHONPATH
+# Ajouter le chemin src et app au PYTHONPATH
 sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from src.models.predictor import CropPredictor
 from src.utils.logger import setup_logger
