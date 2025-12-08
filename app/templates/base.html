@@ -374,7 +374,11 @@
                     let rainArr = (data.daily && data.daily.precipitation_sum) ? data.daily.precipitation_sum : [];
                     let tempMean = tempArr.length ? (tempArr.reduce((a,b)=>a+b,0)/tempArr.length).toFixed(1) : '';
                     let humMean = humArr.length ? (humArr.reduce((a,b)=>a+b,0)/humArr.length).toFixed(1) : '';
-                    let rainMean = rainArr.length ? (rainArr.reduce((a,b)=>a+b,0)/rainArr.length).toFixed(1) : '';
+                    // For rainfall, we need TOTAL precipitation over the period, not average per day
+                    // Calculate total rainfall and convert to monthly average (agriculture uses mm/month)
+                    let rainTotal = rainArr.length ? rainArr.reduce((a,b)=>a+b,0) : 0;
+                    let daysInPeriod = rainArr.length || 1;
+                    let rainMean = rainTotal > 0 ? ((rainTotal / daysInPeriod) * 30).toFixed(1) : ''; // Convert to monthly equivalent
                     document.getElementById('temperature').value = tempMean;
                     document.getElementById('humidity').value = humMean;
                     document.getElementById('rainfall').value = rainMean;
